@@ -31,7 +31,7 @@ class BioRvixDatabaseUtils:
 
         Examples::
 
-            >>> create_article("10.1234/abcd", author="John Doe", title="Sample Article")
+            >>> BioRvixDatabaseUtils.create_article("10.1234/abcd", author="John Doe", title="Sample Article")
             <Article object at 0x12345678>
 
         """
