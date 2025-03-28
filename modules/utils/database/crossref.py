@@ -1,6 +1,7 @@
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Optional
 
 from modules.behavioural.mediator_design_pattern import ArticleLinkTypeMediator
+from modules.building_block import Article
 from modules.creational.factory_design_pattern import ArticleFactory
 
 """
@@ -60,11 +61,7 @@ def process_publication_info(doi: str, result: Dict):
 
     """
     # update publication related objects
-    from modules.creational.factory_design_pattern import ArticleFactory
-
-    from modules.building_block import Article
-
-    article: Article = ArticleFactory.get_base_object(doi)
+    article: Optional[Article] = ArticleFactory().get_factory_object(doi)
     # get publication list
     tmp = process_link(result['link'], 'content-type', 'application/xml')
     if tmp is None or valid_link(tmp) is False:
@@ -93,12 +90,12 @@ def process_link(links: List[Dict], key: str, value: str) -> Union[str, None]:
 
 
 def valid_link(url: str) -> bool:
-    from modules.utils.database.process_query_results import connect_url
+    from modules.behavioural.database.query import Query
 
     from requests import HTTPError
 
     try:
-        result = connect_url(0, url)
+        result = Query.retrieve_web_data(url, 0)
         print(result)
         return True
     except HTTPError:
@@ -109,7 +106,7 @@ if __name__ == '__main__':
     # get_publication_info('10.5555/515151')
     # get_publication_info("10.1101/104778")
     factory = ArticleFactory()
-    print(factory.create_base_object(identifier="10.1038/s41598-017-04402-4"))
+    print(factory().create_base_object(identifier="10.1038/s41598-017-04402-4"))
     get_publication_info("10.1038/s41598-017-04402-4")
     # get_publication_info("10.1109/MM.2019.2910009")
     # valid_link('https://www.nature.com/articles/s41598-017-04402-4.pdf')

@@ -104,7 +104,7 @@ class ArticleFactory(AbstractSingletonFactory):
         self._update_factory_map(identifier, articles)
         return base_object
 
-    def get_factory_object(self, identifier: str, **kwargs) -> Optional[Article]:
+    def get_factory_object(self, identifier: str, **kwargs: object) -> Optional[Article]:
         result: Optional[SortedList] = super().get_factory_object(identifier)
         if result is not None:
             result = result.__getitem__(0)
