@@ -1,11 +1,9 @@
+from typing import Dict
+
 from sortedcontainers import SortedList
 
+import modules.utils.common_functions as utils
 from modules.building_block import *
-
-from abc import ABC
-from types import ModuleType
-from importlib import import_module
-from typing import Any, Dict
 
 
 class AbstractSingletonFactory(ABC):
@@ -14,30 +12,14 @@ class AbstractSingletonFactory(ABC):
 
     @classmethod
     def __new__(cls, *args, **kwargs):
-
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._lock, cls._instance._rlock, cls._instance._wlock = Utils.initiating_rwlock()
         return cls._instance
 
-    def _import_class(self, path: str) -> Any:
-        module_path, _, class_name = path.rpartition('.')
-        class_: Any
-        try:
-            module: ModuleType = self._import_module(module_path)
-            try:
-                class_ = getattr(module, class_name)
-            except AttributeError:
-                raise RuntimeError(f'Class does not exist: {class_name}')
-        except ImportError:
-            raise RuntimeError(f'Module does not exist: {module_path}')
-        return class_
-
-    def _import_module(self, module_path: str) -> ModuleType:
-        """
-        Import and return a module defined in the given path.
-        """
-        return import_module(module_path)
+    @classmethod
+    def _import_class(cls, path: str) -> Any:
+        return utils.import_class(path)
 
     def create_factory_object(self, identifier: str, class_path: str, *args, **kwargs) -> Any:
         """
