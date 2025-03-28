@@ -2,7 +2,7 @@ from abc import ABC
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List, Any, Type, Tuple
+from typing import Optional, List, Any, Tuple
 
 from readerwriterlock import rwlock
 

@@ -33,8 +33,8 @@ def pdf_to_text(path: Path, layout: LAParams = None):
     device = TextConverter(manager, retstr, laparams=layout)
     interpreter = PDFPageInterpreter(manager, device)
     with open(path, 'rb') as filepath:
-        for page in PDFPage.get_pages(filepath, check_extractable=True):
-            interpreter.process_page(page)
+        for pg in PDFPage.get_pages(filepath, check_extractable=True):
+            interpreter.process_page(pg)
     text = retstr.getvalue()
     device.close()
     retstr.close()
@@ -111,7 +111,7 @@ def compare_pdf_tags(e1: LTComponent, e2: LTComponent) -> bool:
 def sort_pdf_tags(layout: List[List[LTComponent]], attr: str, reverse: bool = False) -> List[List[LTComponent]]:
     from operator import attrgetter
 
-    return [sorted(page, key=attrgetter(attr), reverse=reverse) for page in layout]
+    return [sorted(pg, key=attrgetter(attr), reverse=reverse) for pg in layout]
 
 
 if __name__ == "__main__":

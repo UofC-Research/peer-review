@@ -1,9 +1,3 @@
-import pprint
-from importlib import import_module
-from types import ModuleType
-from typing import Dict
-
-from readerwriterlock import rwlock
 from sortedcontainers import SortedList
 
 from modules.building_block import *
@@ -109,15 +103,15 @@ class ArticleFactory(AbstractSingletonFactory):
 
     def create_base_object(self, identifier: str, classpath: str, *args, **kwargs) -> Article:
         """
-        :param identifier: A string representing the identifier of the object to be created.
-        :param args: Additional positional arguments to be passed to the object's constructor.
-        :param kwargs: Additional keyword arguments to be passed to the object's constructor.
-        :return: The created object of type Article.
+        Creates a base object using the provided identifier, classpath, and additional parameters.
+        This method updates the factory map with the newly created object and ensures that the
+        object is stored in a SortedList, maintaining order by version.
 
-        This method creates a new object of type Article with the given identifier and optional arguments in the .
-        The identifier parameter is used to update the 'doi' keyword argument in kwargs. The new object is then added
-        to a SortedList associated with the identifier in the _factory_map attribute of the
-        calling object. Finally, the new object is returned.
+        :param identifier: A unique identifier for the object
+        :param classpath: The class path string from which to import the object class
+        :param args: Positional arguments to pass to the class constructor
+        :param kwargs: Keyword arguments to pass to the class constructor
+        :return: The created base object of type `Article`
         """
 
         kwargs.update(doi=identifier)

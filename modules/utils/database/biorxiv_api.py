@@ -11,6 +11,7 @@ from modules.building_block import Journal, Article, Publication
 from modules.creational.factory_design_pattern import JournalFactory, PublicationFactory
 from modules.utils.database.process_query_results import QueryUtils
 
+
 PUBLICATION_PATH = Publication.__module__ + '.' + Publication.__qualname__
 ARTICLE_PATH = Article.__module__ + '.' + Article.__qualname__
 JOURNAL_PATH = Journal.__module__ + '.' + Journal.__qualname__
