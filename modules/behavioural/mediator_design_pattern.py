@@ -5,7 +5,6 @@ from typing import Dict, Tuple, Union, Any, Optional, List
 
 import pyspark
 from pyspark.sql import SparkSession
-from readerwriterlock import rwlock
 from sortedcontainers import SortedList, SortedDict
 
 from modules.building_block import MediatorKey, Institution, Publication, Article, InteractionType, Utils
@@ -152,3 +151,7 @@ class PublishedPrepubArticleMediator(Mediator):
     def convert_pub_doi_to_doi(self, pub_doi: str) -> str:
         first_article = self.get_first_stored_article_version(pub_doi)
         return first_article.doi if first_article else ""
+
+
+class ArticleLinkTypeMediator:
+    pass
