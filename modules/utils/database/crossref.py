@@ -1,5 +1,6 @@
 from typing import List, Dict, Union, Optional
 
+from modules.behavioural.database.query import Query
 from modules.behavioural.mediator_design_pattern import ArticleLinkTypeMediator
 from modules.building_block import Article
 from modules.creational.factory_design_pattern import ArticleFactory
@@ -64,9 +65,10 @@ def process_publication_info(doi: str, result: Dict):
     article: Optional[Article] = ArticleFactory().get_factory_object(doi)
     # get publication list
     tmp = process_link(result['link'], 'content-type', 'application/xml')
-    if tmp is None or valid_link(tmp) is False:
+    valid = Query.uri_validator(tmp)
+    if tmp is None or valid is False:
         tmp = process_link(result['link'], 'content-type', 'application/pdf')
-        if tmp is None or valid_link(tmp) is False:
+        if tmp is None or valid is False:
             ArticleLinkTypeMediator().add_object('web', article)
         else:
             # add url to article
@@ -79,6 +81,18 @@ def process_publication_info(doi: str, result: Dict):
 
 
 def process_link(links: List[Dict], key: str, value: str) -> Union[str, None]:
+    """
+    Processes a list of link dictionaries to find and return a specific URL based
+    on a provided key and value match.
+
+    :param links: A list of dictionaries, where each dictionary represents a link
+        with various key-value pairs describing its properties.
+    :param key: A string representing the key to search for in each dictionary.
+    :param value: A string representing the value to match against the specified key.
+    :return: A string containing the URL associated with the matching link if found;
+        otherwise, returns None.
+    """
+
     for link in links:
         tmp = link.get(key)
         if tmp is None:
@@ -89,6 +103,8 @@ def process_link(links: List[Dict], key: str, value: str) -> Union[str, None]:
     return None
 
 
+'''
+for testing
 def valid_link(url: str) -> bool:
     from modules.behavioural.database.query import Query
 
@@ -100,6 +116,7 @@ def valid_link(url: str) -> bool:
         return True
     except HTTPError:
         return False
+'''
 
 
 if __name__ == '__main__':
