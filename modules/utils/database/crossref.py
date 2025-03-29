@@ -67,15 +67,15 @@ def process_publication_info(doi: str, result: Dict):
     if tmp is None or valid_link(tmp) is False:
         tmp = process_link(result['link'], 'content-type', 'application/pdf')
         if tmp is None or valid_link(tmp) is False:
-            ArticleLinkTypeMediator.add_object('web', article)
+            ArticleLinkTypeMediator().add_object('web', article)
         else:
             # add url to article
             article.publication_link = tmp
-            ArticleLinkTypeMediator.add_object('pdf', article)
+            ArticleLinkTypeMediator().add_object('pdf', article)
     else:
         # add url to article
         article.publication_link = tmp
-        ArticleLinkTypeMediator.add_object('xml', article)
+        ArticleLinkTypeMediator().add_object('xml', article)
 
 
 def process_link(links: List[Dict], key: str, value: str) -> Union[str, None]:

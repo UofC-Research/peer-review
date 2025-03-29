@@ -16,14 +16,14 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Mediator(ABC):
     _instance = None
-
+    _mediator_map: Dict[
+        Union[MediatorKey, str], Union[SortedList[Any], SortedDict[int, Article]]]
     @classmethod
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._lock, cls._instance._rlock, cls._instance._wlock = Utils.initiating_rwlock()
-            cls._instance._mediator_map: Dict[
-                Union[MediatorKey, str], Union[SortedList[Any], SortedDict[int, Article]]] = {}
+            cls._instance._mediator_map = {}
         return cls._instance
 
     @property
@@ -153,5 +153,10 @@ class PublishedPrepubArticleMediator(Mediator):
         return first_article.doi if first_article else ""
 
 
-class ArticleLinkTypeMediator:
-    pass
+class ArticleLinkTypeMediator(Mediator):
+    def add_object(self, link_type, article: Article):
+        article_list: SortedList[Article] = self.get_object(link_type) or SortedList()
+        super().add_object(link_type, article_list.add(article))
+
+    def get_object(self, link_type) -> Optional[SortedList[Article]]:
+        return super().get_object(link_type)
