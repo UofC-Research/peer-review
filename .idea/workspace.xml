@@ -1,0 +1,962 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="BuildServerSettings">
+    <option name="LOGIN" value="bert" />
+    <option name="SERVER_URL" value="http://localhost:8111" />
+    <treeState key="changes">
+      <selectedPath>
+        <pathElement>
+          <option name="myNodeId" value="helperText" />
+          <option name="myNodeType" value="jetbrains.buildServer.tree.descriptors.LinkedTextDescriptor" />
+        </pathElement>
+      </selectedPath>
+    </treeState>
+    <treeState key="project">
+      <selectedPath>
+        <pathElement>
+          <option name="myNodeId" value="helperText" />
+          <option name="myNodeType" value="jetbrains.buildServer.tree.descriptors.LinkedTextDescriptor" />
+        </pathElement>
+      </selectedPath>
+    </treeState>
+    <treeState key="responsibilities">
+      <selectedPath>
+        <pathElement>
+          <option name="myNodeId" value="helperText" />
+          <option name="myNodeType" value="jetbrains.buildServer.tree.descriptors.LinkedTextDescriptor" />
+        </pathElement>
+      </selectedPath>
+    </treeState>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="a81b2edd-87d0-45c1-9cee-f3621d0b9936" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/analysis/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/analysis/classification.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/analysis/comparison.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/analysis/reviewer_sentiment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/analysis/semantic_analysis.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/data_acquisition/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/data_acquisition/metadata_fetcher.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/data_acquisition/pdf_parser.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/modeling/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/modeling/causal_inference.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/modeling/predictive_modeling.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/modeling/statistical_modeling.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pipeline.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/reporting/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/reporting/dashboard.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/reporting/report_generator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/reporting/visualization.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/credentials.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/io_utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/notifications.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/setup.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/setup.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pipeline/advanced_nlp.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pipeline/causal_inference.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pipeline/data_manager.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pipeline/geospatial_analysis.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pipeline/meta_analysis.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pipeline/network_analysis.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pipeline/pipeline_runner.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pipeline/predictive_modeling.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/conftest.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_geospatial_analysis.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_meta_analysis.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_network_analysis.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_predictive_modeling.py" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="al" />
+        <option value="Albert &lt;1319401+alby1976@users.noreply.github.com&gt;" />
+        <option value="Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;" />
+      </list>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="Albert-2022" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="SIGN_OFF_COMMIT" value="true" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;alby1976&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:/jlee2843/Peer-Review-22-23.git&quot;,
+    &quot;accountId&quot;: &quot;6a07ad67-2727-4b4e-ab5d-938af5ba1053&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$USER_HOME$/.conda/envs/Peer-Review-22-23/Lib/pathlib.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/venv1/Lib/site-packages/asn1crypto/core.py" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2NWa60GosmLsGpJqd224JsZC17T" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python tests.pytest in test_PathManager.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_Settings.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_Settingspy.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_biorxiv_api.py (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_biorxiv_api.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_building_block.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_factory_design_pattern.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_mediator_design_pattern.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Unnamed.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.csr.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_PathManager.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;chatGPT-Pipeline&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/alber/PycharmProjects/Peer/tests/utils&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;GitStage.ChangesTree.GroupingKeys&quot;: [
+      &quot;directory&quot;,
+      &quot;module&quot;,
+      &quot;repository&quot;
+    ]
+  }
+}</component>
+  <component name="PyCoverageOptionsProvider">
+    <option name="myUseBundledCoveragePy" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\alber\PycharmProjects\Peer\src" />
+      <recent name="C:\Users\alber\PycharmProjects\Peer\tests\utils\file" />
+      <recent name="C:\Users\alber\PycharmProjects\Peer\tests\utils\database" />
+      <recent name="C:\Users\alber\PycharmProjects\Peer\tests\utils\" />
+      <recent name="C:\Users\alber\PycharmProjects\Peer\modules\utils\file" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.Unnamed">
+    <configuration name="Unnamed" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="Peer" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.11 (Peer)" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="--common-name wecareconsultinginc.ca --Organization &quot;We Care Consulting Inc.&quot; --key-id 0x1234 --authykey 0x0001 --password John3:16;Eph2:8-10" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in C:/Users/alber/PycharmProjects/Peer/tests/behavioural/test_mediator_design_pattern.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="Peer" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/behavioural" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/behavioural/test_mediator_design_pattern.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in C:/Users/alber/PycharmProjects/Peer/tests/creational/test_factory_design_pattern.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="Peer" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/creational" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/creational/test_factory_design_pattern.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in C:/Users/alber/PycharmProjects/Peer/tests/utils/database/test_biorxiv_api.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="Peer" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/utils" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/utils/database/test_biorxiv_api.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in C:/Users/alber/PycharmProjects/Peer/tests/utils/test_Settings.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="Peer" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/utils" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/utils/test_Settings.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in test_biorxiv_api.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="Peer" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/utils" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/utils/test_biorxiv_api.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.Unnamed" />
+      <item itemvalue="Python tests.pytest in test_biorxiv_api.py" />
+      <item itemvalue="Python tests.pytest in C:/Users/alber/PycharmProjects/Peer/tests/behavioural/test_mediator_design_pattern.py" />
+      <item itemvalue="Python tests.pytest in C:/Users/alber/PycharmProjects/Peer/tests/creational/test_factory_design_pattern.py" />
+      <item itemvalue="Python tests.pytest in C:/Users/alber/PycharmProjects/Peer/tests/utils/database/test_biorxiv_api.py" />
+      <item itemvalue="Python tests.pytest in C:/Users/alber/PycharmProjects/Peer/tests/utils/test_Settings.py" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python tests.pytest in C:/Users/alber/PycharmProjects/Peer/tests/behavioural/test_mediator_design_pattern.py" />
+        <item itemvalue="Python tests.pytest in C:/Users/alber/PycharmProjects/Peer/tests/creational/test_factory_design_pattern.py" />
+        <item itemvalue="Python tests.pytest in C:/Users/alber/PycharmProjects/Peer/tests/utils/database/test_biorxiv_api.py" />
+        <item itemvalue="Python tests.pytest in C:/Users/alber/PycharmProjects/Peer/tests/utils/test_Settings.py" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-f27c65a3e318-JavaScript-PY-251.23774.444" />
+        <option value="bundled-python-sdk-890ed5b35930-d9c5bdb153f4-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.23774.444" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration>C:\Users\alber\AppData\Roaming\Subversion</configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a81b2edd-87d0-45c1-9cee-f3621d0b9936" name="Changes" comment="" />
+      <created>1679782123060</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1679782123060</updated>
+      <workItem from="1679782124612" duration="156000" />
+      <workItem from="1679782488723" duration="2417000" />
+      <workItem from="1679831448298" duration="7104000" />
+      <workItem from="1679932889566" duration="416000" />
+      <workItem from="1679974772276" duration="38188000" />
+      <workItem from="1680142523722" duration="4879000" />
+      <workItem from="1680402350915" duration="615000" />
+      <workItem from="1681440343178" duration="190000" />
+      <workItem from="1681440635075" duration="1782000" />
+      <workItem from="1681450465529" duration="2264000" />
+      <workItem from="1681453424974" duration="617000" />
+      <workItem from="1681485387546" duration="2135000" />
+      <workItem from="1681595498637" duration="17580000" />
+      <workItem from="1681700088313" duration="5264000" />
+      <workItem from="1681833525842" duration="17660000" />
+      <workItem from="1682177706152" duration="4776000" />
+      <workItem from="1682277331385" duration="6021000" />
+      <workItem from="1682297164667" duration="5236000" />
+      <workItem from="1682394562809" duration="6837000" />
+      <workItem from="1682717437766" duration="18447000" />
+      <workItem from="1683085991240" duration="949000" />
+      <workItem from="1683087956986" duration="86000" />
+      <workItem from="1683088805209" duration="186000" />
+      <workItem from="1683090999033" duration="1723000" />
+      <workItem from="1683092792184" duration="23528000" />
+      <workItem from="1684634957610" duration="640000" />
+      <workItem from="1684641302647" duration="749000" />
+      <workItem from="1685671523958" duration="320000" />
+      <workItem from="1686104930252" duration="903000" />
+      <workItem from="1686194756514" duration="2703000" />
+      <workItem from="1686625793112" duration="5945000" />
+      <workItem from="1686879441150" duration="9968000" />
+      <workItem from="1686978520045" duration="13768000" />
+      <workItem from="1687143773073" duration="2148000" />
+      <workItem from="1687486478064" duration="4172000" />
+      <workItem from="1687581447160" duration="1087000" />
+      <workItem from="1687923648345" duration="10103000" />
+      <workItem from="1688844372489" duration="155000" />
+      <workItem from="1688844839410" duration="3892000" />
+      <workItem from="1689133179957" duration="1605000" />
+      <workItem from="1689134828169" duration="656000" />
+      <workItem from="1689393187178" duration="12701000" />
+      <workItem from="1689513721711" duration="5099000" />
+      <workItem from="1689737192707" duration="40352000" />
+      <workItem from="1689907852722" duration="3182000" />
+      <workItem from="1692577104997" duration="224000" />
+      <workItem from="1692577447766" duration="3928000" />
+      <workItem from="1692839092043" duration="2033000" />
+      <workItem from="1692841242649" duration="3694000" />
+      <workItem from="1692845046938" duration="6548000" />
+      <workItem from="1706788288256" duration="186000" />
+      <workItem from="1706788700058" duration="147000" />
+      <workItem from="1706789028969" duration="1089000" />
+      <workItem from="1718946043035" duration="124000" />
+      <workItem from="1718946362950" duration="256000" />
+      <workItem from="1719065359420" duration="704000" />
+      <workItem from="1719066314013" duration="767000" />
+      <workItem from="1719070672045" duration="114000" />
+      <workItem from="1719070817067" duration="7880000" />
+      <workItem from="1719127188105" duration="474000" />
+      <workItem from="1719127700562" duration="111000" />
+      <workItem from="1719127918762" duration="2594000" />
+      <workItem from="1719133721366" duration="3127000" />
+      <workItem from="1719137128343" duration="654000" />
+      <workItem from="1719137889154" duration="484000" />
+      <workItem from="1719138402532" duration="1192000" />
+      <workItem from="1720283498887" duration="25087000" />
+      <workItem from="1720368808673" duration="1741000" />
+      <workItem from="1720384495137" duration="87000" />
+      <workItem from="1720384721447" duration="133000" />
+      <workItem from="1720384872221" duration="2340000" />
+      <workItem from="1720397782152" duration="4614000" />
+      <workItem from="1720407735053" duration="4410000" />
+      <workItem from="1720500435616" duration="3104000" />
+      <workItem from="1720580369109" duration="441000" />
+      <workItem from="1720580954066" duration="10731000" />
+      <workItem from="1720889836450" duration="570000" />
+      <workItem from="1720934083764" duration="621000" />
+      <workItem from="1721194113091" duration="1634000" />
+      <workItem from="1721270514677" duration="12420000" />
+      <workItem from="1721361178862" duration="16109000" />
+      <workItem from="1721449303985" duration="13753000" />
+      <workItem from="1721496361946" duration="1061000" />
+      <workItem from="1721513842443" duration="10150000" />
+      <workItem from="1721622067088" duration="3443000" />
+      <workItem from="1721702939278" duration="5458000" />
+      <workItem from="1721970259452" duration="4398000" />
+      <workItem from="1722186709757" duration="472000" />
+      <workItem from="1722573013960" duration="674000" />
+      <workItem from="1722658426053" duration="320000" />
+      <workItem from="1722658889316" duration="1992000" />
+      <workItem from="1722705080724" duration="3789000" />
+      <workItem from="1722751246078" duration="4968000" />
+      <workItem from="1722923128078" duration="6905000" />
+      <workItem from="1723002210162" duration="4113000" />
+      <workItem from="1723083022934" duration="1550000" />
+      <workItem from="1723092872689" duration="6246000" />
+      <workItem from="1723099792892" duration="2110000" />
+      <workItem from="1723168908349" duration="948000" />
+      <workItem from="1723169888145" duration="331000" />
+      <workItem from="1723170258345" duration="459000" />
+      <workItem from="1723170732417" duration="5706000" />
+      <workItem from="1723259327744" duration="3638000" />
+      <workItem from="1723273552600" duration="12615000" />
+      <workItem from="1723698502403" duration="373000" />
+      <workItem from="1723698923184" duration="382000" />
+      <workItem from="1723699330863" duration="79000" />
+      <workItem from="1723699562140" duration="576000" />
+      <workItem from="1723814900760" duration="1508000" />
+      <workItem from="1723867108300" duration="190000" />
+      <workItem from="1724119377019" duration="15583000" />
+      <workItem from="1724205553860" duration="11869000" />
+      <workItem from="1724303307081" duration="1398000" />
+      <workItem from="1724385979041" duration="10683000" />
+      <workItem from="1724517793335" duration="2386000" />
+      <workItem from="1724610899780" duration="2261000" />
+      <workItem from="1724636477457" duration="8406000" />
+      <workItem from="1724734100723" duration="3890000" />
+      <workItem from="1724814983150" duration="15934000" />
+      <workItem from="1724938412603" duration="22443000" />
+      <workItem from="1725402808111" duration="634000" />
+      <workItem from="1725419816311" duration="680000" />
+      <workItem from="1725422252878" duration="134000" />
+      <workItem from="1725422400069" duration="3286000" />
+      <workItem from="1725467142169" duration="140000" />
+      <workItem from="1725467295923" duration="81000" />
+      <workItem from="1725513357891" duration="4959000" />
+      <workItem from="1725546960783" duration="70000" />
+      <workItem from="1725684854798" duration="14719000" />
+      <workItem from="1725769860977" duration="6600000" />
+      <workItem from="1725852764849" duration="3915000" />
+      <workItem from="1725943253149" duration="572000" />
+      <workItem from="1725943870827" duration="6987000" />
+      <workItem from="1725993721020" duration="640000" />
+      <workItem from="1726017639002" duration="11014000" />
+      <workItem from="1726191337721" duration="3537000" />
+      <workItem from="1726311104255" duration="4521000" />
+      <workItem from="1726449215423" duration="1776000" />
+      <workItem from="1726519520377" duration="1370000" />
+      <workItem from="1726808011762" duration="1185000" />
+      <workItem from="1726809783144" duration="788000" />
+      <workItem from="1726812673363" duration="680000" />
+      <workItem from="1726816011198" duration="5487000" />
+      <workItem from="1727232538334" duration="1360000" />
+      <workItem from="1727930586087" duration="2017000" />
+      <workItem from="1735146166611" duration="616000" />
+      <workItem from="1735189539821" duration="672000" />
+      <workItem from="1735196467819" duration="30000" />
+      <workItem from="1735411278237" duration="1083000" />
+      <workItem from="1737395404647" duration="801000" />
+      <workItem from="1741665399140" duration="390000" />
+      <workItem from="1741665979878" duration="2773000" />
+      <workItem from="1742783972231" duration="1566000" />
+      <workItem from="1743188770061" duration="2330000" />
+      <workItem from="1743194229878" duration="8733000" />
+      <workItem from="1743219670347" duration="9585000" />
+      <workItem from="1743359568651" duration="2504000" />
+      <workItem from="1743915920156" duration="873000" />
+      <workItem from="1744462519218" duration="16386000" />
+      <workItem from="1744949606403" duration="2494000" />
+      <workItem from="1744952246830" duration="183000" />
+      <workItem from="1744952493835" duration="144000" />
+      <workItem from="1744952735588" duration="6162000" />
+      <workItem from="1745008525239" duration="5447000" />
+      <workItem from="1745033343287" duration="2308000" />
+      <workItem from="1745078673361" duration="1922000" />
+      <workItem from="1745703727527" duration="9072000" />
+      <workItem from="1745900882178" duration="1126000" />
+      <workItem from="1747100923616" duration="2385000" />
+      <workItem from="1762558745608" duration="4360000" />
+      <workItem from="1762584505747" duration="787000" />
+      <workItem from="1762585396117" duration="685000" />
+    </task>
+    <task id="LOCAL-00001" summary="Create Crossref.py file&#10;&#10;Added stubs to Crossref.py so that the corresponding&#10;database can be queried and the objects related to&#10;Publications can be instantiated and the relationships&#10;between objects can be visualized. In addition, the&#10;comparisons between the initial and final version of each&#10;publication and be made.&#10;&#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1679933010433</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1679933010433</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Create Crossref.py file&#10;&#10;Added stubs to Crossref.py so that the corresponding&#10;database can be queried and the objects related to&#10;Publications can be instantiated and the relationships&#10;between objects can be visualized. In addition, the&#10;comparisons between the initial and final version of each&#10;publication and be made.&#10;&#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1679933105586</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1679933105587</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Create Crossref.py file&#10;&#10;Added stubs to Crossref.py so that the corresponding&#10;database can be queried and the objects related to&#10;Publications can be instantiated and the relationships&#10;between objects can be visualized. In addition, the&#10;comparisons between the initial and final version of each&#10;publication and be made.&#10;&#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1679977020414</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1679977020414</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Create test submodule&#10;&#10;To implement the test-driven development to implement the basic block&#10;and functionality so that relationships between&#10;publications, institution, departments, and categories can be mapped and&#10;visualized.&#10; &#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1680232833842</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1680232833842</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Implement Article Object&#10;&#10;To implement the test-driven development to implement the basic block&#10;and functionality so that relationships between&#10;publications, institution, departments, and categories can be mapped and&#10;visualized.&#10; &#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1681485467266</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1681485467266</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Implement Article Object&#10;&#10;To implement the test-driven development to implement the basic block&#10;and functionality so that relationships between&#10;publications, institution, departments, and categories can be mapped and&#10;visualized.&#10; &#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1681499545134</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1681499545134</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Implement Article Object&#10;&#10;To implement the test-driven development to implement the basic block&#10;and functionality so that relationships between&#10;publications, institution, departments, and categories can be mapped and&#10;visualized.&#10; &#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1681743964740</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1681743964740</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Implement Article Object&#10;&#10;To implement the test-driven development to implement the basic block&#10;and functionality so that relationships between&#10;publications, institution, departments, and categories can be mapped and&#10;visualized.&#10; &#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1681833647180</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1681833647181</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Implement Article Object&#10;&#10;To implement the test-driven development to implement the basic block&#10;and functionality so that relationships between&#10;publications, institution, departments, and categories can be mapped and&#10;visualized.&#10; &#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1682005244631</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1682005244631</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Implement Article Object&#10;&#10;To implement the test-driven development to implement the basic block&#10;and functionality so that relationships between&#10;publications, institution, departments, and categories can be mapped and&#10;visualized.&#10; &#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1682088425052</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1682088425053</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Implement doi publication list &#10;&#10;Using test-driven development this functionality was implement. Since &#10;not all the  article in preprint service have been published so a special&#10;list that contains to the doi to the published article.&#10; &#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1682280072159</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1682280072159</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Implement PubPrepubArticleMediator &#10;&#10;Using test-driven development this functionality was implement. Since &#10;not all the  article in preprint service have been published so a special&#10;list that contains to the doi to the published article. ArticleFactory stores&#10;the prepublication doi and there is no easy way to receive the corrsponding &#10;article from the doi of the published article. With this class one will be able&#10;to retrieve the corresponding article.&#10;&#10;NB: PublishedPrepubArticleMediator stores the earliest version of the &#10;prepublished article. Currently, this may not be the initial version of the&#10;article but will be rectified in the future.&#10; &#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1682345898804</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1682345898805</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Implement Publication object and PublicationFactory &#10;&#10;Using test-driven development this functionality was implement. With this&#10;class one will be able to retrieve the corresponding article and journal.&#10;Publication object is implemented for eliciting the relationship between&#10;publication and institution and categories.&#10;&#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1683170046810</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1683170046811</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Implement Publication object and PublicationFactory &#10;&#10;Using test-driven development this functionality was implement. With this&#10;class one will be able to retrieve the corresponding article and journal.&#10;Publication object is implemented for eliciting the relationship between&#10;publication and institution and categories.&#10;&#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1683170450174</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1683170450174</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Implement pdf_manipulation.py&#10;&#10;Using test-driven development this functionality was implement. With this&#10;implementation one would be able to manipulate pdf files. This is needed&#10;for textual analysis between the pre-publication article and the published&#10;article. &#10;&#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1686632183029</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1686632183029</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Implement pdf_manipulation.py&#10;&#10;Using test-driven development this functionality was implement. With this&#10;implementation one is able to get directory and subdirectory content&#10;list which is need to process all pdfs in a particular directory and&#10;subdirectory. &#10;&#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1686663504438</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1686663504438</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Implement pdf_manipulation.py&#10;&#10;Using test-driven development this functionality was implement. With this&#10;implementation one is able to extract pdf elements and text which is&#10;need to do the comparison between the published article and its initial&#10;version. &#10;&#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1686922476821</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1686922476821</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Implement pdf_manipulation.py&#10;&#10;Using test-driven development this functionality was implement. With this&#10;implementation one is able to extract pdf elements and text which is&#10;need to do the comparison between the published article and its initial&#10;version. &#10;&#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1687152664421</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1687152664421</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Implement pdf_manipulation.py&#10;&#10;Using test-driven development this functionality was implement. With this&#10;implementation one is able to extract pdf elements and text which is&#10;need to do the comparison between the published article and its initial&#10;version. &#10;&#10;An issue occurred with conversion from pdf to txt. There are times when&#10;the converted txt does not match the paragraph flow found in the pdf document.&#10;Looking at different solutions to resolve this issue.&#10;&#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1687581919155</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1687581919155</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Implement pdf_manipulation.py&#10;&#10;Using test-driven development this functionality was implement. With this&#10;implementation one is able to extract pdf elements and text which is&#10;need to do the comparison between the published article and its initial&#10;version. &#10;&#10;An issue occurred with conversion from pdf to txt. There are times when&#10;the converted txt does not match the paragraph flow found in the pdf document.&#10;Looking at different solutions to resolve this issue.&#10;&#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <created>1687962174385</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1687962174385</updated>
+    </task>
+    <task id="LOCAL-00052" summary="Refactor and fix typos in BioRvix API module&#10;&#10;Corrected typos in module docstrings and comments for better readability. Refactored the `create_query_list` function to use `BioRvixQuery` instead of `Query` for improved functionality.">
+      <option name="closed" value="true" />
+      <created>1724915293812</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1724915293812</updated>
+    </task>
+    <task id="LOCAL-00053" summary="Set default value for _result in Query class&#10;&#10;The _result field in the Query class is now initialized with a default value of None. This ensures that _result is always defined, even if not explicitly set during object instantiation. The change improves the robustness and reliability of the Query class.">
+      <option name="closed" value="true" />
+      <created>1724942864706</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1724942864707</updated>
+    </task>
+    <task id="LOCAL-00054" summary="Add function to process query list concurrently&#10;&#10;Introduce process_query_list to execute BioRvixQuery instances in parallel using thread_map from tqdm. This enhances efficiency by processing multiple queries simultaneously.">
+      <option name="closed" value="true" />
+      <created>1724942923096</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1724942923096</updated>
+    </task>
+    <task id="LOCAL-00055" summary="Add QueryFactory and BioRvixQueryFactory classes&#10;&#10;Introduce `QueryFactory` as an abstract base class for query creation and processing, and `BioRvixQueryFactory` as a specific implementation using the Singleton pattern. These classes streamline the generation, execution, and result extraction of queries. Additionally, moved related functions to `biorxiv_api.py` while cleaning up redundant code.">
+      <option name="closed" value="true" />
+      <created>1725427362936</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1725427362937</updated>
+    </task>
+    <task id="LOCAL-00056" summary="Refactor query classes and clean up code&#10;&#10;Streamline docstrings and simplify the representation of attributes and methods in `Query` and `BioRvixQuery` classes. Also, alter the type of `VALID_ATTRIBUTES` and remove unnecessary imports.">
+      <option name="closed" value="true" />
+      <created>1725427394906</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1725427394906</updated>
+    </task>
+    <task id="LOCAL-00057" summary="Refactor QueryFactory and update BioRvixQueryFactory usage&#10;&#10;Removed ABC inheritance from QueryFactory and applied Singleton pattern. Updated BioRvixQueryFactory to directly use methods from QueryFactory. Adjusted test cases to reflect these changes and corrected pandas import alias in docstring example.">
+      <option name="closed" value="true" />
+      <created>1725541823993</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1725541823993</updated>
+    </task>
+    <task id="LOCAL-00058" summary="Fix incorrect import in function example.&#10;&#10;Corrected the import alias and dataframe initialization in the docstring example for clarity and accuracy. This ensures proper usage instructions for users referring to the example.">
+      <option name="closed" value="true" />
+      <created>1725546590725</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1725546590725</updated>
+    </task>
+    <task id="LOCAL-00059" summary="Refactor lock mechanism and add new features.&#10;&#10;Reorganized the lock mechanism in Factory classes to improve thread safety and refactored several methods. Introduced new functionalities in the PublishedPrepubArticleMediator and streamlined test cases to improve reliability and readability.">
+      <option name="closed" value="true" />
+      <created>1725737515050</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1725737515050</updated>
+    </task>
+    <task id="LOCAL-00060" summary="Update mediator and test structures, fix query result handling&#10;&#10;Refactor mediator to include DOI conversion utility and remove unused comments. Enhance tests with singleton pattern checks and fix query result handling in data processing. Introduce pprint for better debug output in tests.">
+      <option name="closed" value="true" />
+      <created>1725737644045</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1725737644045</updated>
+    </task>
+    <task id="LOCAL-00061" summary="Refactor Mediator for improved concurrency control&#10;&#10;Updated Mediator to use read-write locks (rwlock) for better concurrency control instead of a simple lock. Enhanced the class to follow the Singleton pattern more robustly and made necessary adjustments to method implementations to work with the new locking mechanism.">
+      <option name="closed" value="true" />
+      <created>1725835627813</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1725835627814</updated>
+    </task>
+    <task id="LOCAL-00062" summary="Fix singleton initialization and add classpath parameter&#10;&#10;Move lock initialization to `__new__` method to ensure it's only done once and remove the incomplete `__init__` method. Also, add `classpath` parameter to the `create_base_object` method for clarity.">
+      <option name="closed" value="true" />
+      <created>1725945165622</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1725945165623</updated>
+    </task>
+    <task id="LOCAL-00063" summary="Add singleton test to mediator design pattern tests&#10;&#10;Added a new test to verify the singleton behavior of PublishedPrepubArticleMediator. Ensured that two instances of the mediator are indeed the same and share the same lock.">
+      <option name="closed" value="true" />
+      <created>1725945855177</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1725945855177</updated>
+    </task>
+    <task id="LOCAL-00064" summary="Refactor Factory pattern for clarity and type safety&#10;&#10;Refactor Factory classes for improved readability and type safety. Added explicit type annotations and clarified the class paths in several factory methods. Also moved and reinstated specialized Factory classes to ensure consistency. Updated related test cases accordingly.">
+      <option name="closed" value="true" />
+      <created>1726030524781</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1726030524781</updated>
+    </task>
+    <task id="LOCAL-00065" summary="Add read-write locks to Mediator singleton class&#10;&#10;Refactor Mediator to ensure thread-safe operations using Reader-Writer locks. Updated tests to validate the presence and initialization of these locks.">
+      <option name="closed" value="true" />
+      <created>1726030572025</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1726030572025</updated>
+    </task>
+    <task id="LOCAL-00066" summary="Refactor mediator pattern implementation&#10;&#10;Improved readability and maintainability of the mediator pattern. Refactored method structures, added logger setup, and streamlined subclass implementations. Enhanced error handling and code formatting for clarity.">
+      <option name="closed" value="true" />
+      <created>1726192841867</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1726192841868</updated>
+    </task>
+    <task id="LOCAL-00067" summary="Update .gitignore and refactor biorxiv API utility functions&#10;&#10;Added entries to .gitignore for .idea and .pytest_cache directories. Refactored utility functions in biorxiv_api.py and associated test files to use more descriptive names for date parsing and JSON data processing.">
+      <option name="closed" value="true" />
+      <created>1726421807545</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1726421807546</updated>
+    </task>
+    <task id="LOCAL-00068" summary="Refactor process_query_results and related tests&#10;&#10;Refactored the `process_query_results` module by consolidating functions into the `QueryUtils` class for improved organization. Updated test cases to use the new `QueryUtils` class methods. This enhances code readability and centralizes utility functions.">
+      <option name="closed" value="true" />
+      <created>1726461699833</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1726461699834</updated>
+    </task>
+    <task id="LOCAL-00069" summary="Refactor date parsing to use NaTType instead of pd.NaT&#10;&#10;Switched the return type of the `parse_date` method to use NaTType from pandas._libs instead of pd.NaT for better type precision. This change ensures that the function's return type is more accurately defined and aligns with the internal representation used by pandas.">
+      <option name="closed" value="true" />
+      <created>1726808376973</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1726808376974</updated>
+    </task>
+    <task id="LOCAL-00070" summary="Reduce notebook size by removing redundant content&#10;&#10;The notebook was streamlined by significantly reducing its size, eliminating unused or repetitive code and markdown cells. This enhances readability and performance, while retaining core functionality and information.">
+      <option name="closed" value="true" />
+      <created>1742784291583</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1742784291583</updated>
+    </task>
+    <task id="LOCAL-00071" summary="Fix example code to correctly reference class method&#10;&#10;Updated the example in the docstring to properly reference the `create_article` method using the class name `BioRvixDatabaseUtils`. This ensures clarity and prevents confusion for developers referring to the documentation.">
+      <option name="closed" value="true" />
+      <created>1742784758129</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1742784758129</updated>
+    </task>
+    <task id="LOCAL-00072" summary="Add new BioRvix data processing Jupyter Notebook template&#10;&#10;This notebook sets up dependencies, queries BioRvix APIs for preprint and published articles, and processes data for analysis. It includes multithreading for API calls, data cleaning, merging, and descriptive analysis to examine publication trends and timelines.&#10;&#10;closes UofC-Research/peer-review #2">
+      <option name="closed" value="true" />
+      <created>1742785055815</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1742785055815</updated>
+    </task>
+    <task id="LOCAL-00073" summary="Refactor class importing logic in factory pattern.&#10;&#10;Replace custom class importing logic with utility function `import_class` from `common_functions`. This simplifies the code and removes redundancy, enhancing maintainability. Also, move the `_import_class` logic to the shared utilities module.">
+      <option name="closed" value="true" />
+      <created>1743196807673</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1743196807673</updated>
+    </task>
+    <task id="LOCAL-00074" summary="Refactor class importing logic in factory pattern.&#10;&#10;Replace custom class importing logic with utility function `import_class` from `common_functions`. This simplifies the code and removes redundancy, enhancing maintainability. Also, move the `_import_class` logic to the shared utilities module.&#10;&#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
+      <option name="closed" value="true" />
+      <created>1743197264413</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1743197264413</updated>
+    </task>
+    <task id="LOCAL-00075" summary="Refactor ArticleFactory usage and improve typing annotations.&#10;&#10;Updated `get_factory_object` to include proper type annotations for kwargs. Replaced direct imports and redundant calls with cleaner logic, particularly in `get_publication_info` and `valid_link`. Refactored `Query` usage to enhance code readability and maintainability.">
+      <option name="closed" value="true" />
+      <created>1743199246360</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1743199246360</updated>
+    </task>
+    <task id="LOCAL-00076" summary="Refactor Mediator and integrate ArticleLinkTypeMediator&#10;&#10;Refactored the Mediator class to improve encapsulation by defining `_mediator_map` in the class declaration. Added `ArticleLinkTypeMediator` with specialized `add_object` and `get_object` methods to manage articles by link type. Updated references to use an instance of `ArticleLinkTypeMediator` instead of class-level calls.">
+      <option name="closed" value="true" />
+      <created>1743223641079</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1743223641081</updated>
+    </task>
+    <task id="LOCAL-00077" summary="Add `create_queries` function for generating query objects&#10;&#10;The new `create_queries` function dynamically imports a class and initializes multiple query objects based on the provided arguments. Additionally, the `import_class` function has been updated with improved error handling and enhanced documentation.">
+      <option name="closed" value="true" />
+      <created>1743255381386</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1743255381387</updated>
+    </task>
+    <task id="LOCAL-00078" summary="Refactor and improve database query handling.&#10;&#10;Introduced `Query.uri_validator` for validation, cleaned up comments, and added comprehensive docstrings to enhance code clarity and maintainability. Adjusted logic in `crossref.py` and streamlined `BioRvixQuery` execution flow.">
+      <option name="closed" value="true" />
+      <created>1743255465298</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1743255465298</updated>
+    </task>
+    <task id="LOCAL-00079" summary="Add initial implementation of peer-review analysis pipeline that generated by ChatGPT&#10;&#10;This commit introduces core modules and documentation for the pipeline. It includes the pipeline structure, modules for NLP, causal inference, geospatial analysis, meta-analysis, network analysis, and predictive modeling. Comprehensive documentation, test cases, and dependencies are also added.">
+      <option name="closed" value="true" />
+      <created>1744497093194</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1744497093194</updated>
+    </task>
+    <task id="LOCAL-00080" summary="Revamp project documentation for peer review analysis pipeline&#10;&#10;Updated documentation with detailed project title, goals, data sources, pipeline overview, and infrastructure. Clarified analysis metrics, automation features, and visualization/reporting capabilities to reflect the current comprehensive pipeline status.&#10;&#10;Previous version as base on model 4o instead of 4.5">
+      <option name="closed" value="true" />
+      <created>1744498240412</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1744498240412</updated>
+    </task>
+    <option name="localTasksCounter" value="81" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UpdateCopyrightCheckinHandler">
+    <option name="UPDATE_COPYRIGHT" value="true" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_NEW_TODO" value="false" />
+    <MESSAGE value="Fix incorrect import in function example.&#10;&#10;Corrected the import alias and dataframe initialization in the docstring example for clarity and accuracy. This ensures proper usage instructions for users referring to the example." />
+    <MESSAGE value="Refactor locking mechanism in Factory class&#10;&#10;Revised the locking mechanism in the Factory class by introducing reader-writer locks. This change ensures better performance and concurrency control. Included new methods to handle factory map updates while maintaining thread safety." />
+    <MESSAGE value="Refactor lock mechanism and add new features.&#10;&#10;Reorganized the lock mechanism in Factory classes to improve thread safety and refactored several methods. Introduced new functionalities in the PublishedPrepubArticleMediator and streamlined test cases to improve reliability and readability." />
+    <MESSAGE value="Update mediator and test structures, fix query result handling&#10;&#10;Refactor mediator to include DOI conversion utility and remove unused comments. Enhance tests with singleton pattern checks and fix query result handling in data processing. Introduce pprint for better debug output in tests." />
+    <MESSAGE value="Refactor Mediator for improved concurrency control&#10;&#10;Updated Mediator to use read-write locks (rwlock) for better concurrency control instead of a simple lock. Enhanced the class to follow the Singleton pattern more robustly and made necessary adjustments to method implementations to work with the new locking mechanism." />
+    <MESSAGE value="Fix singleton initialization and add classpath parameter&#10;&#10;Move lock initialization to `__new__` method to ensure it's only done once and remove the incomplete `__init__` method. Also, add `classpath` parameter to the `create_base_object` method for clarity." />
+    <MESSAGE value="Refactor Factory pattern for clarity and type safety&#10;&#10;Refactor Factory classes for improved readability and type safety. Added explicit type annotations and clarified the class paths in several factory methods. Also moved and reinstated specialized Factory classes to ensure consistency. Updated related test cases accordingly." />
+    <MESSAGE value="Add singleton test to mediator design pattern tests&#10;&#10;Added a new test to verify the singleton behavior of PublishedPrepubArticleMediator. Ensured that two instances of the mediator are indeed the same and share the same lock." />
+    <MESSAGE value="Add read-write locks to Mediator singleton class&#10;&#10;Refactor Mediator to ensure thread-safe operations using Reader-Writer locks. Updated tests to validate the presence and initialization of these locks." />
+    <MESSAGE value="Refactor mediator pattern implementation&#10;&#10;Improved readability and maintainability of the mediator pattern. Refactored method structures, added logger setup, and streamlined subclass implementations. Enhanced error handling and code formatting for clarity." />
+    <MESSAGE value="Update .gitignore and refactor biorxiv API utility functions&#10;&#10;Added entries to .gitignore for .idea and .pytest_cache directories. Refactored utility functions in biorxiv_api.py and associated test files to use more descriptive names for date parsing and JSON data processing." />
+    <MESSAGE value="Refactor process_query_results and related tests&#10;&#10;Refactored the `process_query_results` module by consolidating functions into the `QueryUtils` class for improved organization. Updated test cases to use the new `QueryUtils` class methods. This enhances code readability and centralizes utility functions." />
+    <MESSAGE value="Reduce notebook size by removing redundant content&#10;&#10;The notebook was streamlined by significantly reducing its size, eliminating unused or repetitive code and markdown cells. This enhances readability and performance, while retaining core functionality and information." />
+    <MESSAGE value="Fix example code to correctly reference class method&#10;&#10;Updated the example in the docstring to properly reference the `create_article` method using the class name `BioRvixDatabaseUtils`. This ensures clarity and prevents confusion for developers referring to the documentation." />
+    <MESSAGE value="Refactor date parsing to use NaTType instead of pd.NaT&#10;&#10;Switched the return type of the `parse_date` method to use NaTType from pandas._libs instead of pd.NaT for better type precision. This change ensures that the function's return type is more accurately defined and aligns with the internal representation used by pandas." />
+    <MESSAGE value="Add new BioRvix data processing Jupyter Notebook template&#10;&#10;This notebook sets up dependencies, queries BioRvix APIs for preprint and published articles, and processes data for analysis. It includes multithreading for API calls, data cleaning, merging, and descriptive analysis to examine publication trends and timelines.&#10;&#10;closes UofC-Research/peer-review #2" />
+    <MESSAGE value="Rename common_functions to common_functions.py&#10;&#10;Renaming the file aligns with the standard naming convention for Python scripts. This makes the project structure more consistent and improves clarity." />
+    <MESSAGE value="Refactor class importing logic in factory pattern.&#10;&#10;Replace custom class importing logic with utility function `import_class` from `common_functions`. This simplifies the code and removes redundancy, enhancing maintainability. Also, move the `_import_class` logic to the shared utilities module." />
+    <MESSAGE value="Refactor class importing logic in factory pattern.&#10;&#10;Replace custom class importing logic with utility function `import_class` from `common_functions`. This simplifies the code and removes redundancy, enhancing maintainability. Also, move the `_import_class` logic to the shared utilities module.&#10;&#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;" />
+    <MESSAGE value="Refactor ArticleFactory usage and improve typing annotations.&#10;&#10;Updated `get_factory_object` to include proper type annotations for kwargs. Replaced direct imports and redundant calls with cleaner logic, particularly in `get_publication_info` and `valid_link`. Refactored `Query` usage to enhance code readability and maintainability." />
+    <MESSAGE value="Refactor Mediator and integrate ArticleLinkTypeMediator&#10;&#10;Refactored the Mediator class to improve encapsulation by defining `_mediator_map` in the class declaration. Added `ArticleLinkTypeMediator` with specialized `add_object` and `get_object` methods to manage articles by link type. Updated references to use an instance of `ArticleLinkTypeMediator` instead of class-level calls." />
+    <MESSAGE value="Add `create_queries` function for generating query objects&#10;&#10;The new `create_queries` function dynamically imports a class and initializes multiple query objects based on the provided arguments. Additionally, the `import_class` function has been updated with improved error handling and enhanced documentation." />
+    <MESSAGE value="Refactor and improve database query handling.&#10;&#10;Introduced `Query.uri_validator` for validation, cleaned up comments, and added comprehensive docstrings to enhance code clarity and maintainability. Adjusted logic in `crossref.py` and streamlined `BioRvixQuery` execution flow." />
+    <MESSAGE value="Add initial implementation of peer-review analysis pipeline that generated by ChatGPT&#10;&#10;This commit introduces core modules and documentation for the pipeline. It includes the pipeline structure, modules for NLP, causal inference, geospatial analysis, meta-analysis, network analysis, and predictive modeling. Comprehensive documentation, test cases, and dependencies are also added." />
+    <MESSAGE value="Revamp project documentation for peer review analysis pipeline&#10;&#10;Updated documentation with detailed project title, goals, data sources, pipeline overview, and infrastructure. Clarified analysis metrics, automation features, and visualization/reporting capabilities to reflect the current comprehensive pipeline status.&#10;&#10;Previous version as base on model 4o instead of 4.5" />
+    <option name="LAST_COMMIT_MESSAGE" value="Revamp project documentation for peer review analysis pipeline&#10;&#10;Updated documentation with detailed project title, goals, data sources, pipeline overview, and infrastructure. Clarified analysis metrics, automation features, and visualization/reporting capabilities to reflect the current comprehensive pipeline status.&#10;&#10;Previous version as base on model 4o instead of 4.5" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Peer$pytest_in_test_Settings_py.coverage" NAME="pytest in test_Settings.py Coverage Results" MODIFIED="1722751426130" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="C:\Users\alber\PycharmProjects\Peer\tests\utils" />
+    <SUITE FILE_PATH="coverage/Peer$pytest_in_test_PathManager_py.coverage" NAME="pytest in test_PathManager.py Coverage Results" MODIFIED="1722706963507" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Peer$pytest_in_test_biorxiv_api_py.coverage" NAME="pytest in test_biorxiv_api.py Coverage Results" MODIFIED="1726461565723" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/utils" />
+    <SUITE FILE_PATH="coverage/Peer$biorxiv_api.coverage" NAME="biorxiv_api Coverage Results" MODIFIED="1681600494965" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/utils" />
+    <SUITE FILE_PATH="coverage/Peer$pytest_in_test_biorxiv_api_py__1_.coverage" NAME="pytest in test_biorxiv_api.py (1) Coverage Results" MODIFIED="1725728393667" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Peer$pytest_in_test_Settingspy.coverage" NAME="pytest in test_Settings.py Coverage Results" MODIFIED="1722708378538" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="C:\Users\alber\PycharmProjects\Peer\tests\utils" />
+    <SUITE FILE_PATH="coverage/Peer$pytest_in_test_mediator_design_pattern_py.coverage" NAME="pytest in test_mediator_design_pattern.py Coverage Results" MODIFIED="1726421694919" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/behavioural" />
+    <SUITE FILE_PATH="coverage/Peer$crossref.coverage" NAME="crossref Coverage Results" MODIFIED="1679976569702" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/utils" />
+    <SUITE FILE_PATH="coverage/Peer$query.coverage" NAME="query Coverage Results" MODIFIED="1689738989026" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/utils" />
+    <SUITE FILE_PATH="coverage/Peer$pytest_in_test_factory_design_pattern_py.coverage" NAME="pytest in test_factory_design_pattern.py Coverage Results" MODIFIED="1743197100976" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/creational" />
+    <SUITE FILE_PATH="coverage/Peer$pytest_in_test_file_py.coverage" NAME="pytest in test_file.py Coverage Results" MODIFIED="1689908920621" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/utils" />
+    <SUITE FILE_PATH="coverage/Peer$pytest_in_test_pdf_manipulation_py.coverage" NAME="pytest in test_pdf_manipulation.py Coverage Results" MODIFIED="1687030712774" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/utils" />
+    <SUITE FILE_PATH="coverage/Peer$pdf_manipulation.coverage" NAME="pdf_manipulation Coverage Results" MODIFIED="1688856236593" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/utils" />
+    <SUITE FILE_PATH="coverage/Peer$csr.coverage" NAME="csr Coverage Results" MODIFIED="1745723574221" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/Peer$test_PathManager.coverage" NAME="test_PathManager Coverage Results" MODIFIED="1721626025967" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Peer$file.coverage" NAME="file Coverage Results" MODIFIED="1689569140984" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/utils" />
+    <SUITE FILE_PATH="coverage/Peer$pytest_in_test_building_block_py.coverage" NAME="pytest in test_building_block.py Coverage Results" MODIFIED="1723307556562" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+  </component>
+</project>
