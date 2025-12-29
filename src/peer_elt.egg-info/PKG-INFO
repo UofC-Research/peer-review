@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: peer-elt
+Version: 0.1.0
+Summary: ELT pipeline for quantifying preprint changes in peer review
+Requires-Python: >=3.11
+Requires-Dist: duckdb==0.10.3
+Requires-Dist: pandas==2.2.2
+Requires-Dist: pyarrow==16.1.0
+Requires-Dist: pyyaml==6.0.2
+Requires-Dist: requests==2.32.3
+Requires-Dist: sqlalchemy==2.0.32
+Requires-Dist: psycopg2-binary==2.9.9
+Requires-Dist: PyPDF2==3.0.1
+Provides-Extra: dev
+Requires-Dist: pytest==8.3.2; extra == "dev"

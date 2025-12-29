@@ -18,6 +18,9 @@ dependencies = [
   "PyPDF2==3.0.1",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest==8.3.2"]
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 

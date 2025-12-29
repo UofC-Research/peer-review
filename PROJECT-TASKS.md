@@ -6,6 +6,7 @@
 - Implemented transform layer to compute version-to-version diff features
 - Added CLI entry points, configs, and basic docs
 - Created the project description file
+- Documented tool split: Python for ELT, R for analysis
 
 ## In Progress
 - TBD

@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 import pandas as pd
+from peer_elt.interfaces import Transformer
 
 
 def _ratio(left: str, right: str) -> float:
@@ -44,6 +45,10 @@ def build_diff_features(
     frame = raw_df.copy()
     frame["abstract"] = frame.get("abstract", "").fillna("")
     frame["title"] = frame.get("title", "").fillna("")
+    if "published_doi" not in frame.columns:
+        frame["published_doi"] = frame.get("published")
+    else:
+        frame["published_doi"] = frame["published_doi"].fillna(frame.get("published"))
 
     frame["word_count"] = frame["abstract"].map(_word_count)
 
@@ -108,3 +113,16 @@ def build_diff_features(
             "date_latest": "date_latest",
         }
     )
+
+
+class DiffTransformer(Transformer):
+    def __init__(self, enable_pdf_diff: bool, pdf_dir: Optional[str]) -> None:
+        self._enable_pdf_diff = enable_pdf_diff
+        self._pdf_dir = pdf_dir
+
+    def transform(self, raw_df: pd.DataFrame) -> pd.DataFrame:
+        return build_diff_features(
+            raw_df,
+            enable_pdf_diff=self._enable_pdf_diff,
+            pdf_dir=self._pdf_dir,
+        )

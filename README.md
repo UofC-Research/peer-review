@@ -8,6 +8,16 @@ Install dependencies:
 pip install -e .
 ```
 
+Tech stack:
+
+- ELT pipeline: Python
+- Analysis: R
+
+Design patterns:
+
+- Factory for extractor/storage/transformer selection
+- Strategy via interface-based components
+
 Local run (DuckDB + Parquet):
 
 ```bash
@@ -21,3 +31,9 @@ sbatch scripts/run_pipeline.slurm configs/prod.yml
 ```
 
 Data model details: `docs/data_model.md`
+
+Run tests:
+
+```bash
+pytest
+```

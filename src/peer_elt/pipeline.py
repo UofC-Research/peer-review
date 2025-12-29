@@ -5,22 +5,19 @@ from pathlib import Path
 from typing import Iterable
 
 import pandas as pd
-
 from peer_elt.config import PipelineConfig, SourceConfig
-from peer_elt.extract.biorxiv import fetch_preprints
-from peer_elt.load.duckdb import load_raw_duckdb, write_table_duckdb
-from peer_elt.load.postgres import load_raw_postgres, write_table_postgres
-from peer_elt.transform.diff import build_diff_features
+from peer_elt.factories import ExtractorFactory, StorageFactory, TransformerFactory
+from peer_elt.interfaces import Extractor, Storage, Transformer
 
 
-def extract_sources(sources: Iterable[SourceConfig]) -> pd.DataFrame:
+def extract_sources(
+        sources: Iterable[SourceConfig],
+        extractor_factory: ExtractorFactory,
+) -> pd.DataFrame:
     frames = []
     for source in sources:
-        frame = fetch_preprints(
-            server=source.server,
-            date_from=source.date_from,
-            date_to=source.date_to,
-        )
+        extractor = extractor_factory.create(source)
+        frame = extractor.fetch(source)
         frame["source_name"] = source.name
         frames.append(frame)
     if not frames:
@@ -28,24 +25,15 @@ def extract_sources(sources: Iterable[SourceConfig]) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True)
 
 
-def load_raw(config: PipelineConfig, raw_df: pd.DataFrame) -> None:
-    if config.storage.backend == "duckdb":
-        load_raw_duckdb(config.storage, raw_df)
-    elif config.storage.backend == "postgres":
-        load_raw_postgres(config.storage, raw_df)
-    else:
-        raise ValueError(f"Unsupported backend: {config.storage.backend}")
+def load_raw(storage: Storage, raw_df: pd.DataFrame) -> None:
+    storage.load_raw(raw_df)
 
 
-def transform(config: PipelineConfig, raw_df: pd.DataFrame) -> pd.DataFrame:
-    return build_diff_features(
-        raw_df,
-        enable_pdf_diff=config.transform.enable_pdf_diff,
-        pdf_dir=config.transform.pdf_dir,
-    )
+def transform(transformer: Transformer, raw_df: pd.DataFrame) -> pd.DataFrame:
+    return transformer.transform(raw_df)
 
 
-def write_outputs(config: PipelineConfig, df: pd.DataFrame, name: str) -> None:
+def write_outputs(storage: Storage, config: PipelineConfig, df: pd.DataFrame, name: str) -> None:
     output_dir = Path(config.output.base_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -56,20 +44,24 @@ def write_outputs(config: PipelineConfig, df: pd.DataFrame, name: str) -> None:
         csv_path = output_dir / f"{name}.csv"
         df.to_csv(csv_path, index=False)
 
-    if config.storage.backend == "duckdb":
-        write_table_duckdb(config.storage, name, df)
-    elif config.storage.backend == "postgres":
-        write_table_postgres(config.storage, name, df)
+    storage.write_table(name, df)
 
 
 def run_pipeline(config: PipelineConfig) -> dict:
-    raw_df = extract_sources(config.sources)
+    extractor_factory = ExtractorFactory()
+    storage_factory = StorageFactory()
+    transformer_factory = TransformerFactory()
+
+    storage = storage_factory.create(config.storage)
+    transformer = transformer_factory.create(config)
+
+    raw_df = extract_sources(config.sources, extractor_factory)
     if raw_df.empty:
         return {"raw_rows": 0, "diff_rows": 0}
 
-    load_raw(config, raw_df)
-    diff_df = transform(config, raw_df)
-    write_outputs(config, diff_df, "diff_features")
+    load_raw(storage, raw_df)
+    diff_df = transform(transformer, raw_df)
+    write_outputs(storage, config, diff_df, "diff_features")
 
     return {
         "raw_rows": int(raw_df.shape[0]),

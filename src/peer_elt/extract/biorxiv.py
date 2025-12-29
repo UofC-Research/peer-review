@@ -4,7 +4,8 @@ from typing import Any, Dict, List
 
 import pandas as pd
 import requests
-
+from peer_elt.config import SourceConfig
+from peer_elt.interfaces import Extractor
 
 API_ROOT = "https://api.biorxiv.org/details"
 
@@ -37,3 +38,12 @@ def fetch_preprints(server: str, date_from: str, date_to: str) -> pd.DataFrame:
     frame["server"] = server
     frame["published_doi"] = frame.get("published")
     return frame
+
+
+class BiorxivApiExtractor(Extractor):
+    def fetch(self, source: SourceConfig) -> pd.DataFrame:
+        return fetch_preprints(
+            server=source.server,
+            date_from=source.date_from,
+            date_to=source.date_to,
+        )
