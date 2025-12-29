@@ -1,0 +1,21 @@
+sources:
+  - name: biorxiv
+    server: biorxiv
+    date_from: "2023-01-01"
+    date_to: "2023-12-31"
+  - name: medrxiv
+    server: medrxiv
+    date_from: "2023-01-01"
+    date_to: "2023-12-31"
+
+storage:
+  backend: duckdb
+  duckdb_path: data/processed/peer_review.duckdb
+
+output:
+  base_dir: data/processed
+  write_csv: true
+
+transform:
+  enable_pdf_diff: false
+  pdf_dir: data/raw/pdfs

@@ -1,0 +1,21 @@
+sources:
+  - name: biorxiv
+    server: biorxiv
+    date_from: "2020-01-01"
+    date_to: "2025-12-31"
+  - name: medrxiv
+    server: medrxiv
+    date_from: "2020-01-01"
+    date_to: "2025-12-31"
+
+storage:
+  backend: postgres
+  postgres_url: ${POSTGRES_URL}
+
+output:
+  base_dir: data/processed
+  write_csv: false
+
+transform:
+  enable_pdf_diff: true
+  pdf_dir: data/raw/pdfs

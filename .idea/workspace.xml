@@ -142,45 +142,45 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python tests.pytest in test_PathManager.py.executor": "Run",
-    "Python tests.pytest in test_Settings.py.executor": "Run",
-    "Python tests.pytest in test_Settingspy.executor": "Run",
-    "Python tests.pytest in test_biorxiv_api.py (1).executor": "Run",
-    "Python tests.pytest in test_biorxiv_api.py.executor": "Run",
-    "Python tests.pytest in test_building_block.py.executor": "Run",
-    "Python tests.pytest in test_factory_design_pattern.py.executor": "Run",
-    "Python tests.pytest in test_mediator_design_pattern.py.executor": "Run",
-    "Python.Unnamed.executor": "Debug",
-    "Python.csr.executor": "Run",
-    "Python.test_PathManager.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "v2",
-    "ignore.virus.scanning.warn.message": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "C:/Users/alber/PycharmProjects/Peer/tests/utils",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "com.github.x0x0b.codexlauncher.settings",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python tests.pytest in test_PathManager.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_Settings.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_Settingspy.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_biorxiv_api.py (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_biorxiv_api.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_building_block.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_factory_design_pattern.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_mediator_design_pattern.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Unnamed.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.csr.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_PathManager.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;codex&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/alber/PycharmProjects/Peer/tests/utils&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.github.x0x0b.codexlauncher.settings&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "GitStage.ChangesTree.GroupingKeys": [
-      "directory",
-      "module",
-      "repository"
+  &quot;keyToStringList&quot;: {
+    &quot;GitStage.ChangesTree.GroupingKeys&quot;: [
+      &quot;directory&quot;,
+      &quot;module&quot;,
+      &quot;repository&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="PyCoverageOptionsProvider">
     <option name="myUseBundledCoveragePy" value="true" />
   </component>
@@ -518,7 +518,7 @@
       <workItem from="1762584505747" duration="787000" />
       <workItem from="1762585396117" duration="4474000" />
       <workItem from="1766818075339" duration="466000" />
-      <workItem from="1766819196690" duration="1924000" />
+      <workItem from="1766819196690" duration="4868000" />
     </task>
     <task id="LOCAL-00001" summary="Create Crossref.py file&#10;&#10;Added stubs to Crossref.py so that the corresponding&#10;database can be queried and the objects related to&#10;Publications can be instantiated and the relationships&#10;between objects can be visualized. In addition, the&#10;comparisons between the initial and final version of each&#10;publication and be made.&#10;&#10;Signed-off-by: Albert Leung &lt;1319401+alby1976@users.noreply.github.com&gt;">
       <created>1679933010433</created>
