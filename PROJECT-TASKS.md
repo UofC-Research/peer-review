@@ -5,6 +5,7 @@
 - Implemented extract/load layer for bioRxiv/medRxiv metadata with DuckDB/PostgreSQL targets
 - Implemented transform layer to compute version-to-version diff features
 - Added CLI entry points, configs, and basic docs
+- Created the project description file
 
 ## In Progress
 - TBD
