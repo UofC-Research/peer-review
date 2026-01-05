@@ -1,4 +1,11 @@
-from peer_elt.config import PipelineConfig, SourceConfig, StorageConfig, OutputConfig, TransformConfig
+from peer_elt.config import (
+    OutputConfig,
+    PipelineConfig,
+    RetryConfig,
+    SourceConfig,
+    StorageConfig,
+    TransformConfig,
+)
 from peer_elt.extract.biorxiv import BiorxivApiExtractor
 from peer_elt.factories import ExtractorFactory, StorageFactory, TransformerFactory
 from peer_elt.load.duckdb import DuckDBStorage
@@ -11,6 +18,7 @@ def _pipeline_config() -> PipelineConfig:
         storage=StorageConfig(backend="duckdb", duckdb_path=":memory:"),
         output=OutputConfig(base_dir="data/processed"),
         transform=TransformConfig(enable_pdf_diff=False, pdf_dir=None),
+        retry=RetryConfig(),
     )
 
 

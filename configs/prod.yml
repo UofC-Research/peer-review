@@ -19,3 +19,9 @@ output:
 transform:
   enable_pdf_diff: true
   pdf_dir: data/raw/pdfs
+
+retry:
+  max_attempts: 8
+  wait_min_seconds: 2
+  wait_max_seconds: 120
+  wait_multiplier: 2

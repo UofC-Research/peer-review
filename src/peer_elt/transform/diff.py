@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Diff and similarity feature construction for preprint versions."""
+
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Optional
@@ -9,18 +11,21 @@ from peer_elt.interfaces import Transformer
 
 
 def _ratio(left: str, right: str) -> float:
+    """Return a similarity ratio between two strings."""
     if not left and not right:
         return 1.0
     return SequenceMatcher(None, left or "", right or "").ratio()
 
 
 def _word_count(text: str) -> int:
+    """Count whitespace-delimited words."""
     if not text:
         return 0
     return len(text.split())
 
 
 def _extract_pdf_text(path: Path) -> str:
+    """Extract text from a PDF file, returning empty string on failure."""
     try:
         from PyPDF2 import PdfReader
     except ImportError:
@@ -39,6 +44,11 @@ def build_diff_features(
     enable_pdf_diff: bool,
     pdf_dir: Optional[str],
 ) -> pd.DataFrame:
+    """Build diff metrics between version 1 and latest for each DOI.
+
+    This computes string similarity ratios for titles and abstracts,
+    word count deltas, and (optionally) PDF text similarity.
+    """
     if raw_df.empty:
         return pd.DataFrame()
 
@@ -116,7 +126,10 @@ def build_diff_features(
 
 
 class DiffTransformer(Transformer):
+    """Transformer that computes text and PDF similarity features."""
+
     def __init__(self, enable_pdf_diff: bool, pdf_dir: Optional[str]) -> None:
+        """Create a diff transformer with optional PDF comparison."""
         self._enable_pdf_diff = enable_pdf_diff
         self._pdf_dir = pdf_dir
 
