@@ -1,4 +1,4 @@
-﻿# Peer Review Project (v2)
+# Peer Review Project (v2)
 
 ## ELT Pipeline
 
