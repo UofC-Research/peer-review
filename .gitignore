@@ -1,7 +1,8 @@
-﻿.idea/
+﻿.obsidian/
+.idea/
 data/
 results/
 src/*.egg-info/
 __pycache__/
 *.py[cod]
-.venv
+.venv/
