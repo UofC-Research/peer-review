@@ -34,6 +34,18 @@ This study does **not** aim to:
 - Rank journals, publishers, or authors
 - Evaluate novelty, importance, or writing quality
 
+### Interpretation of Null Findings.
+
+**Null findings are substantively informative in this context.** Peer review is widely assumed to improve statistical
+rigor; observing no systematic change challenges that assumption and places empirical bounds on the magnitude and
+consistency of peer review’s influence in practice. Such stability suggests that core statistical decisions are often
+determined prior to review and that meaningful improvements, where they occur, are likely heterogeneous and dependent on
+review structure and context rather than review presence alone. Peer review is widely assumed to improve statistical
+rigor; observing no systematic change challenges that assumption and places empirical bounds on the magnitude and
+consistency of peer review’s influence in practice. Such stability suggests that core statistical decisions are often
+determined prior to review and that meaningful improvements, where they occur, are likely heterogeneous and dependent on
+review structure and context rather than review presence alone.
+ 
 ---
 
 ## 3. Core Literature Review (Design-Motivating)
@@ -127,7 +139,7 @@ CRISIS --> PR
 ---
 #### 5.2 Mediated Peer Review Effects (Primary Estimand)
 
-**Diagram B1 — **Mediated effect of peer review** (PRIMARY) **
+**Diagram B1 — Mediated Effect of Peer Review (Primary)**
  _Estimand:_ total effect of peer review operating **through review mechanisms**
 ```mermaid
 flowchart TD
@@ -150,7 +162,7 @@ MECH -->|reporting changes| Y
 
 #### 5.3 Direct Peer Review Effects (Secondary / Exploratory)
 
-**Diagram B2 — Direct (non-mediated) effects (SECONDARY / SENSITIVITY)**
+**Diagram B2 — Direct (Non-Mediated) Peer Review Effects (Secondary / Exploratory)**
 > _Estimand:_ controlled direct effect (explicitly exploratory)
 ```mermaid
 flowchart TD
@@ -276,7 +288,8 @@ Journal practices and crisis context are expected to **moderate** the magnitude 
 - +2 to +4 → Modest improvement
 - ≥ +5 → Substantial improvement
 
-These thresholds are descriptive and non-normative.
+These thresholds are heuristic and descriptive summaries only and are not used for hypothesis testing or inferential
+decision-making.
 
 ---
 
@@ -323,6 +336,9 @@ Let PRES=∑k=110Vk, published−∑k=110Vk, preprintPRES = \sum_{k=1}^{10} V_
 
 **Exploratory moderator nulls:** The distribution of ΔVk\Delta V_kΔVk​ does not differ by preregistered contextual moderators (e.g., journal practices/review structure, discipline, crisis/time-pressure context).
 
+Null or near-zero average changes are considered substantively informative and are interpreted as evidence about the
+practical limits and heterogeneity of peer review’s influence.
+
 ---
 
 ### **10.2 Measurement & Scoring Procedure (Quantifying V1–V10)**
@@ -340,9 +356,9 @@ Each manuscript is evaluated as a **paired unit** (preprint vs published). For e
 4. **Change computation:** ΔVk\Delta V_kΔVk​ for each indicator and PRESPRESPRES for composite change.
     
 5. **Reliability:** double-coding of a preregistered subset; inter-rater reliability reported; adjudication rules documented.
-    
 
-_(Then optionally add one sentence: “Variable-specific operational definitions are enumerated in Section 7 and expanded in the codebook appendix.”)_
+**NB:** Variable-specific operational definitions are enumerated in Section 7 and expanded in the codebook appendix.”
+
 
 ---
 ## 11. Document Access, Format Handling, and Eligibility
