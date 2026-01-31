@@ -287,6 +287,42 @@ Composite scores (Raw Statistical Rigor Score and PRES) are computed using the f
 Indicator-level missingness due to document access limitations is handled exclusively through the exclusion rules defined in Section 11.4.
 
 ---
+## **10. Hypotheses and Interpretation Framework**
+
+This study does **not** preregister directional or alternative hypotheses. All analyses are conducted within a **null-tolerant, descriptive framework** appropriate for observational, non-causal comparison of manuscript versions.
+
+For each preregistered indicator $V_k$ ($k = 1, \dots, 10$), within-manuscript change is defined as:
+
+$$
+\Delta V_k = V_{k,\text{published}} - V_{k,\text{preprint}}  
+$$
+
+### **Indicator-Level Null Hypotheses**
+
+For each indicator:
+
+$$
+\mathbb{E}[\Delta V_k] = 0  
+$$
+
+These null hypotheses reflect the possibility that peer review is **not systematically associated** with changes in specific aspects of statistical rigor.
+
+### **Composite-Level Null Hypothesis**
+
+For the Peer-Review Effect Score (PRES):
+
+$$
+\mathbb{E}[\text{PRES}] = 0  
+$$
+The composite null represents the absence of systematic aggregate change across preregistered indicators.
+
+### **Interpretation of Deviations**
+
+Observed deviations from the null—whether positive, negative, or near zero—are summarized **descriptively** and interpreted as empirical patterns rather than confirmatory tests of improvement or degradation.
+
+Null or near-null results are considered **substantively informative**, as they place empirical bounds on the magnitude and consistency of peer-review-associated change and inform ongoing debates regarding the role of peer review in shaping statistical reporting practices.
+
+No directional claims, causal inferences, or normative judgments are drawn from these comparisons.
 ## 10. Hypotheses
 
 For each preregistered indicator:
@@ -364,20 +400,55 @@ All exclusions are logged with explicit reasons. Counts of excluded manuscripts 
 ---
 ## **11.5 Sampling Frame and Corpus Definition**
 
-The analytic corpus consists of **matched manuscript pairs**, defined as a preprint and its corresponding peer-reviewed published version.
+The analytic corpus consists of **matched manuscript pairs**, defined as a publicly posted preprint and its corresponding peer-reviewed published version.
 
-Preprints are drawn from established public repositories (e.g., arXiv, bioRxiv, medRxiv, or equivalent discipline-specific servers) that provide stable versioning and public access. Published versions represent the final, citable journal record.
+### **Study 1: Restricted Sampling Frame**
 
-Manuscripts are eligible if:
+For the present preregistered study (Study 1), the sampling frame is restricted to manuscripts originating from **bioRxiv** and **medRxiv**.
 
-- A publicly accessible preprint version exists
+This restriction is imposed to:
 
-- A corresponding peer-reviewed published version can be reliably identified
+- Maximize feasibility and document availability
+    
+- Standardize versioning behavior and metadata structure
+    
+- Reduce heterogeneity during initial pipeline validation
+    
+- Focus on life-science and medical research domains where statistical reporting norms are comparatively well specified
+    
 
-- Both versions contain sufficient Methods and Results content to permit scoring under V1–V10
+Eligible manuscripts must satisfy all of the following criteria:
 
+- A publicly accessible preprint exists on bioRxiv or medRxiv
+    
+- The preprint has a corresponding peer-reviewed published version that can be reliably identified
+    
+- Both versions contain sufficient Methods and Results content to permit scoring under preregistered indicators V1–V10
+    
+- The first publicly posted preprint version falls within the preregistered temporal window
+    
 
-The sampling frame is **observational and convenience-based**, reflecting availability of matched preprint–publication pairs rather than a probabilistic sample of the scientific literature. All analyses are interpreted accordingly.
+No restrictions are imposed on journal prestige, impact factor, author affiliation, funding source, or study outcomes.
+
+The sampling frame is **observational and convenience-based**, reflecting the availability of matched preprint–publication pairs rather than a probabilistic sample of the scientific literature. All analyses are interpreted accordingly.
+
+---
+
+### **Temporal Scope**
+
+Eligible preprints are defined as those first publicly posted between **January 1, 2016 and December 31, 2022**. This window reflects the widespread adoption of preprints in the life sciences while allowing sufficient time for downstream peer-reviewed publication.
+
+Time-period indicators (e.g., pre-COVID, COVID-era, post-peak transition) may be used for preregistered descriptive stratification but are not treated as causal modifiers.
+
+---
+
+### **Planned Extension to Additional Preprint Servers**
+
+A subsequent, independently preregistered study (Study 2) is planned to expand the sampling frame to additional preprint servers (e.g., arXiv and other discipline-specific repositories).
+
+The purpose of this extension is to evaluate whether **patterns of within-manuscript change differ descriptively across preprint ecosystems** that serve different subject areas and operate under distinct normative and editorial conventions.
+
+This extension will be preregistered separately and will not be contingent on the results of Study 1. Comparisons across preprint servers will be interpreted as **contextual contrasts**, not causal effects of server characteristics.
 
 ---
 ## **11.6 Preprint Version Selection Rule**
