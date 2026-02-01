@@ -9,7 +9,6 @@
 **Analyses Conducted:** ❌ No
 
 ---
-
 ## Purpose of This Change Log
 
 This document records **all substantive and non-substantive edits made to the preregistration materials prior to the
@@ -18,7 +17,6 @@ It is provided to distinguish **editorial clarification and structural refinemen
 to document that **no changes were informed by data access or analysis**.
 
 ---
-
 ## Summary Statement
 
 All changes documented below were made **prior to the preregistration lock**, **before any data were accessed**, and *
@@ -38,7 +36,6 @@ All changes are classified as **editorial, clarificatory, or structural** and do
 freedom.
 
 ---
-
 ## Categories of Changes
 
 ### 1. Document Hierarchy and Cross-Reference Clarification
@@ -61,7 +58,6 @@ To prevent ambiguity regarding which document governs study design and analytic 
 None.
 
 ---
-
 ### 2. Structural Reorganization and Section Continuity
 
 **Description**  
@@ -81,7 +77,6 @@ To improve clarity and navigability without altering study content.
 None.
 
 ---
-
 ### 3. Terminology Standardization
 
 **Description**  
@@ -100,7 +95,6 @@ To reduce interpretive ambiguity and improve consistency across materials.
 None.
 
 ---
-
 ### 4. Clarification of Conceptual Diagrams (DAGs)
 
 **Description**  
@@ -119,7 +113,6 @@ To avoid misinterpretation of DAGs as causal identification tools.
 None.
 
 ---
-
 ### 5. Editorial Corrections and Language Polishing
 
 **Description**  
@@ -138,7 +131,6 @@ To improve readability and professionalism.
 None.
 
 ---
-
 ## Explicit Statement of Non-Changes
 
 The following elements were **not modified at any point** during these revisions:
@@ -153,7 +145,6 @@ The following elements were **not modified at any point** during these revisions
 - Planned analyses or summaries
 
 ---
-
 ## Declaration
 
 All changes documented above were completed **prior to preregistration lock**, with **no access to outcome data**, **no
