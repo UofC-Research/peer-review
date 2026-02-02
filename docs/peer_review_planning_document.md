@@ -3,12 +3,16 @@
 **Status:** Planning stage  
 **Data Accessed:** ❌ No  
 **Analysis Performed:** ❌ No  
-**Preregistration Lock Date:** _To be set upon planning completion_
+**Preregistration Lock Date:** February 2, 2026
 
 ---
 ## 1. Study Overview
 
 This study examines how peer review is **associated with observable changes in statistical rigor** by comparing preprint manuscripts with their corresponding peer‑reviewed published versions.
+
+This preregistration constitutes a **binding analytic commitment** for Study 1. All variable definitions, scoring rules,
+inclusion criteria, and analytic constraints described herein are fixed prior to data access and may not be modified
+without explicit documentation of deviations.
 
 The study is **observational**, **comparative**, and **non‑causal**. It does not assume that peer review necessarily
 improves scientific quality, nor that observed changes are inherently beneficial. Observed changes may be positive,
@@ -17,13 +21,14 @@ dimensions**, and **under what contextual conditions**, using preregistered indi
 
 The study prioritizes **transparency, preregistration, and reproducibility**, and explicitly avoids causal attribution.
 In practical terms, this study operationalizes statistical rigor using ten preregistered, independently scored
-indicators (V1–V10). Each indicator is evaluated symmetrically for the preprint and published versions of the same
+indicators (V1-V10). Each indicator is evaluated symmetrically for the preprint and published versions of the same
 manuscript prior to any comparison, ensuring that observed differences reflect reporting changes rather than post hoc
 judgment or selective emphasis.
 
 **Document hierarchy note.** This preregistration constitutes the **authoritative and binding specification** of Study
+
 1. All summaries, public-facing descriptions, and reader guides associated with this project are **non-normative** and
-are intended solely to aid interpretation; in the event of any discrepancy, the present preregistration governs.
+   are intended solely to aid interpretation; in the event of any discrepancy, the present preregistration governs.
 
 ---
 ## 2. Research Question
@@ -109,7 +114,8 @@ The following references are cited **for conceptual grounding only** and are not
 - Kodvanj, I., et al. (2022). _The quality of COVID‑19 evidence in preprints and peer‑reviewed articles_. **BMJ Open**.
 
 ---
-## 4. Conceptual Model (Causal‑DAG–Informed, Non‑Causal)
+
+## 4. Conceptual Model (Causal‑DAG-Informed, Non‑Causal)
 
 Observed changes arise from interacting processes involving baseline manuscript characteristics, review exposure, review mechanisms, and contextual moderators. All observed differences are interpreted as **associations**, not causal effects.
 
@@ -120,7 +126,6 @@ The DAGs presented in this section are included **for conceptual clarification a
 not used to derive causal estimands, adjustment sets, or inferential claims, and should be interpreted strictly as
 structural representations consistent with the study’s non-causal, descriptive framework.
 ### 5.1 Exposure Assignment
-
 #### **Figure A. Exposure Assignment and Contextual Determinants**
 
 ```mermaid
@@ -142,30 +147,37 @@ JP --> PR
 CRISIS --> PR
 ```
 
-**Figure A.** Conceptual diagram illustrating factors associated with **peer review exposure**. Baseline manuscript characteristics, journal practices, and contextual factors (e.g., crisis conditions) jointly influence whether and how manuscripts undergo peer review. This diagram is used to clarify **selection processes and contextual structure only** and does not imply causal estimation or adjustment. Statistical rigor indicators (V1–V10) are downstream outcomes and are therefore excluded from the exposure-assignment diagram.
+**Figure A.** Conceptual diagram illustrating factors associated with **peer review exposure**. Baseline manuscript
+characteristics, journal practices, and contextual factors (e.g., crisis conditions) jointly influence whether and how
+manuscripts undergo peer review. This diagram is used to clarify **selection processes and contextual structure only**
+and does not imply causal estimation or adjustment. Statistical rigor indicators (V1-V10) are downstream outcomes and
+are therefore excluded from the exposure-assignment diagram.
 
 ### 5.2 Mediated Effects (Primary Estimand)
-
 #### **Figure B1. Mediated Pathway: Peer Review → Review Mechanisms → Statistical Rigor**
 
 ```mermaid
 flowchart TD
 PR["Peer Review Exposure"] --> MECH["Review Mechanisms"]
-MECH --> Y["Statistical Rigor Outcomes (V1–V10)"]
+    MECH --> Y["Statistical Rigor Outcomes (V1-V10)"]
 ```
 
-**Figure B1.** Conceptual diagram representing the **primary analytic framework**, in which peer review exposure operates through identifiable review mechanisms (e.g., reviewer requests, editorial requirements) to produce observable changes in statistical rigor indicators (V1–V10). The outcome node represents the vector of preregistered indicators rather than a single latent construct. Paths are interpreted as **associational and descriptive**, not causal.
-
+**Figure B1.** Conceptual diagram representing the **primary analytic framework**, in which peer review exposure
+operates through identifiable review mechanisms (e.g., reviewer requests, editorial requirements) to produce observable
+changes in statistical rigor indicators (V1-V10). The outcome node represents the vector of preregistered indicators
+rather than a single latent construct. Paths are interpreted as **associational and descriptive**, not causal.
 ### 5.3 Direct Effects (Secondary, Exploratory)
-
 #### **Figure B2. Direct Pathway: Peer Review → Statistical Rigor**
 
 ```mermaid
 flowchart TD
-PR["Peer Review Exposure"] --> Y["Statistical Rigor Outcomes (V1–V10)"]
+    PR["Peer Review Exposure"] --> Y["Statistical Rigor Outcomes (V1-V10)"]
 ```
 
-**Figure B2.** Conceptual diagram representing a **secondary, exploratory pathway** in which peer review exposure is associated with changes in statistical rigor indicators (V1–V10) without explicit mediation through identifiable review mechanisms. This pathway captures changes plausibly attributable to journal policies or structural requirements rather than reviewer-specific feedback. Direct effects are treated as exploratory and non-causal.
+**Figure B2.** Conceptual diagram representing a **secondary, exploratory pathway** in which peer review exposure is
+associated with changes in statistical rigor indicators (V1-V10) without explicit mediation through identifiable review
+mechanisms. This pathway captures changes plausibly attributable to journal policies or structural requirements rather
+than reviewer-specific feedback. Direct effects are treated as exploratory and non-causal.
 ### 5.4 Formal DAGitty Specifications (Machine-Readable)
 
 The following DAGitty specifications provide a machine-readable representation of the conceptual diagrams above. They are included for **conceptual validation and transparency only**; the study remains explicitly non-causal.
@@ -194,15 +206,16 @@ dag {
 }
 ```
 
-## 5.5 DAG-to-Variables Alignment (V1–V10)
+## 5.5 DAG-to-Variables Alignment (V1-V10)
 
-This section explicitly links each preregistered rigor indicator (V1–V10) to the conceptual DAGs.
+This section explicitly links each preregistered rigor indicator (V1-V10) to the conceptual DAGs.
 #### Figure A (Exposure Assignment)
 
-Figure A specifies determinants of peer review exposure and is not intended to model rigor indicators directly. V1–V10 are downstream outcomes and are therefore excluded from the exposure-assignment diagram.
+Figure A specifies determinants of peer review exposure and is not intended to model rigor indicators directly. V1-V10
+are downstream outcomes and are therefore excluded from the exposure-assignment diagram.
 #### Figure B1 (Mediated Pathway): PR → MECH → Y
 
-In Figure B1, Y is operationalized as the vector of preregistered rigor indicators (V1–V10). Each indicator represents a
+In Figure B1, Y is operationalized as the vector of preregistered rigor indicators (V1-V10). Each indicator represents a
 measurable manifestation of changes plausibly operating through review mechanisms.
 
 - **V1:** Effect estimate change
@@ -224,26 +237,29 @@ measurable manifestation of changes plausibly operating through review mechanism
 - **V9:** Transparency and reproducibility
 
 - **V10:** Study design reporting
-
 #### Figure B2 (Direct Pathway): PR → Y
 
-Figure B2 captures changes plausibly attributable to journal or editorial requirements that may not be traceable to identifiable reviewer mechanisms. Direct effects are treated as **secondary and exploratory**, with strongest plausibility for **V9–V10** and partial plausibility for **V3, V5, and V8** depending on journal policy.
+Figure B2 captures changes plausibly attributable to journal or editorial requirements that may not be traceable to
+identifiable reviewer mechanisms. Direct effects are treated as **secondary and exploratory**, with strongest
+plausibility for **V9-V10** and partial plausibility for **V3, V5, and V8** depending on journal policy.
 
 ---
 ## 6. Operational Definition of Statistical Rigor
 
 Statistical rigor is operationalized as **transparent, interpretable, and reproducible quantitative reporting**,
-measured using the preregistered indicators V1–V10. Indicators reflect reporting transparency rather than the
+measured using the preregistered indicators V1-V10. Indicators reflect reporting transparency rather than the
 statistical validity or correctness of analytical choices, which are intentionally outside the scope of this study.
 
 ---
-## 7. Preregistered Variables (V1–V10)
 
-Each indicator is scored **independently** for the preprint and published versions using a predefined **0–2 ordinal rubric** (Absent / Partial / Clear).
+## 7. Preregistered Variables (V1-V10)
+
+Each indicator is scored **independently** for the preprint and published versions using a predefined **0-2 ordinal
+rubric** (Absent / Partial / Clear).
 
 > **Clarification on Variable Interpretation**
 >
-> The preregistered variables (V1–V10) are evaluated as **distinct indicators of statistical reporting and analytical
+> The preregistered variables (V1-V10) are evaluated as **distinct indicators of statistical reporting and analytical
 practices**. They are not assumed to reflect a single latent construct, nor are they interpreted as interchangeable
 > measures of quality.
 >
@@ -254,7 +270,7 @@ practices**. They are not assumed to reflect a single latent construct, nor are 
 ## 8. Scoring and Composite Measures
 ### Raw Statistical Rigor Score
 $$
-\sum_{k=1}^{10} V_k \quad (0–20)  
+\sum_{k=1}^{10} V_k \quad[0,20]  
 $$
 ### Peer‑Review Effect Score (PRES)
 $$
@@ -263,17 +279,16 @@ $$
 
 PRES is a descriptive aggregation tool and is not interpreted as a latent measure of overall study quality. Accordingly,
 composite scores are **descriptive summaries only** and are not used for inferential decision‑making.
-
 ### Auxiliary Textual and Structural Metrics (Exploratory)
 
-In addition to preregistered indicators of statistical rigor (V1–V10), a set of auxiliary textual and structural
+In addition to preregistered indicators of statistical rigor (V1-V10), a set of auxiliary textual and structural
 manuscript characteristics is recorded descriptively for both preprint and published versions.
 
 These metrics include:
 
 **Textual readability metrics**
 
-- Readability indices (e.g., Flesch–Kincaid grade level or equivalent)
+- Readability indices (e.g., Flesch-Kincaid grade level or equivalent)
 - Average sentence length
 - Related surface-level text characteristics
 
@@ -283,7 +298,7 @@ These metrics include:
 - Number of tables
 - Number of figures
 
-Changes in auxiliary metrics are summarized descriptively and analyzed separately from preregistered rigor indicators.
+Changes in auxiliary metrics are summarized descriptively and analysed separately from preregistered rigor indicators.
 These metrics are not included in composite scores (e.g., PRES), hypothesis testing, or causal interpretation. Observed
 changes may reflect editorial conventions, journal formatting requirements, or stylistic normalization rather than
 substantive methodological revision.
@@ -301,7 +316,13 @@ substantive methodological revision.
 
 - No causal estimands or causal adjustment procedures
 
-## **9.1 Unit of Analysis and Unit of Inference**
+Scoring of preregistered indicators (V1-V10) is conducted using the fixed codebook criteria specified in Appendix A.
+Scorers may be aware of manuscript version status (preprint vs. published); however, all indicators are scored *
+*independently for each version prior to computing within-manuscript change scores**, and evidence excerpts are logged
+verbatim for auditability. Version awareness is not treated as a source of analytic flexibility and does not alter
+scoring rules, thresholds, or aggregation procedures.
+
+### 9.1 Unit of Analysis and Unit of Inference
 
 The primary unit of analysis is the **matched manuscript pair**, consisting of a preprint version and its corresponding published version.
 
@@ -309,20 +330,24 @@ All statistical summaries, distributions, and comparisons are conducted at the m
 
 No inference is made at the author, journal, reviewer, or institution level. Results are interpreted as descriptive associations between manuscript versions, not as estimates of population-level causal effects.
 
-## **9.2 Indicator Availability and Missingness Handling**
+### 9.2 Indicator Availability and Missingness Handling
 
-Each preregistered indicator (V1–V10) is scored independently based on observable reporting content.
+Each preregistered indicator (V1-V10) is scored independently based on observable reporting content.
 
 When an indicator is **structurally inapplicable** to a manuscript (e.g., power calculations in exploratory analyses where no hypothesis testing is performed), the indicator is scored as **0 (Absent)** rather than excluded.
 
-Composite scores (Raw Statistical Rigor Score and PRES) are computed using the full set of indicators (V1–V10) for all included manuscripts. No indicators are dropped or reweighted post hoc.
+Composite scores (Raw Statistical Rigor Score and PRES) are computed using the full set of indicators (V1-V10) for all
+included manuscripts. No indicators are dropped or reweighted post hoc.
 
 Indicator-level missingness due to document access limitations is handled exclusively through the exclusion rules defined in Section 11.4.
 
 ---
 ## **10. Hypotheses and Interpretation Framework**
 
-This study does **not** preregister directional or alternative hypotheses. All analyses are conducted within a **null-tolerant, descriptive framework** appropriate for observational, non-causal comparison of manuscript versions.
+This study does **not** preregister directional or alternative hypotheses. All analyses are conducted within a *
+*null-tolerant, descriptive framework** appropriate for observational, non-causal comparison of manuscript versions. No
+significance thresholds, p-value cut-offs, or confirmatory decision rules are prespecified, as all analyses are
+descriptive and non-causal.
 
 For each preregistered indicator $V_k$ ($k = 1, \dots, 10$), within-manuscript change is defined as:
 
@@ -408,12 +433,14 @@ Eligible manuscripts must satisfy all of the following criteria:
 
 - A publicly accessible preprint exists on bioRxiv or medRxiv
 - The preprint has a corresponding peer-reviewed published version that can be reliably identified
-- Both versions contain sufficient Methods and Results content to permit scoring under preregistered indicators V1–V10
+- Both versions contain sufficient Methods and Results content to permit scoring under preregistered indicators V1-V10
 - The first publicly posted preprint version falls within the preregistered temporal window
 
 No restrictions are imposed on journal prestige, impact factor, author affiliation, funding source, or study outcomes.
 
-The sampling frame is **observational and convenience-based**, reflecting the availability of matched preprint–publication pairs rather than a probabilistic sample of the scientific literature. All analyses are interpreted accordingly.
+The sampling frame is **observational and convenience-based**, reflecting the availability of matched
+preprint-publication pairs rather than a probabilistic sample of the scientific literature. All analyses are interpreted
+accordingly.
 
 ## **11.6 Temporal Scope**
 
@@ -471,20 +498,23 @@ flowchart TD
     E --> F{Full Text Accessible?}
     F -- No --> X
     F -- Yes --> G[Apply Symmetric Scoring Rules]
-    G --> H[Score V1–V10 Independently]
+    G --> H[Score V1-V10 Independently]
     H --> I[Compute ΔVk and PRES]
 ```
 
-**Figure C.** Flowchart illustrating manuscript eligibility screening, preprint version selection, and scoring workflow. For each matched manuscript pair, the first publicly posted preprint version is selected as the baseline comparator. Full-text availability is assessed symmetrically for preprint and published versions prior to independent scoring of preregistered indicators (V1–V10) and computation of within-manuscript change metrics ($\Delta{V_k}$) and the Peer-Review Effect Score (PRES).
+**Figure C.** Flowchart illustrating manuscript eligibility screening, preprint version selection, and scoring workflow.
+For each matched manuscript pair, the first publicly posted preprint version is selected as the baseline comparator.
+Full-text availability is assessed symmetrically for preprint and published versions prior to independent scoring of
+preregistered indicators (V1-V10) and computation of within-manuscript change metrics ($\Delta{V_k}$) and the
+Peer-Review Effect Score (PRES).
 
 ---
-
 ## **12. Deferred Analyses and Planned Extensions**
 
-(This corresponds to Stage 1 in the accompanying public summary.)
+(This corresponds to Study 1 in the accompanying public summary.)
 
 This preregistered study (Study 1) is intentionally restricted to **within-manuscript comparisons of statistical rigor
-indicators (V1–V10)** between preprint and published versions.
+indicators (V1-V10)** between preprint and published versions.
 
 Although manuscript changes may plausibly vary by **funding structure, author career stage, institutional context, or
 academic system**, these factors are **not operationalized, recorded, or analysed** in the present preregistration.
@@ -494,7 +524,6 @@ future, separately preregistered studies. No claims regarding these associations
 post-hoc subgroup analyses involving these factors will be conducted.
 
 ---
-
 ## 13. Transparency and Deviations
 
 All variables, scoring rules, and analyses are preregistered prior to data access. Deviations will be explicitly documented.
@@ -524,10 +553,10 @@ This document constitutes the **complete planning record** prior to study execut
 
 ---
 
-## 15. Planning Lock (to be completed)
+## 15. Planning Lock
 
-**Planning Lock Date:** __________________  
-**Locked By:** __________________
+**Planning Lock Date:** __________________  February 2, 2026
+**Locked By:** Albert Leung
 
 After lock:
 
@@ -545,20 +574,23 @@ AI‑assisted tools (including ChatGPT, OpenAI Codex, and JetBrains AI Assistant
 No data were analyzed, no results were generated, and no substantive scientific claims or interpretations were produced by these tools. All methodological decisions, definitions, analyses, and interpretations remain the sole responsibility of the authors.
 
 ---
-# **Appendix A: Preregistered Codebook for Statistical Rigor Indicators (V1–V10)**
 
-**Appendix status.** Appendix A defines the **operative scoring rules** for all preregistered indicators (V1–V10).
+# **Appendix A: Preregistered Codebook for Statistical Rigor Indicators (V1-V10)**
+
+**Appendix status.** Appendix A defines the **operative scoring rules** for all preregistered indicators (V1-V10).
 Indicator definitions, thresholds, and scoring logic in this appendix are binding for Study 1 and supersede any
 abbreviated descriptions appearing elsewhere.
 
-This appendix defines the **operational scoring rules** used to quantify preregistered indicators of statistical rigor (V1–V10). All indicators are scored **independently** for the preprint and published versions of each manuscript prior to computing within-manuscript change scores.
+This appendix defines the**operational scoring rules**used to quantify preregistered indicators of statistical rigor (
+V1-V10). All indicators are scored**independently**for the preprint and published versions of each manuscript prior to
+computing within-manuscript change scores.
 
 Scoring is based exclusively on **observable reporting content** in the manuscript and eligible supplementary materials, following the access rules defined in Section 11.
 
 ---
 ## A.1 General Scoring Principles
 
-- Each indicator is scored on a **0–2 ordinal scale**:
+- Each indicator is scored on a**0-2 ordinal scale**:
 
   - **0 = Absent**
   - **1 = Partial / Incomplete**
@@ -577,11 +609,11 @@ Scoring is based exclusively on **observable reporting content** in the manusc
 ---
 ## A.2 Unit of Analysis
 
-- **Primary unit:** matched manuscript pair (preprint vs published).
+- **Primary unit:**matched manuscript pair (preprint vs. published).
 
 - Each version is scored separately before computing:
 
-$$\Delta{V_k} = V_{k,published} - V_{k,reprint} $$
+$$\Delta{V_k} = V_{k,published} - V_{k,preprint} $$
 
 ---
 ## A.3 Indicator-Specific Definitions and Scoring Criteria
@@ -726,7 +758,7 @@ $$\Delta{V_k} = V_{k,published} - V_{k,reprint} $$
 
 - **Raw Statistical Rigor Score:**
 $$
-\sum_{k=1}^{10} V_k \quad (0–20)  
+  \sum_{k=1}^{10} V_k \quad [0, 20]
 $$
 
 - **Peer-Review Effect Score (PRES):**
@@ -769,7 +801,7 @@ document_type: preregistered_codebook
 codebook:
   name: "Peer-Review Impact Study — Statistical Rigor Indicators"
   version: "1.0.0"
-  locked_at: null
+  locked_at: February 2, 2026
   scoring_scale:
     type: ordinal
     levels:
@@ -779,7 +811,7 @@ codebook:
 
   unit_of_analysis:
     type: "manuscript_pair"
-    description: "Matched preprint–published manuscript pair"
+    description: "Matched preprint-published manuscript pair"
 
   general_rules:
     - "Score preprint and published versions independently"
@@ -930,7 +962,7 @@ codebook:
 
   composite_scores:
     raw_statistical_rigor:
-      description: "Sum of V1–V10 per manuscript version"
+      description: "Sum of V1-V10 per manuscript version"
       range: [0, 20]
     PRES:
       description: "Peer-Review Effect Score"

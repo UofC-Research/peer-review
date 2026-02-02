@@ -11,16 +11,14 @@ Rather than assuming that peer review improves scientific work, this project **m
 *where, when, and whether those changes generalize**, using a staged, preregistered design.
 
 ---
-
 ## Why the Project Is Split Into Three Studies
 
-Research on peer review often fails because **measurement, explanation, and generalization are mixed together**.  
-This project avoids that problem by separating them explicitly.
+Research on peer review often fails because **measurement, explanation, and generalization are mixed together**. This
+project avoids that problem by separating them explicitly.
 
 Each study answers a **different question**, in the only order that preserves interpretability.
 
 ---
-
 ## 🧪 Study 1 — Measurement Comes First (Current Preregistration)
 
 **Primary question**
@@ -29,8 +27,8 @@ Each study answers a **different question**, in the only order that preserves in
 
 **What Study 1 does**
 
-- Compares matched **preprint–publication manuscript pairs**
-- Uses **preregistered indicators** of statistical reporting and rigor (V1–V10)
+- Compares matched **preprint-publication manuscript pairs**
+- Uses **preregistered indicators** of statistical reporting and rigor (V1-V10)
 - Measures **within-manuscript change only**
 - Treats all findings as **descriptive and associational**
 
@@ -48,7 +46,6 @@ If measurement is unstable or underspecified, any explanation built on top of it
 > All subsequent studies depend on it.
 
 ---
-
 ## 🔍 Study 2 — Contextual Heterogeneity (Planned, Not Preregistered)
 
 **Primary question**
@@ -76,12 +73,11 @@ Contextual variables dramatically increase researcher degrees of freedom.
 They are deliberately **deferred until after measurement is locked**.
 
 ---
-
 ## 🌍 Study 3 — External Validity Across Preprint Ecosystems (Future)
 
 **Primary question**
 
-> *Do peer-review–associated manuscript changes generalize beyond biomedical preprints?*
+> *Do peer-review-associated manuscript changes generalize beyond biomedical preprints?*
 
 **What Study 3 will do**
 
@@ -100,7 +96,6 @@ They are deliberately **deferred until after measurement is locked**.
 External validity can only be assessed **after** measurement properties are established.
 
 ---
-
 ## How Results Should Be Interpreted
 
 Across all studies:
@@ -112,25 +107,26 @@ Across all studies:
 This project describes how peer review operates in practice—it does not defend or indict it.
 
 ---
-
 ## Suggested Reading Order
 
 1. **Project Description** — Motivation and high-level structure
 2. **Study 1 Preregistration** — Measurement, variables, and analysis plan  
    The Study 1 preregistration is intentionally comprehensive because it **replaces analytic flexibility with
    transparency**. Its length reflects preregistration requirements rather than analytic complexity.
-3. **Appendix: Codebook (V1–V10)** — Exact scoring rules
+3. **Appendix: Codebook (V1-V10)** — Exact scoring rules
 4. **Study 2 Stub** — Explicitly deferred contextual analyses
 5. **Study 3 Stub** — Planned external-validity assessment
 
 If only one document is read, it should be the **Study 1 preregistration**.
 
 ---
-
 ## Summary
 
 > This project separates **measurement**, **explanation**, and **generalization** into distinct preregistered stages so
 > that claims about peer review rest on observable evidence rather than assumptions. This Reader’s Map is a navigational
 > aid only. It does not define study scope, variables, or analyses, all of which are fixed exclusively in the Study 1
-> preregistration.
+> preregistration. In all cases, the Study 1 preregistration is the sole authoritative source for study scope,
+> variables,
+> scoring rules, and analysis plans.
+
 

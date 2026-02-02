@@ -2,7 +2,7 @@
 
 ## Background
 
-“Publish or perish” is a pervasive norm across scientific disciplines, making peer review an unavoidable stage in the
+Publish or perish is a pervasive norm across scientific disciplines, making peer review an unavoidable stage in the
 research lifecycle. Yet peer-review practices vary widely across fields and journals: in some cases reviewers request
 substantial changes to study design, analysis, or interpretation, while in others feedback is limited to clarification,
 presentation, or formatting.
@@ -18,7 +18,6 @@ Despite the central role of peer review, empirical evidence quantifying **how ma
 preprint and peer-reviewed publication** remains limited.
 
 ---
-
 ## Project Scope and Structure
 
 This project is designed as a **multi-study research program** examining how scientific manuscripts change as they move
@@ -38,17 +37,16 @@ through the peer-review process.
 The scope restrictions, analytic commitments, and non-causal framework of Study 1 are fully specified in the
 preregistered protocol:
 
-- [`§1 Study Overview`](peer_review_planning_document.md#1-study-overview)
-- [`§2 Research Question`](peer_review_planning_document.md#2-research-question)
-- [`§4 Conceptual Model`](peer_review_planning_document.md#4-conceptual-model-causal-dag-informed-non-causal)
-- [`§5 Formal DAGs`](peer_review_planning_document.md#5-formal-dags-conceptual)
+- [`Section 1 Study Overview`](peer_review_planning_document.md#1-study-overview)
+- [`Section 2 Research Question`](peer_review_planning_document.md#2-research-question)
+- [`Section 4 Conceptual Model`](peer_review_planning_document.md#4-conceptual-model-causal-dag-informed-non-causal)
+- [`Section 5 Formal DAGs`](peer_review_planning_document.md#5-formal-dags-conceptual)
 
 The **Study 1 preregistration is the controlling document** for all measurement rules, variable definitions, exclusion
-criteria, and analytic constraints. This project description provides high-level orientation only and does not introduce
-new analytic commitments.
+criteria, and analytic constraints. This project description is **non-normative** and introduces no analytic commitments
+beyond those explicitly preregistered in the Study 1 protocol.
 
 ---
-
 ## Study 1: Primary Aim (Current Preregistration)
 
 The primary aim of Study 1 is to **quantify observable changes in research manuscripts associated with peer review**,
@@ -64,11 +62,11 @@ Specifically, Study 1:
 All definitions, hypotheses, scoring rules, and exclusion criteria governing Study 1 are fixed prior to data access and
 documented in:
 
-- [`§7 Preregistered Variables (V1-V10)`](peer_review_planning_document.md#7-preregistered-variables-v1-v10)
-- [`§8 Scoring and Composite Measures`](peer_review_planning_document.md#8-scoring-and-composite-measures)
-- [`§9 Analysis Plan`](peer_review_planning_document.md#9-analysis-plan-high-level)
+- [`Section 7 Preregistered Variables (V1-V10)`](peer_review_planning_document.md#7-preregistered-variables-v1-v10)
+- [`Section 8 Scoring and Composite Measures`](peer_review_planning_document.md#8-scoring-and-composite-measures)
+- [`Section 9 Analysis Plan`](peer_review_planning_document.md#9-analysis-plan-high-level)
 - [
-  `§10 Hypotheses and Interpretation Framework`](peer_review_planning_document.md#10-hypotheses-and-interpretation-framework)
+  `Section 10 Hypotheses and Interpretation Framework`](peer_review_planning_document.md#10-hypotheses-and-interpretation-framework)
 
 The study is explicitly **null-tolerant**: minimal or null change is treated as a substantively informative outcome.
 
@@ -105,7 +103,6 @@ characteristics (e.g., readability metrics, article length, number of tables and
 analysed descriptively only and are not treated as indicators of statistical rigor, research quality, or improvement.
 
 ---
-
 ## Deferred Analyses and Future Extensions
 
 Although manuscript changes may plausibly vary by:
@@ -120,14 +117,13 @@ these factors are **not operationalized, recorded, or analysed in Study 1**.
 This restriction is explicitly stated in the preregistered protocol:
 
 - [
-  `§12 Deferred Analyses and Planned Extensions`](peer_review_planning_document.md#12-deferred-analyses-and-planned-extensions)
+  `Section 12 Deferred Analyses and Planned Extensions`](peer_review_planning_document.md#12-deferred-analyses-and-planned-extensions)
 
 Analyses examining associations between manuscript changes and such contextual factors will be conducted only in *
 *future, separately preregistered studies**. No post-hoc subgroup analyses involving these factors will be performed in
 Study 1.
 
 ---
-
 ## Interpretation Framework
 
 Observed patterns of change—whether positive, negative, or near-zero—are interpreted as **empirical descriptions of how
@@ -136,15 +132,14 @@ manuscripts change during peer review**, not as evidence that peer review causes
 Interpretive constraints are defined in:
 
 - [
-  `§10 Hypotheses and Interpretation Framework`](peer_review_planning_document.md#10-hypotheses-and-interpretation-framework)
+  `Section 10 Hypotheses and Interpretation Framework`](peer_review_planning_document.md#10-hypotheses-and-interpretation-framework)
 - [
-  `§9.1 Unit of Analysis and Unit of Inference`](peer_review_planning_document.md#91-unit-of-analysis-and-unit-of-inference)
+  `Section 9.1 Unit of Analysis and Unit of Inference`](peer_review_planning_document.md#91-unit-of-analysis-and-unit-of-inference)
 
 The project explicitly avoids causal attribution, normative quality judgments, and ranking of journals, authors, or
 institutions.
 
 ---
-
 ## Broader Impact
 
 By grounding interpretation in preregistered, manuscript-level measurements, this project contributes evidence to

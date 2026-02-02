@@ -2,8 +2,8 @@
 
 ## The Big Question
 
-Peer review is often described as the system that improves scientific research before it is published.  
-But surprisingly, we have limited evidence about **how scientific papers actually change** during peer review.
+Peer review is often described as the system that improves scientific research before it is published. But surprisingly,
+we have limited evidence about **how scientific papers actually change** during peer review.
 
 This project asks a straightforward question:
 
@@ -16,8 +16,7 @@ often, and in what ways**.
 
 ## Why This Matters
 
-Preprints—early versions of scientific papers shared publicly before peer review—are now widely used across many
-fields.  
+Preprints—early versions of scientific papers shared publicly before peer review—are now widely used across many fields.
 They influence public discussion, policy decisions, and future research.
 
 Understanding how much peer-reviewed papers differ from their preprint versions helps answer important questions:
@@ -112,11 +111,11 @@ the Study 1 preregistration. This summary does not modify or extend those specif
 
 ## How to Interpret the Findings
 
-If the project finds **little or no change**, that result is meaningful.  
-It suggests that many scientific decisions may be made before peer review.
+If the project finds **little or no change**, that result is meaningful. It suggests that many scientific decisions may
+be made before peer review.
 
-If the project finds **consistent changes**, that result is also meaningful.  
-It helps identify what peer review tends to influence in practice.
+If the project finds **consistent changes**, that result is also meaningful. It helps identify what peer review tends to
+influence in practice.
 
 In both cases, the findings are meant to **inform understanding**, not promote or criticize peer review.
 
@@ -135,6 +134,5 @@ All measurement rules and study plans are finalized and locked prior to examinin
 adjustments or selective interpretation. This helps ensure that conclusions reflect the evidence rather than
 expectations.
 
-Readers seeking technical detail can consult the full preregistered Study 1 protocol which documents all indicators,
-scoring rules, and analytic constraints in advance.
-
+This public summary is informational only and does not modify, extend, or supersede any measurement rules, indicators,
+or analytic constraints defined in the preregistered Study 1 protocol.
