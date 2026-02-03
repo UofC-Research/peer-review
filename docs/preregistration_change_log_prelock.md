@@ -3,8 +3,8 @@
 **Project:** *Peer-Review Impact Study — Planning & Preregistration*  
 **Study:** Study 1  
 **Change Log Version:** 1.0  
-**Date Range Covered:** January 28, 2026 to January 31, 2026  
-**Planning Lock Status:** February 2, 2026  
+**Date Range Covered:** Jan 28, 2026 to Feb 3, 2026  
+**Planning Lock Status:** Feb 3, 2026, 1:22:08 PM MST
 **Data Accessed:** ❌ No  
 **Analyses Conducted:** ❌ No
 

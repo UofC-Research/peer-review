@@ -3,7 +3,7 @@
 **Status:** Planning stage  
 **Data Accessed:** ❌ No  
 **Analysis Performed:** ❌ No  
-**Preregistration Lock Date:** February 2, 2026
+**Preregistration Lock Date:** Feb 3, 2026, 1:22:08 PM MST
 
 ---
 ## 1. Study Overview
@@ -555,7 +555,7 @@ This document constitutes the **complete planning record** prior to study execut
 
 ## 15. Planning Lock
 
-**Planning Lock Date:** __________________  February 2, 2026
+**Planning Lock Date:** __________________  Feb 3, 2026, 1:22:08 PM MST
 **Locked By:** Albert Leung
 
 After lock:
@@ -801,7 +801,7 @@ document_type: preregistered_codebook
 codebook:
   name: "Peer-Review Impact Study — Statistical Rigor Indicators"
   version: "1.0.0"
-  locked_at: February 2, 2026
+  locked_at: Feb 3, 2026, 1:22:08 PM MST
   scoring_scale:
     type: ordinal
     levels:
