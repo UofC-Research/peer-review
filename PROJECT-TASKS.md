@@ -7,19 +7,20 @@
 - Added CLI entry points, configs, and basic docs
 - Created the project description file
 - Documented tool split: Python for ELT, R for analysis
+- Locked preregistration planning document for Study 1 (variables V1-V10, scoring rules, eligibility, and analysis constraints)
+- Defined document access rules, preprint version selection, and workflow for within-manuscript comparisons
+- Authored public summary, reader map, and project description to align with preregistered scope
+- Documented data model and terminology for preprint/published manuscript pairing
 
 ## In Progress
-- TBD
+None (planning locked; no data accessed or analyses performed)
 
 ## Planned
-- Add arXiv extraction and unify schema across sources
-- Build DOI to published-article linkage (Crossref/OpenAlex) and persist mappings
-- Ingest published full text and metadata (journal, publisher, acceptance dates)
-- Add PDF/structured-text diffing between preprint and published versions
-- Define discipline taxonomy and map sources to Math/Stats/CS/Physics/Chemistry/Biology/Medicine
-- Add author/institution disambiguation and region mapping (US/EU/Asia)
-- Collect funding signals (grants acknowledged, funder registry IDs) to infer soft vs hard funding
-- Add career-stage features (author rank/years since PhD via ORCID/OpenAlex)
-- Build analytical datasets for regression and causal analysis
-- Implement evaluation metrics for “rigor vs suppression” (e.g., methods expansion vs novelty loss)
-- Add validation checks, data quality reports, and sampling for manual review
+- Build corpus assembly for matched preprint-published manuscript pairs (server metadata, DOI linkage, eligibility filters)
+- Implement full-text acquisition and format metadata capture per access hierarchy (PDF/HTML/supplements)
+- Implement V1-V10 scoring workflow with evidence logging and audit trail
+- Compute within-manuscript deltas and descriptive summaries (PRES and indicator-level changes)
+- Run preregistered descriptive analyses and heterogeneity summaries (context, journal practices)
+- Conduct reliability checks (double-coding, adjudication, IRR reporting)
+- Prepare Study 1 data-quality reporting and exclusion audit logs
+- Plan and preregister deferred analyses (funding, career stage, institutional context) for future studies
