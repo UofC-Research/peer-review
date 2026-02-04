@@ -1,0 +1,5 @@
+# Make text files use LF in the repo and on checkout (cross-platform sane default)
+* text=auto eol=lf
+
+# Markdown specifically
+*.md text eol=lf
