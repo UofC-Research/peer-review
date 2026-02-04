@@ -536,6 +536,11 @@ Document versions used for scoring are recorded explicitly, including preprint s
 
 Scoring is conducted using preregistered criteria only. No indicator definitions, scoring thresholds, or composite score constructions may be modified after the planning lock.
 
+## **13.2 Deviations and Decision Log**
+
+**Entry: Exploratory time-period review prior to lock.**  
+Before the planning lock, an exploratory review was conducted to confirm the feasibility of the preregistered time window (January 1, 2016–December 31, 2022). This review was limited to confirming the time-period bounds and did not include extraction, scoring, or analysis of study outcomes, nor did it alter preregistered variables, eligibility criteria, or analytic constraints.
+
 ---
 
 ## 14. Planning Status Declaration
