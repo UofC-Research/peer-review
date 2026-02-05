@@ -24,6 +24,8 @@ from peer_elt.transform.scoring import (
     HybridScorer,
     IndicatorScore,
     RuleBasedScorer,
+    ModelPrediction,
+    ModelScorer,
     default_rule_patterns,
 )
 
