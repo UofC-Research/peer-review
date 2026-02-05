@@ -89,6 +89,13 @@ class RulePattern:
     section: str
     pattern: str
 
+@dataclass(frozen=True)
+class ModelPrediction:
+    indicator: IndicatorName
+    score: int
+    confidence: float
+    section: str
+    evidence_text: str
 
 class RuleBasedScorer:
     """Conservative rule-based scorer using preregistered indicator cues.
@@ -166,6 +173,34 @@ class RuleBasedScorer:
 
 ModelScoringFn = Callable[[Mapping[str, str]], dict[IndicatorName, IndicatorScore]]
 
+class ModelScorer:
+    """Model-backed scorer that converts predictions into indicator scores."""
+
+    def __init__(self, predictions: Sequence[ModelPrediction], rationale: str) -> None:
+        self._predictions = tuple(predictions)
+        self._rationale = rationale
+
+    def __call__(self, sections: Mapping[str, str]) -> dict[IndicatorName, IndicatorScore]:
+        scores: dict[IndicatorName, IndicatorScore] = {}
+        for prediction in self._predictions:
+            if prediction.section not in sections:
+                continue
+            scores[prediction.indicator] = IndicatorScore(
+                indicator=prediction.indicator,
+                score=prediction.score,
+                rationale=self._rationale,
+                evidence=(
+                    EvidenceSnippet(
+                        indicator=prediction.indicator,
+                        section=prediction.section,
+                        text=prediction.evidence_text,
+                        pattern="model-prediction",
+                    ),
+                ),
+                model_score=prediction.score,
+                model_confidence=prediction.confidence,
+            )
+        return scores
 
 class HybridScorer:
     """Hybrid scorer combining rule-based signals with model outputs.

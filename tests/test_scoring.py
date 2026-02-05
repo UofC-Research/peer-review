@@ -120,3 +120,19 @@ def test_hybrid_scoring_allows_high_confidence_override() -> None:
 
     assert scorecard["V1"].score == 2
     assert scorecard["V1"].rationale == "Model score used (high confidence)"
+
+def test_model_scorer_builds_indicator_scores_from_predictions() -> None:
+    sections = {"methods": "model text", "results": "results text", "statements": "data availability"}
+    predictions = [
+        ModelPrediction(indicator="V1", score=2, confidence=0.92, section="results", evidence_text="odds ratio 1.2"),
+        ModelPrediction(indicator="V2", score=1, confidence=0.61, section="results", evidence_text="95% CI"),
+    ]
+
+    model_scorer = ModelScorer(predictions=predictions, rationale="ML classifier output")
+    scores = model_scorer(sections)
+
+    assert scores["V1"].score == 2
+    assert scores["V1"].model_confidence == 0.92
+    assert scores["V1"].rationale == "ML classifier output"
+    assert scores["V1"].evidence
+    assert scores["V2"].score == 1
