@@ -1,10 +1,15 @@
 from __future__ import annotations
 
-"""Command-line interface for running the ELT pipeline.
+"""Command-line interface for the ELT pipeline.
 
-This module wires configuration loading, factory selection, and
-pipeline subcommands into a small CLI. It is intentionally thin and
-delegates work to the pipeline and factories layers.
+This module wires together configuration loading, factory-based component
+construction, and pipeline execution behind a small set of subcommands.
+
+The CLI prints **JSON** to stdout for easy scripting:
+
+- ``extract`` prints ``{"raw_rows": <int>}``
+- ``transform`` prints ``{"diff_rows": <int>}``
+- ``run`` prints the dictionary returned by :func:`peer_elt.pipeline.run_pipeline`
 """
 
 import argparse
@@ -16,10 +21,15 @@ from peer_elt.pipeline import extract_sources, load_raw, run_pipeline, transform
 
 
 def _parse_args() -> argparse.Namespace:
-    """Parse CLI arguments for the pipeline.
+    """Parse command-line arguments for the pipeline.
 
-    Returns:
-        argparse.Namespace: Parsed arguments with `command` and `config`.
+    Returns
+    -------
+    argparse.Namespace
+        Parsed arguments. Includes:
+
+        - ``config``: path to the pipeline YAML config
+        - ``command``: one of ``"extract"``, ``"transform"``, or ``"run"``
     """
     parser = argparse.ArgumentParser(description="Peer review ELT pipeline")
     parser.add_argument("--config", required=True, help="Path to pipeline config YAML")
@@ -33,12 +43,22 @@ def _parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    """Entry point for CLI subcommands.
+    """Run the CLI entry point.
 
-    Supported commands:
-    - extract: pull raw metadata and load to storage
-    - transform: read raw storage and emit diff features
-    - run: extract + load + transform + write outputs
+    The command is selected via a required subcommand:
+
+    - ``extract``: extract raw metadata from configured sources and load it to storage
+    - ``transform``: read raw data from storage, compute diff features, and write outputs
+    - ``run``: run the full pipeline (extract + load + transform + write)
+
+    Notes
+    -----
+    This function writes JSON status to stdout to support automation.
+
+    Raises
+    ------
+    ValueError
+        If an unknown command is encountered (should not happen with argparse).
     """
     args = _parse_args()
     config = load_config(args.config)

@@ -2,37 +2,39 @@ from __future__ import annotations
 
 """Scoring utilities for preregistered indicators of statistical reporting.
 
-This module provides a small, *conservative* scoring system for manuscript text:
+This module provides a small, conservative scoring system for manuscript text.
 
-- **Rule-based scoring**: apply preregistered regex cues (grouped by indicator and level)
-  to specific manuscript sections (e.g., "methods", "results").
-- **Hybrid scoring**: optionally merge rule-based scores with a model-based scorer while
-  defaulting to conservative behavior when sources disagree.
+It supports two scoring modes:
+
+- **Rule-based scoring** via preregistered regex cues (grouped by indicator and
+  evidence level) applied to specific manuscript sections (e.g., ``"methods"``,
+  ``"results"``).
+- **Hybrid scoring** that optionally merges rule-based output with a model-based
+  scorer, defaulting to conservative behavior when sources disagree.
 
 Key concepts
 ------------
 Indicator
-    A short identifier for a preregistered variable/indicator (e.g., "V1"..."V10").
-
+    Short identifier for a preregistered variable/indicator (e.g., ``"V1"`` ...
+    ``"V10"``).
 Section
-    A named slice of manuscript text (e.g., "methods", "results", "statements"). Callers
-    pass a mapping of section name -> section text.
+    Named slice of manuscript text (e.g., ``"methods"``, ``"results"``,
+    ``"statements"``). Callers provide a mapping of section name to section text.
+Score / Level
+    Integer representing evidence strength for an indicator (higher usually
+    means stronger or more specific evidence under preregistered rules).
 
-Level / Score
-    An integer representing the strength/strictness of evidence for an indicator, where
-    higher usually means "more specific/stronger evidence" under preregistered rules.
-
-Design notes
-------------
+Notes
+-----
 - Evidence is stored as short text snippets around matched regex spans.
-- For each (indicator, pattern) we keep at most the first 3 matches to avoid bloated output.
-- Hybrid merging prefers *lower* scores when rule and model disagree, unless the model
-  supplies high confidence.
+- For each (indicator, pattern), at most the first 3 matches are retained.
+- Hybrid merging prefers lower scores when rule and model disagree unless the
+  model supplies high confidence.
 """
 
 from dataclasses import dataclass, field
 import re
-from typing import Callable, Iterable, Mapping
+from typing import Callable, Iterable, Mapping, Sequence
 
 
 IndicatorName = str
@@ -40,17 +42,17 @@ IndicatorName = str
 
 @dataclass(frozen=True)
 class EvidenceSnippet:
-    """A short excerpt supporting an indicator score.
+    """Short excerpt supporting an indicator score.
 
     Attributes
     ----------
-    indicator:
-        Indicator identifier this snippet supports (e.g., "V3").
-    section:
-        Section name where the evidence was found (e.g., "results").
-    text:
+    indicator : str
+        Indicator identifier this snippet supports (e.g., ``"V3"``).
+    section : str
+        Section name where the evidence was found (e.g., ``"results"``).
+    text : str
         Extracted text window around the match (trimmed).
-    pattern:
+    pattern : str
         Regex pattern responsible for the match (useful for auditing/debugging).
     """
 
@@ -62,6 +64,26 @@ class EvidenceSnippet:
 
 @dataclass(frozen=True)
 class IndicatorScore:
+    """Score for a single indicator, optionally with evidence and provenance.
+
+    Attributes
+    ----------
+    indicator : str
+        Indicator identifier (e.g., ``"V1"``).
+    score : int
+        Final chosen score for this indicator.
+    rationale : str
+        Human-readable reason for the chosen score.
+    evidence : tuple[EvidenceSnippet, ...], default=()
+        Evidence snippets supporting the score.
+    rule_score : int | None, default=None
+        Rule-based score, if available.
+    model_score : int | None, default=None
+        Model-based score, if available.
+    model_confidence : float | None, default=None
+        Model confidence, if available.
+    """
+
     indicator: IndicatorName
     score: int
     rationale: str
@@ -73,41 +95,88 @@ class IndicatorScore:
 
 @dataclass(frozen=True)
 class HybridScorecard:
-    """Immutable collection of `IndicatorScore` entries."""
+    """Immutable collection of :class:`IndicatorScore` entries.
+
+    Attributes
+    ----------
+    scores : tuple[IndicatorScore, ...]
+        Scores contained in this scorecard.
+    """
 
     scores: tuple[IndicatorScore, ...]
 
     def as_dict(self) -> dict[IndicatorName, IndicatorScore]:
-        """Return scores keyed by indicator name for convenient lookup."""
+        """Return scores keyed by indicator name.
+
+        Returns
+        -------
+        dict[str, IndicatorScore]
+            Mapping from indicator name to its score.
+        """
         return {score.indicator: score for score in self.scores}
 
 
 @dataclass(frozen=True)
 class RulePattern:
+    """Single regex rule used for rule-based scoring.
+
+    Attributes
+    ----------
+    indicator : str
+        Indicator identifier this rule supports.
+    level : int
+        Evidence level contributed by this rule when matched.
+    section : str
+        Section name to search within.
+    pattern : str
+        Regex pattern to apply (case-insensitive).
+    """
+
     indicator: IndicatorName
     level: int
     section: str
     pattern: str
 
+
 @dataclass(frozen=True)
 class ModelPrediction:
+    """Model-produced prediction for a single indicator.
+
+    Attributes
+    ----------
+    indicator : str
+        Indicator identifier.
+    score : int
+        Predicted score.
+    confidence : float
+        Model confidence for the predicted score.
+    section : str
+        Section where the evidence applies (must exist in the input mapping).
+    evidence_text : str
+        Evidence text (or snippet) supporting the prediction.
+    """
+
     indicator: IndicatorName
     score: int
     confidence: float
     section: str
     evidence_text: str
 
+
 class RuleBasedScorer:
     """Conservative rule-based scorer using preregistered indicator cues.
 
-    The scorer applies regex patterns (case-insensitive) to specified sections of a manuscript.
-    For each indicator, the *maximum* matched level across its patterns becomes the indicator's
-    rule score.
+    The scorer applies regex patterns (case-insensitive) to specified sections of
+    a manuscript. For each indicator, the maximum matched level across its
+    patterns becomes the indicator's rule score.
 
-    Evidence handling
-    -----------------
-    - For each matched rule pattern, up to the first 3 matches are stored as `EvidenceSnippet`s.
-    - Each snippet includes a small window around the match (±80 characters).
+    Notes
+    -----
+    Evidence handling:
+
+    - For each matched rule pattern, up to the first 3 matches are stored as
+      :class:`EvidenceSnippet` instances.
+    - Each snippet includes a window around the match (±80 characters).
     """
 
     def __init__(self, patterns: Iterable[RulePattern]) -> None:
@@ -115,8 +184,8 @@ class RuleBasedScorer:
 
         Parameters
         ----------
-        patterns:
-            Iterable of `RulePattern` objects defining indicator cues.
+        patterns : Iterable[RulePattern]
+            Rules defining indicator cues (indicator, level, section, regex).
         """
         self._patterns = tuple(patterns)
 
@@ -125,14 +194,15 @@ class RuleBasedScorer:
 
         Parameters
         ----------
-        sections:
+        sections : Mapping[str, str]
             Mapping of section name to raw text.
 
         Returns
         -------
-        dict[IndicatorName, IndicatorScore]
-            Only indicators with at least one match are returned. Indicators with no evidence
-            are omitted (callers can treat missing as score 0 if desired).
+        dict[str, IndicatorScore]
+            Mapping from indicator name to its score. Only indicators with at
+            least one match are returned. Indicators with no evidence are
+            omitted (callers may treat missing as score 0 if desired).
         """
         scores: dict[IndicatorName, IndicatorScore] = {}
         evidence_by_indicator: dict[IndicatorName, list[EvidenceSnippet]] = {}
@@ -173,14 +243,36 @@ class RuleBasedScorer:
 
 ModelScoringFn = Callable[[Mapping[str, str]], dict[IndicatorName, IndicatorScore]]
 
+
 class ModelScorer:
-    """Model-backed scorer that converts predictions into indicator scores."""
+    """Model-backed scorer converting predictions into indicator scores.
+
+    Parameters
+    ----------
+    predictions : Sequence[ModelPrediction]
+        Predictions to materialize into :class:`IndicatorScore` entries.
+    rationale : str
+        Rationale string attached to produced scores.
+    """
 
     def __init__(self, predictions: Sequence[ModelPrediction], rationale: str) -> None:
         self._predictions = tuple(predictions)
         self._rationale = rationale
 
     def __call__(self, sections: Mapping[str, str]) -> dict[IndicatorName, IndicatorScore]:
+        """Score indicators from model predictions.
+
+        Parameters
+        ----------
+        sections : Mapping[str, str]
+            Mapping of section name to text. Predictions referencing a section
+            not present in this mapping are ignored.
+
+        Returns
+        -------
+        dict[str, IndicatorScore]
+            Mapping from indicator name to model-produced score.
+        """
         scores: dict[IndicatorName, IndicatorScore] = {}
         for prediction in self._predictions:
             if prediction.section not in sections:
@@ -202,22 +294,22 @@ class ModelScorer:
             )
         return scores
 
+
 class HybridScorer:
-    """Hybrid scorer combining rule-based signals with model outputs.
+    """Hybrid scorer combining rule-based signals with optional model outputs.
 
     Combination strategy (conservative by default)
     ---------------------------------------------
     - If both rule and model score an indicator:
-        - If model confidence >= `override_confidence`, use the model score.
-        - Otherwise, use `min(rule_score, model_score)` to avoid optimistic inflation.
+        - If model confidence >= ``override_confidence``, use the model score.
+        - Otherwise, use ``min(rule_score, model_score)`` to avoid optimistic
+          inflation.
     - If only one source provides a score, use it.
     - If neither provides a score, return 0 with rationale "No evidence found".
 
     Notes
     -----
-    - Evidence from rule and model is concatenated when both are present.
-    - This class does not validate the semantic meaning of score levels; it assumes both
-      sources use a compatible integer scale.
+    Evidence from rule and model is concatenated when both are present.
     """
 
     def __init__(
@@ -230,19 +322,32 @@ class HybridScorer:
 
         Parameters
         ----------
-        rule_scorer:
+        rule_scorer : RuleBasedScorer
             Mandatory rule-based scorer.
-        model_scorer:
-            Optional callable returning model-produced `IndicatorScore`s keyed by indicator.
-        override_confidence:
-            Confidence threshold above which the model may override conservative merging.
+        model_scorer : ModelScoringFn | None, default=None
+            Optional callable returning model-produced indicator scores keyed by
+            indicator name.
+        override_confidence : float, default=0.8
+            Confidence threshold above which the model may override conservative
+            merging.
         """
         self._rule_scorer = rule_scorer
         self._model_scorer = model_scorer
         self._override_confidence = override_confidence
 
     def score(self, sections: Mapping[str, str]) -> HybridScorecard:
-        """Compute a combined scorecard for the given manuscript sections."""
+        """Compute a combined scorecard for the given manuscript sections.
+
+        Parameters
+        ----------
+        sections : Mapping[str, str]
+            Mapping of section name to raw text.
+
+        Returns
+        -------
+        HybridScorecard
+            Immutable scorecard containing merged indicator scores.
+        """
         rule_scores = self._rule_scorer.score(sections)
         model_scores = self._model_scorer(sections) if self._model_scorer else {}
         indicators = set(rule_scores) | set(model_scores)
@@ -261,7 +366,22 @@ class HybridScorer:
         rule_score: IndicatorScore | None,
         model_score: IndicatorScore | None,
     ) -> IndicatorScore:
-        """Merge possibly-missing scores from rule and model sources."""
+        """Merge possibly-missing scores from rule and model sources.
+
+        Parameters
+        ----------
+        indicator : str
+            Indicator identifier.
+        rule_score : IndicatorScore | None
+            Rule-based score (if present).
+        model_score : IndicatorScore | None
+            Model-based score (if present).
+
+        Returns
+        -------
+        IndicatorScore
+            Merged score entry.
+        """
         if rule_score and model_score:
             return self._merge_rule_and_model(indicator, rule_score, model_score)
         if rule_score:
@@ -276,7 +396,22 @@ class HybridScorer:
         rule_score: IndicatorScore,
         model_score: IndicatorScore,
     ) -> IndicatorScore:
-        """Merge scores when both sources produced an output for an indicator."""
+        """Merge scores when both sources produced output for an indicator.
+
+        Parameters
+        ----------
+        indicator : str
+            Indicator identifier.
+        rule_score : IndicatorScore
+            Rule-based score entry.
+        model_score : IndicatorScore
+            Model-based score entry.
+
+        Returns
+        -------
+        IndicatorScore
+            Merged score entry with combined evidence and provenance fields.
+        """
         rule_value = rule_score.score
         model_value = model_score.score
         confidence = model_score.model_confidence or 0.0
@@ -303,13 +438,30 @@ class HybridScorer:
 def default_rule_patterns() -> tuple[RulePattern, ...]:
     """Return the default preregistered rule patterns.
 
-    These patterns are intended as a baseline heuristic implementation: each indicator has
-    two levels of evidence and is searched in a specific section. Callers may supply their
-    own patterns to `RuleBasedScorer` if they need to customize or extend behavior.
+    Returns
+    -------
+    tuple[RulePattern, ...]
+        Default patterns used by :class:`RuleBasedScorer`.
+
+    Notes
+    -----
+    This is a baseline heuristic implementation: each indicator has two levels
+    of evidence and is searched in a specific section. Callers may supply their
+    own patterns to :class:`RuleBasedScorer` to customize behavior.
     """
     return (
-        RulePattern("V1", 1, "results", r"\b(effect|estimate|odds ratio|hazard ratio|risk ratio|beta|coef)\b"),
-        RulePattern("V1", 2, "results", r"\b(odds ratio|hazard ratio|risk ratio|beta|coef)[^\n]{0,40}\b\d+"),
+        RulePattern(
+            "V1",
+            1,
+            "results",
+            r"\b(effect|estimate|odds ratio|hazard ratio|risk ratio|beta|coef)\b",
+        ),
+        RulePattern(
+            "V1",
+            2,
+            "results",
+            r"\b(odds ratio|hazard ratio|risk ratio|beta|coef)[^\n]{0,40}\b\d+",
+        ),
         RulePattern("V2", 1, "results", r"\b(standard error|se|confidence interval|credible interval)\b"),
         RulePattern("V2", 2, "results", r"\b(95%|CI|CrI)\b"),
         RulePattern("V3", 1, "results", r"\bp\s*[<≤]\s*0\.\d+"),

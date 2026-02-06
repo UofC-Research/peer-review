@@ -1,6 +1,21 @@
 from __future__ import annotations
 
-"""Diff and similarity feature construction for preprint versions."""
+"""Diff and similarity feature construction for preprint versions.
+
+This module computes within-DOI change features between the first observed
+version (v1) and the latest observed version of a preprint.
+
+Computed features include:
+- Title and abstract string similarity ratios.
+- Abstract word-count change (latest - v1).
+- Optional PDF text similarity ratio (when enabled and PDFs are available).
+
+Notes
+-----
+- Similarity ratios are computed using :class:`difflib.SequenceMatcher`.
+- PDF text extraction uses :mod:`PyPDF2` if installed; missing dependencies or
+  extraction failures result in empty text for that side of the comparison.
+"""
 
 from difflib import SequenceMatcher
 from pathlib import Path
@@ -11,21 +26,58 @@ from peer_elt.interfaces import Transformer
 
 
 def _ratio(left: str, right: str) -> float:
-    """Return a similarity ratio between two strings."""
+    """Compute a similarity ratio between two strings.
+
+    Parameters
+    ----------
+    left : str
+        Left-hand string.
+    right : str
+        Right-hand string.
+
+    Returns
+    -------
+    float
+        Similarity ratio in the interval [0, 1]. Returns 1.0 when both strings
+        are empty.
+    """
     if not left and not right:
         return 1.0
     return SequenceMatcher(None, left or "", right or "").ratio()
 
 
 def _word_count(text: str) -> int:
-    """Count whitespace-delimited words."""
+    """Count whitespace-delimited words.
+
+    Parameters
+    ----------
+    text : str
+        Input text.
+
+    Returns
+    -------
+    int
+        Number of whitespace-delimited tokens. Returns 0 for empty text.
+    """
     if not text:
         return 0
     return len(text.split())
 
 
 def _extract_pdf_text(path: Path) -> str:
-    """Extract text from a PDF file, returning empty string on failure."""
+    """Extract text from a PDF file.
+
+    Parameters
+    ----------
+    path : pathlib.Path
+        Path to the PDF.
+
+    Returns
+    -------
+    str
+        Extracted text. Returns an empty string if the file does not exist, if
+        :mod:`PyPDF2` is not installed, or if extraction fails.
+    """
     try:
         from PyPDF2 import PdfReader
     except ImportError:
@@ -46,8 +98,34 @@ def build_diff_features(
 ) -> pd.DataFrame:
     """Build diff metrics between version 1 and latest for each DOI.
 
-    This computes string similarity ratios for titles and abstracts,
-    word count deltas, and (optionally) PDF text similarity.
+    Parameters
+    ----------
+    raw_df : pandas.DataFrame
+        Raw metadata rows. Expected to contain at least ``doi`` and ``version``,
+        and typically ``title`` and ``abstract``. If empty, an empty DataFrame is
+        returned.
+    enable_pdf_diff : bool
+        If True, compute PDF text similarity for each DOI.
+    pdf_dir : str | None
+        Root directory containing PDF files. Expected layout is::
+
+            <pdf_dir>/preprint/<doi>.pdf
+            <pdf_dir>/published/<doi>.pdf
+
+        Only used when ``enable_pdf_diff`` is True.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Per-DOI feature table comparing v1 vs latest.
+
+    Notes
+    -----
+    The implementation:
+    - coerces ``version`` to numeric and uses per-DOI first/last ordering,
+    - fills missing title/abstract with empty strings,
+    - adds ``published_doi`` if missing (aliasing from API ``published`` field),
+    - returns a normalized set of columns with stable names.
     """
     if raw_df.empty:
         return pd.DataFrame()
@@ -83,9 +161,7 @@ def build_diff_features(
         lambda row: _ratio(row["abstract_v1"], row["abstract_latest"]),
         axis=1,
     )
-    merged["abstract_word_count_delta"] = (
-        merged["word_count_latest"] - merged["word_count_v1"]
-    )
+    merged["abstract_word_count_delta"] = merged["word_count_latest"] - merged["word_count_v1"]
 
     if enable_pdf_diff and pdf_dir:
         pdf_root = Path(pdf_dir)
@@ -126,14 +202,43 @@ def build_diff_features(
 
 
 class DiffTransformer(Transformer):
-    """Transformer that computes text and PDF similarity features."""
+    """Transformer that computes text and optional PDF similarity features.
+
+    Parameters
+    ----------
+    enable_pdf_diff : bool
+        Whether to compute PDF similarity features.
+    pdf_dir : str | None
+        Root directory containing PDFs, used only when ``enable_pdf_diff`` is
+        True.
+    """
 
     def __init__(self, enable_pdf_diff: bool, pdf_dir: Optional[str]) -> None:
-        """Create a diff transformer with optional PDF comparison."""
+        """Create the transformer.
+
+        Parameters
+        ----------
+        enable_pdf_diff : bool
+            Whether to compute PDF similarity features.
+        pdf_dir : str | None
+            Root directory containing PDFs.
+        """
         self._enable_pdf_diff = enable_pdf_diff
         self._pdf_dir = pdf_dir
 
     def transform(self, raw_df: pd.DataFrame) -> pd.DataFrame:
+        """Transform raw metadata into per-DOI diff features.
+
+        Parameters
+        ----------
+        raw_df : pandas.DataFrame
+            Raw metadata dataframe.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Diff feature table produced by :func:`build_diff_features`.
+        """
         return build_diff_features(
             raw_df,
             enable_pdf_diff=self._enable_pdf_diff,

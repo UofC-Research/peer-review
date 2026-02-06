@@ -1,6 +1,21 @@
 from __future__ import annotations
 
-"""Extractor for bioRxiv/medRxiv metadata via the public API."""
+"""bioRxiv/medRxiv metadata extraction via the public API.
+
+This module provides a small wrapper around the bioRxiv/medRxiv ``details`` API
+endpoint and exposes:
+
+- a low-level paginated fetcher (:func:`fetch_preprints`),
+- a registry-friendly client (:class:`BiorxivApiClient`),
+- an :class:`peer_elt.interfaces.Extractor` implementation
+  (:class:`BiorxivApiExtractor`).
+
+Notes
+-----
+The API is paginated using a cursor/offset. Requests are retried using
+``tenacity`` with an exponential backoff configured by
+:class:`peer_elt.config.RetryConfig`.
+"""
 
 from typing import Any, Dict, List
 
@@ -103,7 +118,15 @@ class BiorxivApiExtractor(Extractor):
         """Fetch records for the configured source window.
 
         Args:
-            source: Source configuration with server and date range.
+            source : peer_elt.config.SourceConfig
+                Source configuration containing the server slug and date range.
+            retry_config : peer_elt.config.RetryConfig
+                Retry/backoff configuration for external API calls.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Raw metadata rows for the requested source window.
         """
         client = self._client or BiorxivApiClient(server=source.server)
         return client.fetch(source.date_from, source.date_to, retry_config)

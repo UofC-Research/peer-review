@@ -1,9 +1,22 @@
 from __future__ import annotations
 
-"""Protocol-like interfaces for extractors, storages, and transformers.
+"""Abstract interfaces for pipeline components.
 
-These abstract base classes document required behaviors for each
-pipeline component and enable easy swapping via factories.
+This module defines the minimal contracts that pipeline components must satisfy:
+
+- :class:`Extractor` pulls raw metadata for a configured source.
+- :class:`Storage` persists and retrieves raw and derived datasets.
+- :class:`Transformer` converts raw metadata into analysis-ready features.
+
+The project uses these interfaces to enable factory-based swapping of concrete
+implementations (e.g., DuckDB vs PostgreSQL storage) while keeping the pipeline
+logic stable.
+
+Notes
+-----
+These are expressed as :class:`abc.ABC` abstract base classes rather than
+``typing.Protocol`` to provide explicit runtime enforcement (i.e., subclasses
+must implement the abstract methods).
 """
 
 from abc import ABC, abstractmethod
@@ -12,73 +25,139 @@ import pandas as pd
 
 
 class Extractor(ABC):
-    """Interface for pulling preprint metadata from a source.
+    """Abstract interface for pulling preprint metadata from a source.
 
-    Implementations should return a dataframe with the raw metadata
-    fields used by downstream transforms (title, abstract, version, etc.).
+    Implementations typically make network calls to an external API and must
+    return a :class:`pandas.DataFrame` containing the raw fields required by
+    downstream transformations (e.g., title, abstract, version, server, date).
+
+    Notes
+    -----
+    This interface intentionally does not prescribe a full schema. In practice,
+    the transform layer will define which columns are required.
     """
 
     @abstractmethod
     def fetch(self, source, retry_config) -> pd.DataFrame:
-        """Return a dataframe of raw preprint metadata for a SourceConfig.
+        """Fetch raw preprint metadata for a single configured source.
 
-        Args:
-            source: Source configuration including server and date range.
-            retry_config: Retry/backoff configuration for external calls.
+        Parameters
+        ----------
+        source
+            Source configuration (typically a ``SourceConfig``) describing which
+            server to query and what date range to extract.
+        retry_config
+            Retry/backoff configuration (typically a ``RetryConfig``) used to
+            govern transient-error handling for external calls.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Raw metadata rows for the requested source.
+
+        Raises
+        ------
+        NotImplementedError
+            Always raised by the abstract base class. Concrete implementations
+            should raise exceptions appropriate to their transport layer
+            (e.g., network errors) and/or configuration validation.
         """
         raise NotImplementedError
 
 
 class Storage(ABC):
-    """Interface for reading/writing pipeline data to a backend.
+    """Abstract interface for reading and writing pipeline data.
 
-    Storage implementations should append new data and avoid destructive
-    operations unless explicitly requested by the caller.
+    Storage implementations back the pipeline's persistence layer. They should
+    support writing raw extracted data and writing derived outputs, and they
+    should avoid destructive operations unless the caller explicitly requests
+    them.
+
+    Notes
+    -----
+    The interface models logical operations (load/read/write) rather than
+    database-specific concepts. Concrete implementations may choose how they map
+    these operations to tables, schemas, files, or partitions.
     """
 
     @abstractmethod
     def load_raw(self, df: pd.DataFrame) -> None:
-        """Persist raw preprint metadata.
+        """Persist raw extracted metadata.
 
-        Args:
-            df: Raw metadata dataframe.
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            Raw metadata rows to persist.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        NotImplementedError
+            Always raised by the abstract base class.
         """
         raise NotImplementedError
 
     @abstractmethod
     def read_raw(self) -> pd.DataFrame:
-        """Load raw preprint metadata from storage.
+        """Read raw metadata from storage.
 
-        Returns:
-            DataFrame of raw metadata.
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame containing the stored raw metadata.
         """
         raise NotImplementedError
 
     @abstractmethod
     def write_table(self, table_name: str, df: pd.DataFrame) -> None:
-        """Write a named output table to storage.
+        """Write a named output table/dataset.
 
-        Args:
-            table_name: Logical name for the output table.
-            df: Output dataframe to persist.
+        Parameters
+        ----------
+        table_name : str
+            Logical name for the output dataset (e.g., ``"diff_features"``).
+        df : pandas.DataFrame
+            Output dataframe to persist.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        NotImplementedError
+            Always raised by the abstract base class.
         """
         raise NotImplementedError
 
 
 class Transformer(ABC):
-    """Interface for turning raw metadata into analytical features.
+    """Abstract interface for converting raw data into analytical features.
 
-    Implementations should not mutate the input dataframe in-place.
+    Implementations are responsible for producing derived, analysis-ready tables
+    (e.g., within-manuscript diffs, scoring outputs).
+
+    Notes
+    -----
+    Transformers should treat ``raw_df`` as immutable input and should not
+    mutate it in-place.
     """
 
     @abstractmethod
     def transform(self, raw_df: pd.DataFrame) -> pd.DataFrame:
-        """Return an analysis-ready dataframe.
+        """Transform raw metadata into derived features.
 
-        Args:
-            raw_df: Raw metadata dataframe.
+        Parameters
+        ----------
+        raw_df : pandas.DataFrame
+            Raw metadata dataframe.
 
-        Returns:
-            DataFrame of computed features.
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame containing derived features.
         """
         raise NotImplementedError
