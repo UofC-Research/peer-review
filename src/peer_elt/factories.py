@@ -7,7 +7,7 @@ pipeline can depend on stable interfaces.
 """
 
 from peer_elt.config import PipelineConfig, SourceConfig, StorageConfig
-from peer_elt.extract.biorxiv import BiorxivApiExtractor
+from peer_elt.extract.registry import PreprintServerRegistry, RegistryExtractor, default_registry
 from peer_elt.interfaces import Extractor, Storage, Transformer
 from peer_elt.load.duckdb import DuckDBStorage
 from peer_elt.load.postgres import PostgresStorage
@@ -20,12 +20,13 @@ class ExtractorFactory:
     This supports bioRxiv and medRxiv via the same API client.
     """
 
-    _supported = {"biorxiv", "medrxiv"}
+    def __init__(self, registry: PreprintServerRegistry | None = None) -> None:
+        self._registry = registry or default_registry()
 
     def create(self, source: SourceConfig) -> Extractor:
-        if source.server not in self._supported:
+        if not self._registry.has_server(source.server):
             raise ValueError(f"Unsupported source server: {source.server}")
-        return BiorxivApiExtractor()
+        return RegistryExtractor(self._registry)
 
 
 class StorageFactory:

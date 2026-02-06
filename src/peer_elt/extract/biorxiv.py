@@ -8,6 +8,7 @@ import pandas as pd
 import requests
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 from peer_elt.config import RetryConfig, SourceConfig
+from peer_elt.extract.registry import PreprintServerClient
 from peer_elt.interfaces import Extractor
 
 API_ROOT = "https://api.biorxiv.org/details"
@@ -77,8 +78,26 @@ def fetch_preprints(
     return frame
 
 
+class BiorxivApiClient(PreprintServerClient):
+    """Client that uses the bioRxiv/medRxiv public API."""
+
+    def __init__(self, server: str) -> None:
+        self.server = server
+
+    def fetch(self, date_from: str, date_to: str, retry_config: RetryConfig) -> pd.DataFrame:
+        return fetch_preprints(
+            server=self.server,
+            date_from=date_from,
+            date_to=date_to,
+            retry_config=retry_config,
+        )
+
+
 class BiorxivApiExtractor(Extractor):
     """Extractor that uses the bioRxiv/medRxiv public API."""
+
+    def __init__(self, client: BiorxivApiClient | None = None) -> None:
+        self._client = client
 
     def fetch(self, source: SourceConfig, retry_config: RetryConfig) -> pd.DataFrame:
         """Fetch records for the configured source window.
@@ -86,9 +105,5 @@ class BiorxivApiExtractor(Extractor):
         Args:
             source: Source configuration with server and date range.
         """
-        return fetch_preprints(
-            server=source.server,
-            date_from=source.date_from,
-            date_to=source.date_to,
-            retry_config=retry_config,
-        )
+        client = self._client or BiorxivApiClient(server=source.server)
+        return client.fetch(source.date_from, source.date_to, retry_config)

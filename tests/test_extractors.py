@@ -1,7 +1,8 @@
 import pandas as pd
 
-from peer_elt.config import RetryConfig
+from peer_elt.config import RetryConfig, SourceConfig
 from peer_elt.extract import biorxiv, medrxiv
+from peer_elt.extract.registry import PreprintServerClient, PreprintServerRegistry, RegistryExtractor
 
 
 def test_fetch_preprints_paginates_and_sets_fields(monkeypatch) -> None:
@@ -62,3 +63,25 @@ def test_fetch_medrxiv_passes_server(monkeypatch) -> None:
     medrxiv.fetch_medrxiv("2023-01-01", "2023-01-02", retry)
 
     assert called["args"][0] == "medrxiv"
+
+
+def test_registry_extractor_fetches_from_registered_client() -> None:
+    class DummyClient(PreprintServerClient):
+        server = "dummy"
+
+        def fetch(self, date_from, date_to, retry_config):
+            return pd.DataFrame([{"doi": "10.1/x", "server": self.server}])
+
+    registry = PreprintServerRegistry()
+    registry.register(DummyClient())
+    extractor = RegistryExtractor(registry)
+
+    source = SourceConfig(
+        name="dummy",
+        server="dummy",
+        date_from="2023-01-01",
+        date_to="2023-01-02",
+    )
+    df = extractor.fetch(source=source, retry_config=RetryConfig())
+
+    assert df.iloc[0]["server"] == "dummy"

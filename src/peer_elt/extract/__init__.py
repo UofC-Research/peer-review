@@ -1,1 +1,1 @@
-__all__ = ["biorxiv", "medrxiv"]
+__all__ = ["biorxiv", "medrxiv", "registry"]
