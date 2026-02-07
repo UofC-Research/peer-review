@@ -4,17 +4,14 @@
 
 This project examines a simple but contested question:
 
-> **How do scientific manuscripts actually change between preprint and peer-reviewed publication—and in what ways, if
-any, does peer review matter?**
+> **How do scientific manuscripts actually change between preprint and peer-reviewed publication—and in what ways, if any, does peer review matter?**
 
-Rather than assuming that peer review improves scientific work, this project **measures change first**, then examines *
-*where, when, and whether those changes generalize**, using a staged, preregistered design.
+Rather than assuming that peer review improves scientific work, this project **measures change first**, then examines **where, when, and whether those changes generalize**, using a staged, preregistered design.
 
 ---
 ## Why the Project Is Split Into Three Studies
 
-Research on peer review often fails because **measurement, explanation, and generalization are mixed together**. This
-project avoids that problem by separating them explicitly.
+Research on peer review often fails because **measurement, explanation, and generalization are mixed together**. This project avoids that problem by separating them explicitly.
 
 Each study answers a **different question**, in the only order that preserves interpretability.
 
@@ -52,8 +49,7 @@ If measurement is unstable or underspecified, any explanation built on top of it
 
 > *Do the manuscript changes measured in Study 1 vary by contextual factors?*
 
-Examples of contextual factors include funding environments, author career stage, institutional systems, or disciplinary
-norms.
+Examples of contextual factors include funding environments, author career stage, institutional systems, or disciplinary norms.
 
 **What Study 2 will do**
 
@@ -111,8 +107,7 @@ This project describes how peer review operates in practice—it does not defend
 
 1. **Project Description** — Motivation and high-level structure
 2. **Study 1 Preregistration** — Measurement, variables, and analysis plan  
-   The Study 1 preregistration is intentionally comprehensive because it **replaces analytic flexibility with
-   transparency**. Its length reflects preregistration requirements rather than analytic complexity.
+   The Study 1 preregistration is intentionally comprehensive because it **replaces analytic flexibility with transparency**. Its length reflects preregistration requirements rather than analytic complexity.
 3. **Appendix: Codebook (V1-V10)** — Exact scoring rules
 4. **Study 2 Stub** — Explicitly deferred contextual analyses
 5. **Study 3 Stub** — Planned external-validity assessment
@@ -122,11 +117,6 @@ If only one document is read, it should be the **Study 1 preregistration**.
 ---
 ## Summary
 
-> This project separates **measurement**, **explanation**, and **generalization** into distinct preregistered stages so
-> that claims about peer review rest on observable evidence rather than assumptions. This Reader’s Map is a navigational
-> aid only. It does not define study scope, variables, or analyses, all of which are fixed exclusively in the Study 1
-> preregistration. In all cases, the Study 1 preregistration is the sole authoritative source for study scope,
-> variables,
-> scoring rules, and analysis plans.
+> This project separates **measurement**, **explanation**, and **generalization** into distinct preregistered stages so that claims about peer review rest on observable evidence rather than assumptions. This Reader’s Map is a navigational aid only. It does not define study scope, variables, or analyses, all of which are fixed exclusively in the Study 1 preregistration. In all cases, the Study 1 preregistration is the sole authoritative source for study scope, variables, scoring rules, and analysis plans.
 
 

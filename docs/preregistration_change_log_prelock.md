@@ -12,17 +12,13 @@
 
 ## Purpose of This Change Log
 
-This document records **all substantive and non-substantive edits made to the preregistration materials prior to the
-planning lock**. It is provided to distinguish **editorial clarification and structural refinement** from **analytic
-flexibility**, and to document that **no changes were informed by data access or analysis**.
+This document records **all substantive and non-substantive edits made to the preregistration materials prior to the planning lock**. It is provided to distinguish **editorial clarification and structural refinement** from **analytic flexibility**, and to document that **no changes were informed by data access or analysis**.
 
 ---
 
 ## Summary Statement
 
-All changes documented below were made **prior to the preregistration lock**, **before any data were accessed**, and *
-*before any analyses were conducted**. Furthermore, all changes are classified as **editorial, clarificatory, or
-structural** and did not altered analytic degrees of freedom or introduced researcher discretion.
+All changes documented below were made **prior to the preregistration lock**, **before any data were accessed**, and **before any analyses were conducted**. Furthermore, all changes are classified as **editorial, clarificatory, or structural** and did not altered analytic degrees of freedom or introduced researcher discretion.
 
 No changes altered:
 
@@ -35,7 +31,6 @@ No changes altered:
 - version selection rules
 
 ---
-
 ## Categories of Changes
 
 ### 1. Document Hierarchy and Cross-Reference Clarification
@@ -58,7 +53,6 @@ To prevent ambiguity regarding which document governs study design and analytic 
 None.
 
 ---
-
 ### 2. Structural Reorganization and Section Continuity
 
 **Description**  
@@ -78,7 +72,6 @@ To improve clarity and navigability without altering study content.
 None.
 
 ---
-
 ### 3. Terminology Standardization
 
 **Description**  
@@ -97,7 +90,6 @@ To reduce interpretive ambiguity and improve consistency across materials.
 None.
 
 ---
-
 ### 4. Clarification of Conceptual Diagrams (DAGs)
 
 **Description**  
@@ -116,7 +108,6 @@ To avoid misinterpretation of DAGs as causal identification tools.
 None.
 
 ---
-
 ### 5. Editorial Corrections and Language Polishing
 
 **Description**  
@@ -135,7 +126,6 @@ To improve readability and professionalism.
 None.
 
 ---
-
 ## Explicit Statement of Non-Changes
 
 The following elements were **not modified at any point** during these revisions:
@@ -150,14 +140,11 @@ The following elements were **not modified at any point** during these revisions
 - Planned analyses or summaries
 
 ---
-
 ## Declaration
 
-All changes documented above were completed **prior to preregistration lock**, with **no access to outcome data**, **no
-manuscript scoring**, and **no preliminary analyses**.
+All changes documented above were completed **prior to preregistration lock**, with **no access to outcome data**, **no manuscript scoring**, and **no preliminary analyses**.
 
-This change log is provided in the interest of transparency and auditability and does not modify the preregistered study
-design.
+This change log is provided in the interest of transparency and auditability and does not modify the preregistered study design.
 
 ---
 

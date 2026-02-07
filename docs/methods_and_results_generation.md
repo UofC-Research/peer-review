@@ -163,7 +163,6 @@ Performance metrics are reported using held-out test data only.
 This design is directly analogous to the use of trained human raters, whose prior exposure to training materials does not invalidate subsequent descriptive measurement once scoring criteria and decision rules are fixed. This reuse affects neither indicator definitions nor scoring behavior, which are fixed prior to production scoring.
 
 ---
-
 ### Robustness and Validation Checks
 
 Optional robustness checks include:
@@ -175,7 +174,6 @@ Optional robustness checks include:
 These checks are descriptive and do not alter preregistered analyses.
 
 ---
-
 ### Computational Environment
 
 - CPU preprocessing: PDF parsing, text extraction, feature preparation
@@ -210,18 +208,19 @@ In summary:
 This design aligns with the preregistered study goals of transparency,
 replicability, and non-normative assessment of manuscript change.
 
+---
 # Phase III: Derivation and Reporting of Within-Manuscript Changes
 
 This phase performs no statistical testing, estimation, or model fitting; it transforms fixed scores into summaries for reporting. This document describes how preregistered statistical‐rigor indicators (V1–V10) are operationalized in code and how fixed scoring outputs are transformed into reproducible Methods and Results sections. This file documents **implementation details only** and does not supersede the preregistered codebook ([`Appendix A of the peer review planning document`](peer_review_planning_document.md#appendix-a-preregistered-codebook-for-statistical-rigor-indicators-v1-v10)).
 
 ---
-
 ## 1. Role of Phase III in the Study
 
 This document records post-instrument implementation details only. All indicator definitions, scoring rules, thresholds, and aggregation logic are fixed in the preregistered planning document and codebook.
 
 No new analytic decisions, scoring criteria, or interpretive rules are introduced here.
 
+---
 ## 2. Execution Pipeline for Fixed Indicator Scoring
 
 ```mermaid
@@ -264,7 +263,6 @@ For each matched manuscript pair (preprint and published version), scoring proce
 All steps are applied symmetrically to preprint and published versions.
 
 ---
-
 ## 3. Manuscript Parsing and Section Canonicalization  (Execution Stage)
 
 Each manuscript is parsed into structured text sections and normalized into canonical analytical sections used consistently across all indicators. At minimum, the following canonical sections are constructed:
@@ -285,7 +283,6 @@ sections: Mapping[str, str]
 If a section is missing or cannot be reliably extracted, an empty string is supplied and the indicator is treated conservatively.
 
 ---
-
 ## 4. Indicator Detection and Scoring  (Fixed Rules)
 ### 4.1 Rule-Based Indicator Detection
 
@@ -308,7 +305,6 @@ For each matched pattern:
 Rule‑based scores correspond directly to preregistered indicator definitions and are interpreted as **assistive operationalization**, not independent criteria.
 
 ---
-
 ### 4.2 Model-Assisted Indicator Scoring (Optional)
 
 Where enabled, a model scorer may generate indicator‑level predictions with associated confidence scores. Model outputs are converted into indicator scores using the same 0–2 ordinal scale.

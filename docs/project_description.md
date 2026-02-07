@@ -72,12 +72,9 @@ Each indicator is scored independently for the preprint and published versions o
 **All indicator definitions, scoring criteria, composite score construction, and analytic constraints are specified exclusively in the Study 1 preregistration**, including:
 
 - [`Appendix A — Preregistered Codebook`](peer_review_planning_document.md#appendix-a-preregistered-codebook-for-statistical-rigor-indicators-v1-v10)
-- [
-  `Appendix B — Machine-Readable Codebook (YAML)`](peer_review_planning_document.md#appendix-b-machine-readable-codebook-yaml)
+- [`Appendix B — Machine-Readable Codebook (YAML)`](peer_review_planning_document.md#appendix-b-machine-readable-codebook-yaml)
 
-In addition to preregistered rigor indicators, Study 1 records auxiliary textual and structural manuscript
-characteristics (e.g., readability metrics, article length, number of tables and figures). These auxiliary metrics are
-analysed descriptively only and are not treated as indicators of statistical rigor, research quality, or improvement.
+In addition to preregistered rigor indicators, Study 1 records auxiliary textual and structural manuscript characteristics (e.g., readability metrics, article length, number of tables and figures). These auxiliary metrics are analysed descriptively only and are not treated as indicators of statistical rigor, research quality, or improvement.
 
 ---
 ## Deferred Analyses and Future Extensions
@@ -100,8 +97,7 @@ Analyses examining associations between manuscript changes and such contextual f
 ---
 ## Interpretation Framework
 
-Observed patterns of change—whether positive, negative, or near-zero—are interpreted as **empirical descriptions of how
-manuscripts change during peer review**, not as evidence that peer review causes improvement or decline.
+Observed patterns of change—whether positive, negative, or near-zero—are interpreted as **empirical descriptions of how manuscripts change during peer review**, not as evidence that peer review causes improvement or decline.
 
 Interpretive constraints are defined in:
 
