@@ -15,10 +15,13 @@ from pathlib import Path
 from typing import Iterable
 
 import pandas as pd
-from peer_elt.config import PipelineConfig, SourceConfig
-from peer_elt.factories import ExtractorFactory, StorageFactory, TransformerFactory
-from peer_elt.interfaces import Storage, Transformer
-
+# from peer_elt.factories import ExtractorFactory, StorageFactory, TransformerFactory
+from peer_elt.config import PipelineConfig, SourceConfig, StorageConfig
+from peer_elt.extract.registry import PreprintServerRegistry, RegistryExtractor, default_registry
+from peer_elt.interfaces import Extractor, Storage, Transformer
+from peer_elt.load.duckdb import DuckDBStorage
+from peer_elt.load.postgres import PostgresStorage
+from peer_elt.transform.diff import DiffTransformer
 
 def extract_sources(
     sources: Iterable[SourceConfig],
@@ -195,14 +198,6 @@ Factories here return objects implementing interfaces from
 - :class:`peer_elt.interfaces.Storage`
 - :class:`peer_elt.interfaces.Transformer`
 """
-
-from peer_elt.config import PipelineConfig, SourceConfig, StorageConfig
-from peer_elt.extract.registry import PreprintServerRegistry, RegistryExtractor, default_registry
-from peer_elt.interfaces import Extractor, Storage, Transformer
-from peer_elt.load.duckdb import DuckDBStorage
-from peer_elt.load.postgres import PostgresStorage
-from peer_elt.transform.diff import DiffTransformer
-
 
 class ExtractorFactory:
     """Create extractor implementations based on a configured source.
