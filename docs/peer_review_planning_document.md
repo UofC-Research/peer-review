@@ -349,13 +349,19 @@ This section defines the preregistered rules governing document access, eligibil
 ---
 ## **11.1 Document Access and Full-Text Extraction Rules**
 
-Manuscripts are evaluated using the **most complete and stable full-text representation available** at the time of analysis. Document format is treated as a content container rather than a quality signal.
+Manuscripts are evaluated using the **most complete and stable full-text representation available** at the time of analysis. Document format is treated strictly as a **content container**, not as a quality signal.
 
-The following hierarchy is applied consistently to both preprint and published versions:
+Acceptable full-text representations include, in descending order of preference:
 
-1. **Publisher-provided PDF** (preferred when available and machine-readable)
-2. **Publisher-provided full-text HTML** (used when a PDF is unavailable or inaccessible)
-3. **Supplementary materials** (used to clarify reporting but not to replace missing core sections)
+1. **Publisher-provided PDF**, when machine-readable and complete
+
+2. **Publisher-provided full-text HTML or XML**, when a PDF is unavailable, incomplete, malformed, image-only, or unsuitable for reliable text extraction
+
+3. **Preprint server full-text HTML**, when publisher formats are unavailable
+
+4. **Supplementary materials** (used to clarify reporting but not to replace missing core sections)
+
+When multiple full-text representations are available, the representation used for scoring is selected **prior to indicator scoring** and recorded in the document metadata log.
 
 Abstract-only pages, truncated previews, or partial text views are not considered sufficient for evaluation.
 
@@ -474,6 +480,28 @@ flowchart TD
 **Figure C.** Flowchart illustrating manuscript eligibility screening, preprint version selection, and scoring workflow. For each matched manuscript pair, the first publicly posted preprint version is selected as the baseline comparator. Full-text availability is assessed symmetrically for preprint and published versions prior to independent scoring of preregistered indicators (V1-V10) and computation of within-manuscript change metrics ($\Delta{V_k}$) and the Peer-Review Effect Score (PRES).
 
 ---
+## **11.10 Document Access Verification and Recovery**
+
+### **Document Access Verification and Recovery Procedure**
+
+To distinguish genuine absence of reporting from document access or extraction failures, an additional **document-level verification step** is applied.
+
+Any manuscript version receiving a score of **0 (Absent)** on one or more preregistered indicators (V1–V10) is **flagged for human review solely to assess document completeness**, not to reassess scoring decisions.
+
+The purpose of this review is to determine whether the zero score reflects:
+
+1. True absence of reported information, or
+
+2. Incomplete, failed, or inappropriate text extraction (e.g., truncated PDFs, image-only PDFs, malformed HTML, or inaccessible sections).
+
+
+When human review identifies missing or inaccessible content that could plausibly affect indicator availability, **additional document retrieval steps** are permitted **to recover the same full-text content that would ordinarily be accessible to a human reader**. These steps may include manual access or web scraping of publisher-provided or preprint-server full-text HTML/XML sources.
+
+Recovered text is incorporated **prior to scoring** for the affected manuscript version. Indicator definitions, scoring thresholds, and decision rules remain unchanged, and scores are not altered unless newly recovered content provides **explicit, unambiguous reporting** consistent with preregistered criteria.
+
+Manuscripts are **not re-reviewed or re-scored solely on the basis of receiving a zero score**. All access-verification actions are logged, including the reason for review, document format used, and source of recovered text.
+
+---
 ## **12. Deferred Analyses and Planned Extensions**
 
 (This corresponds to Study 1 in the accompanying public summary.)
@@ -520,7 +548,6 @@ At the time of this export:
 This document constitutes the **complete planning record** prior to study execution.
 
 ---
-
 ## 15. Planning Lock
 
 **Planning Lock Date:** __________________  Feb 3, 2026, 1:22:08 PM MST
@@ -532,9 +559,7 @@ After lock:
 
 - Deviations are permitted but never silent
 
-
 ---
-
 ## 16. Use of AI‑Assisted Tools
 
 AI‑assisted tools (including ChatGPT, OpenAI Codex, and JetBrains AI Assistant) were used **exclusively during the planning and organizational stages** of this study to support outlining, document structuring, and code scaffolding.
