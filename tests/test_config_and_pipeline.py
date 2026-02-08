@@ -1,3 +1,13 @@
+"""Tests for configuration loading, pipeline helpers, and CLI orchestration.
+
+This module verifies:
+- YAML config loading (including environment variable expansion),
+- source extraction aggregation and tagging,
+- output writing side effects (Parquet/CSV + storage write),
+- run_pipeline behavior when extraction yields no rows, and
+- CLI output contract for the `extract` command.
+"""
+
 import json
 import sys
 
@@ -16,6 +26,16 @@ from peer_elt.pipeline import extract_sources, run_pipeline, write_outputs
 
 
 def test_load_config_expands_env(tmp_path, monkeypatch) -> None:
+    """Expand environment variables referenced in the YAML config.
+
+    Args:
+        tmp_path: Pytest temporary directory fixture.
+        monkeypatch: Pytest monkeypatch fixture used to set environment vars.
+
+    Asserts:
+        Storage config values expand `${VAR}` placeholders and default retry
+        settings are applied when omitted from the YAML.
+    """
     monkeypatch.setenv("TEST_DB_URL", "postgresql://user:pass@localhost/db")
     config_path = tmp_path / "config.yml"
     config_path.write_text(
@@ -43,6 +63,12 @@ def test_load_config_expands_env(tmp_path, monkeypatch) -> None:
 
 
 def test_extract_sources_combines_and_tags() -> None:
+    """Combine extracts from multiple sources and add a `source_name` tag.
+
+    Asserts:
+        The combined DataFrame contains one row per source and includes the
+        expected `source_name` values.
+    """
     sources = [
         SourceConfig(
             name="bio",
@@ -59,6 +85,8 @@ def test_extract_sources_combines_and_tags() -> None:
     ]
 
     class DummyExtractor:
+        """Extractor stub returning a single-row DataFrame per server."""
+
         def __init__(self, server: str) -> None:
             self._server = server
 
@@ -66,6 +94,8 @@ def test_extract_sources_combines_and_tags() -> None:
             return pd.DataFrame([{"doi": f"10.1/{self._server}", "server": self._server}])
 
     class DummyFactory:
+        """Factory stub constructing DummyExtractor from SourceConfig."""
+
         def create(self, source):
             return DummyExtractor(source.server)
 
@@ -76,6 +106,15 @@ def test_extract_sources_combines_and_tags() -> None:
 
 
 def test_write_outputs_writes_files_and_calls_storage(tmp_path) -> None:
+    """Write outputs to disk and delegate table persistence to storage.
+
+    Args:
+        tmp_path: Pytest temporary directory fixture.
+
+    Asserts:
+        Both Parquet and CSV are written (when enabled) and storage.write_table
+        is called with the expected table name.
+    """
     config = PipelineConfig(
         sources=[],
         storage=StorageConfig(backend="duckdb", duckdb_path=":memory:"),
@@ -85,6 +124,8 @@ def test_write_outputs_writes_files_and_calls_storage(tmp_path) -> None:
     )
 
     class DummyStorage:
+        """Storage stub capturing write_table calls."""
+
         def __init__(self) -> None:
             self.calls = []
 
@@ -102,6 +143,15 @@ def test_write_outputs_writes_files_and_calls_storage(tmp_path) -> None:
 
 
 def test_run_pipeline_returns_zero_when_empty(monkeypatch) -> None:
+    """Return a zero-count summary when extraction yields no rows.
+
+    Args:
+        monkeypatch: Pytest monkeypatch fixture used to replace factories.
+
+    Asserts:
+        run_pipeline returns `{"raw_rows": 0, "diff_rows": 0}` when extraction
+        returns an empty DataFrame.
+    """
     config = PipelineConfig(
         sources=[
             SourceConfig(
@@ -118,18 +168,26 @@ def test_run_pipeline_returns_zero_when_empty(monkeypatch) -> None:
     )
 
     class DummyExtractor:
+        """Extractor stub returning an empty DataFrame."""
+
         def fetch(self, source, retry_config):
             return pd.DataFrame()
 
     class DummyExtractorFactory:
+        """ExtractorFactory stub returning DummyExtractor."""
+
         def create(self, source):
             return DummyExtractor()
 
     class DummyStorageFactory:
+        """StorageFactory stub returning a placeholder object."""
+
         def create(self, storage):
             return object()
 
     class DummyTransformerFactory:
+        """TransformerFactory stub returning a placeholder object."""
+
         def create(self, config):
             return object()
 
@@ -147,6 +205,15 @@ def test_run_pipeline_returns_zero_when_empty(monkeypatch) -> None:
 
 
 def test_cli_extract_prints_counts(monkeypatch, capsys) -> None:
+    """Print JSON summary for the `extract` command.
+
+    Args:
+        monkeypatch: Pytest monkeypatch fixture used to replace dependencies.
+        capsys: Pytest capture fixture for stdout/stderr.
+
+    Asserts:
+        The CLI prints a JSON object containing `raw_rows`.
+    """
     config = PipelineConfig(
         sources=[
             SourceConfig(
@@ -163,18 +230,26 @@ def test_cli_extract_prints_counts(monkeypatch, capsys) -> None:
     )
 
     class DummyExtractorFactory:
+        """ExtractorFactory stub used by the CLI."""
+
         def create(self, source):
             return object()
 
     class DummyStorage:
+        """Storage stub used by the CLI."""
+
         def load_raw(self, df: pd.DataFrame) -> None:
             return None
 
     class DummyStorageFactory:
+        """StorageFactory stub used by the CLI."""
+
         def create(self, storage):
             return DummyStorage()
 
     class DummyTransformerFactory:
+        """TransformerFactory stub used by the CLI."""
+
         def create(self, config):
             return object()
 

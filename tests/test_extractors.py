@@ -1,3 +1,10 @@
+"""Tests for extractor helpers and registry-based dispatch.
+
+These tests validate:
+- pagination and normalization behavior for the bioRxiv/medRxiv API helper, and
+- that the registry-based extractor dispatches to the correct client.
+"""
+
 import pandas as pd
 
 from peer_elt.config import RetryConfig, SourceConfig
@@ -6,6 +13,15 @@ from peer_elt.extract.registry import PreprintServerClient, PreprintServerRegist
 
 
 def test_fetch_preprints_paginates_and_sets_fields(monkeypatch) -> None:
+    """Paginate through API results and normalize expected output fields.
+
+    Args:
+        monkeypatch: Pytest monkeypatch fixture used to stub `requests.get`.
+
+    Asserts:
+        The returned DataFrame contains all pages, sets the `server` column,
+        and includes a `published_doi` column.
+    """
     payloads = {
         0: {
             "collection": [
@@ -23,6 +39,8 @@ def test_fetch_preprints_paginates_and_sets_fields(monkeypatch) -> None:
     }
 
     class DummyResponse:
+        """Response stub mimicking the subset of `requests.Response` used."""
+
         def __init__(self, payload):
             self._payload = payload
 
@@ -51,6 +69,14 @@ def test_fetch_preprints_paginates_and_sets_fields(monkeypatch) -> None:
 
 
 def test_fetch_medrxiv_passes_server(monkeypatch) -> None:
+    """Delegate to `fetch_preprints` with server set to `medrxiv`.
+
+    Args:
+        monkeypatch: Pytest monkeypatch fixture used to stub `fetch_preprints`.
+
+    Asserts:
+        The delegated call uses `server="medrxiv"`.
+    """
     called = {}
 
     def fake_fetch_preprints(server, date_from, date_to, retry_config):
@@ -66,7 +92,14 @@ def test_fetch_medrxiv_passes_server(monkeypatch) -> None:
 
 
 def test_registry_extractor_fetches_from_registered_client() -> None:
+    """Fetch using a registered client selected by server slug.
+
+    Asserts:
+        The registry extractor dispatches to the registered client and preserves
+        the expected `server` value in the output.
+    """
     class DummyClient(PreprintServerClient):
+        """Client stub registered under a fake server slug."""
         server = "dummy"
 
         def fetch(self, date_from, date_to, retry_config):

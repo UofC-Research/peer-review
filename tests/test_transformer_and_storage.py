@@ -1,3 +1,10 @@
+"""Tests for the diff transformer and DuckDB storage.
+
+These tests cover:
+- basic behavior of the diff feature transformer (v1 vs latest per DOI), and
+- a minimal DuckDB storage round-trip for raw metadata.
+"""
+
 from pathlib import Path
 
 import pandas as pd
@@ -7,6 +14,7 @@ from peer_elt.transform.diff import DiffTransformer
 
 
 def test_diff_transformer_basic() -> None:
+    """DiffTransformer should compute diff features for a DOI across versions."""
     raw_df = pd.DataFrame(
         [
             {"doi": "10.1/abc", "version": "1", "title": "A", "abstract": "foo bar", "server": "biorxiv",
@@ -24,6 +32,11 @@ def test_diff_transformer_basic() -> None:
 
 
 def test_duckdb_storage_round_trip(tmp_path: Path) -> None:
+    """DuckDBStorage should persist and read back raw metadata rows.
+
+    Args:
+        tmp_path: Pytest temporary directory fixture.
+    """
     db_path = tmp_path / "peer.duckdb"
     storage = DuckDBStorage(StorageConfig(backend="duckdb", duckdb_path=str(db_path)))
 

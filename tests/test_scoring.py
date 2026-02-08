@@ -1,22 +1,20 @@
 from __future__ import annotations
 
-"""
-Tests for the scoring subsystem.
+"""Tests for the scoring subsystem.
 
-These tests focus on the *behavioral contract* of the scorers in
-`peer_elt.transform.scoring` rather than the exact implementation details:
+These tests focus on the behavioral contract of the scorers in
+`peer_elt.transform.scoring` rather than implementation details:
 
-- `RuleBasedScorer` should detect preregistered indicator cues (via regex rules)
-  and emit scores + evidence snippets.
-- `HybridScorer` should combine rule-based and model-based scores conservatively:
-  - If model confidence is *below* the override threshold, it should prefer the
-    lower (more conservative) score when rule/model disagree.
-  - If model confidence is *at or above* the threshold, it may override with the
-    model score.
+- RuleBasedScorer should detect preregistered indicator cues (regex rules) and
+  emit scores plus evidence snippets.
+- HybridScorer should merge rule-based and model-based scores conservatively:
+  - if model confidence is below the override threshold, prefer the lower score,
+  - if model confidence meets/exceeds the threshold, allow model override.
 
 Note:
-These are unit tests with small synthetic "paper sections" (methods/results/
-statements). They intentionally avoid needing any external data or ML model.
+    These are unit tests with small synthetic "paper sections"
+    (methods/results/statements). They intentionally avoid needing external data
+    or an ML model.
 """
 
 from peer_elt.transform.scoring import (
@@ -31,15 +29,7 @@ from peer_elt.transform.scoring import (
 
 
 def test_rule_based_scoring_hits_all_indicators() -> None:
-    """
-    Integration-style unit test for the default rule patterns.
-
-    Given a set of section texts containing at least one cue for each indicator
-    V1..V10, the rule-based scorer should:
-      - return an `IndicatorScore` for every indicator,
-      - assign the highest matched level (here we expect level 2 for all),
-      - include evidence snippets for traceability.
-    """
+    """Score all indicators when at least one cue exists for each indicator."""
     sections = {
         "methods": (
             "We ran a regression model adjusted for covariate A with interaction terms. "
@@ -65,13 +55,7 @@ def test_rule_based_scoring_hits_all_indicators() -> None:
 
 
 def test_hybrid_scoring_prefers_lower_score_when_low_confidence() -> None:
-    """
-    When both rule-based and model-based scores exist for an indicator and the
-    model confidence is below the override threshold, the hybrid scorer should
-    behave conservatively and select the *lower* score.
-
-    This protects against over-scoring when the model is uncertain.
-    """
+    """Prefer the lower score when the model is below the override threshold."""
     sections = {"results": "odds ratio 1.2", "methods": "", "statements": ""}
     rule_scorer = RuleBasedScorer(default_rule_patterns())
 
@@ -95,13 +79,7 @@ def test_hybrid_scoring_prefers_lower_score_when_low_confidence() -> None:
 
 
 def test_hybrid_scoring_allows_high_confidence_override() -> None:
-    """
-    When model confidence meets/exceeds the override threshold, the hybrid scorer
-    should allow the model to override rule-based scoring.
-
-    This enables a model to "upgrade" an indicator score when it is sufficiently
-    confident.
-    """
+    """Allow model override when confidence meets/exceeds the threshold."""
     sections = {"results": "odds ratio 1.2", "methods": "", "statements": ""}
     rule_scorer = RuleBasedScorer(default_rule_patterns())
 
@@ -124,6 +102,7 @@ def test_hybrid_scoring_allows_high_confidence_override() -> None:
     assert scorecard["V1"].rationale == "Model score used (high confidence)"
 
 def test_model_scorer_builds_indicator_scores_from_predictions() -> None:
+    """Build IndicatorScore entries from ModelPrediction inputs."""
     sections = {"methods": "model text", "results": "results text", "statements": "data availability"}
     predictions = [
         ModelPrediction(indicator="V1", score=2, confidence=0.92, section="results", evidence_text="odds ratio 1.2"),
