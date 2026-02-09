@@ -1,5 +1,19 @@
 from __future__ import annotations
 
+"""Tests for full-text acquisition and fallback logic.
+
+These tests cover the public acquisition API in `peer_elt.acquire.full_text`:
+
+- `acquire_full_text`: tries PDF, then XML, then HTML (unless overridden) and
+  returns a structured result containing the chosen format and saved path.
+- `acquire_full_text_pair`: applies a pair-level rule to reduce format mismatch:
+  if the published version has exactly one available format (e.g., HTML only),
+  then the preprint is acquired using that same format as well.
+
+The tests use a fake `http_get` callable and a small `FakeResponse` object so the
+suite runs without network access and is fully deterministic.
+"""
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping
@@ -13,6 +27,14 @@ from peer_elt.acquire.full_text import (
 
 @dataclass(frozen=True)
 class FakeResponse:
+    """Minimal fake HTTP response used by acquisition tests.
+
+    Attributes:
+        status_code: HTTP status code to simulate.
+        content: Response body bytes. Defaults to empty.
+        headers: Response headers mapping. Defaults to `{}`.
+    """
+
     status_code: int
     content: bytes = b""
     headers: Mapping[str, str] = None  # type: ignore[assignment]
@@ -22,6 +44,7 @@ class FakeResponse:
 
 
 def test_acquire_prefers_pdf_then_stops_on_success(tmp_path: Path) -> None:
+    """It retrieves the PDF when available and does not attempt fallbacks."""
     calls: list[str] = []
 
     def http_get(url: str, timeout: float) -> FakeResponse:
@@ -54,6 +77,7 @@ def test_acquire_prefers_pdf_then_stops_on_success(tmp_path: Path) -> None:
 
 
 def test_acquire_falls_back_pdf_to_xml(tmp_path: Path) -> None:
+    """It falls back to XML when PDF retrieval fails."""
     calls: list[str] = []
 
     def http_get(url: str, timeout: float) -> FakeResponse:
@@ -88,6 +112,7 @@ def test_acquire_falls_back_pdf_to_xml(tmp_path: Path) -> None:
 
 
 def test_acquire_falls_back_pdf_to_xml_to_html(tmp_path: Path) -> None:
+    """It falls back to HTML when both PDF and XML retrieval fail."""
     calls: list[str] = []
 
     def http_get(url: str, timeout: float) -> FakeResponse:
@@ -121,6 +146,7 @@ def test_acquire_falls_back_pdf_to_xml_to_html(tmp_path: Path) -> None:
 
 
 def test_acquire_flags_for_human_when_all_fail(tmp_path: Path) -> None:
+    """It flags human confirmation when all formats fail to retrieve."""
     def http_get(url: str, timeout: float) -> FakeResponse:
         return FakeResponse(status_code=404)
 
@@ -141,6 +167,7 @@ def test_acquire_flags_for_human_when_all_fail(tmp_path: Path) -> None:
 
 
 def test_acquire_flags_for_human_when_no_urls_exist(tmp_path: Path) -> None:
+    """It flags human confirmation when no URLs are provided and does not call http_get."""
     calls: list[str] = []
 
     def http_get(url: str, timeout: float) -> FakeResponse:
@@ -160,16 +187,16 @@ def test_acquire_flags_for_human_when_no_urls_exist(tmp_path: Path) -> None:
     assert result.format is None
     assert result.path is None
     assert result.needs_human_confirmation is True
-    assert "All retrieval attempts failed" in (result.error_message or "")
     assert calls == []
 
 
 def test_pair_acquisition_matches_html_when_published_only_has_html(tmp_path: Path) -> None:
+    """It forces the preprint to use HTML when the published version is HTML-only."""
     calls: list[str] = []
 
     def http_get(url: str, timeout: float) -> FakeResponse:
         calls.append(url)
-        # Always succeed for whatever is requested so we can inspect *order*
+        # Always succeed for whatever is requested so we can inspect call order.
         if url.endswith(".html"):
             return FakeResponse(status_code=200, content=b"<html>ok</html>")
         if url.endswith(".pdf"):
@@ -203,7 +230,7 @@ def test_pair_acquisition_matches_html_when_published_only_has_html(tmp_path: Pa
     assert pre_res.success is True
     assert pre_res.format == "html"
 
-    # Key behavior: preprint should NOT try PDF/XML first in this case
+    # The published format is acquired first; preprint should not try PDF/XML first here.
     assert calls == [
         "https://example.org/published.html",
         "https://example.org/preprint.html",

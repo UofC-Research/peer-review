@@ -1,5 +1,48 @@
 from __future__ import annotations
 
+"""Full-text acquisition (download) for manuscript versions.
+
+This module provides small, testable primitives for retrieving full text for:
+
+- a single manuscript version (preprint OR published), and
+- a matched preprint/published pair.
+
+The central idea is that acquisition is **I/O only**: this module downloads bytes,
+persists them, and records a structured outcome. It does *not* parse PDFs/XML/HTML;
+parsing and sectionization are handled elsewhere (e.g., under ``peer_elt.parse``).
+
+Key behaviors
+-------------
+1) Format fallback for a single document (default: PDF → XML → HTML):
+   - Try each representation in ``attempt_order``.
+   - On first successful retrieval, write bytes to disk and return success.
+   - If all attempts fail, return a result flagged for human confirmation.
+
+2) Pair-aware harmonization (matched preprint/published pair):
+   - If the published version has exactly one available format (e.g., HTML only),
+     force the preprint acquisition to use that same format. This reduces format
+     mismatch when one side is constrained by access.
+
+Testability
+-----------
+Network access is injected via ``http_get`` (a callable). This keeps unit tests fast
+and deterministic and lets production code use a robust HTTP implementation (e.g.,
+requests + tenacity retries) without coupling tests to the network.
+
+Persistence layout
+------------------
+On success, retrieved bytes are written to::
+
+    <base_dir>/<doc_id>/full_text.<ext>
+
+Where <ext> is ``pdf``, ``xml``, or ``html``.
+
+Human confirmation semantics
+----------------------------
+This module flags human confirmation whenever it cannot automatically retrieve a
+full-text artifact. The caller should log and surface these cases for inspection.
+"""
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Literal, Mapping, Optional, Sequence
@@ -9,6 +52,16 @@ AcquiredFormat = Literal["pdf", "xml", "html"]
 
 @dataclass(frozen=True)
 class AcquisitionRequest:
+    """Input describing where to retrieve a manuscript's full text.
+
+    Attributes
+    ----------
+    doc_id:
+        Stable identifier used for output folder naming.
+    pdf_url, xml_url, html_url:
+        Candidate URLs for each representation. Any may be ``None``.
+    """
+
     doc_id: str
     pdf_url: Optional[str]
     xml_url: Optional[str]
@@ -17,6 +70,8 @@ class AcquisitionRequest:
 
 @dataclass(frozen=True)
 class AcquisitionResult:
+    """Outcome of a full-text acquisition attempt."""
+
     doc_id: str
     success: bool
     format: Optional[AcquiredFormat]
@@ -28,6 +83,8 @@ class AcquisitionResult:
 
 @dataclass(frozen=True)
 class _ResponseLike:
+    """Minimal response contract for injected HTTP getters."""
+
     status_code: int
     content: bytes
     headers: Mapping[str, str]
@@ -37,6 +94,7 @@ HttpGet = Callable[[str, float], _ResponseLike]
 
 
 def _is_success(resp: _ResponseLike) -> bool:
+    """Return True if an HTTP response should be treated as a successful download."""
     if resp.status_code != 200:
         return False
     if not resp.content:
@@ -45,6 +103,7 @@ def _is_success(resp: _ResponseLike) -> bool:
 
 
 def _target_path(base_dir: Path, doc_id: str, fmt: AcquiredFormat) -> Path:
+    """Compute the destination path for a downloaded artifact and ensure its folder exists."""
     doc_dir = base_dir / doc_id
     doc_dir.mkdir(parents=True, exist_ok=True)
     suffix = {"pdf": ".pdf", "xml": ".xml", "html": ".html"}[fmt]
@@ -52,6 +111,7 @@ def _target_path(base_dir: Path, doc_id: str, fmt: AcquiredFormat) -> Path:
 
 
 def _url_for_format(request: AcquisitionRequest, fmt: AcquiredFormat) -> Optional[str]:
+    """Return the URL corresponding to the desired format."""
     if fmt == "pdf":
         return request.pdf_url
     if fmt == "xml":
@@ -60,6 +120,7 @@ def _url_for_format(request: AcquisitionRequest, fmt: AcquiredFormat) -> Optiona
 
 
 def _available_formats(request: AcquisitionRequest) -> list[AcquiredFormat]:
+    """List formats that have a non-null URL for this request."""
     formats: list[AcquiredFormat] = []
     if request.pdf_url:
         formats.append("pdf")
@@ -77,6 +138,36 @@ def acquire_full_text(
         timeout_seconds: float = 30.0,
         attempt_order: Sequence[AcquiredFormat] = ("pdf", "xml", "html"),
 ) -> AcquisitionResult:
+    """Acquire a single manuscript's full text with format fallback.
+
+    Parameters
+    ----------
+    request:
+        AcquisitionRequest containing URLs for PDF/XML/HTML.
+    base_dir:
+        Root directory under which to store retrieved artifacts.
+    http_get:
+        Injected HTTP getter: ``(url, timeout_seconds) -> response-like``.
+    timeout_seconds:
+        Per-request timeout passed through to ``http_get``.
+    attempt_order:
+        Ordered formats to attempt. Defaults to ``("pdf", "xml", "html")``.
+
+    Returns
+    -------
+    AcquisitionResult
+        - On success: ``success=True``, ``format`` set, ``path`` points to saved file.
+        - On failure: ``success=False``, ``needs_human_confirmation=True``, and an
+          explanatory ``error_message``.
+
+    Human confirmation semantics
+    ----------------------------
+    Any failure is flagged for human confirmation because it may reflect:
+    - true inaccessibility,
+    - transient network problems,
+    - upstream metadata problems (bad URLs),
+    - or platform-specific access constraints.
+    """
     attempts: Sequence[tuple[AcquiredFormat, Optional[str]]] = tuple(
         (fmt, _url_for_format(request, fmt)) for fmt in attempt_order
     )
@@ -143,12 +234,17 @@ def acquire_full_text_pair(
 ) -> tuple[AcquisitionResult, AcquisitionResult]:
     """Acquire full text for a matched preprint/published pair.
 
-    Rule:
-    - If the *published* version has exactly one available format (e.g., HTML only),
-      then force the *preprint* acquisition to use that same format first/only.
-    - Otherwise both use the default order (pdf -> xml -> html).
+    Rule
+    ----
+    If the published version has exactly one available format, acquire *both*
+    versions using that format (and only that format). This reduces format
+    mismatch when one side is constrained.
 
-    Returns (preprint_result, published_result).
+    Otherwise, acquire each independently using the default attempt order.
+
+    Returns
+    -------
+    (preprint_result, published_result)
     """
     published_formats = _available_formats(published)
 
