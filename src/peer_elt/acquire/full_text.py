@@ -51,17 +51,47 @@ def _target_path(base_dir: Path, doc_id: str, fmt: AcquiredFormat) -> Path:
     return doc_dir / f"full_text{suffix}"
 
 
+def _url_for_format(request: AcquisitionRequest, fmt: AcquiredFormat) -> Optional[str]:
+    if fmt == "pdf":
+        return request.pdf_url
+    if fmt == "xml":
+        return request.xml_url
+    return request.html_url
+
+
+def _available_formats(request: AcquisitionRequest) -> list[AcquiredFormat]:
+    formats: list[AcquiredFormat] = []
+    if request.pdf_url:
+        formats.append("pdf")
+    if request.xml_url:
+        formats.append("xml")
+    if request.html_url:
+        formats.append("html")
+    return formats
+
+
 def acquire_full_text(
         request: AcquisitionRequest,
         base_dir: Path,
         http_get: HttpGet,
         timeout_seconds: float = 30.0,
+        attempt_order: Sequence[AcquiredFormat] = ("pdf", "xml", "html"),
 ) -> AcquisitionResult:
-    attempts: Sequence[tuple[AcquiredFormat, Optional[str]]] = (
-        ("pdf", request.pdf_url),
-        ("xml", request.xml_url),
-        ("html", request.html_url),
+    attempts: Sequence[tuple[AcquiredFormat, Optional[str]]] = tuple(
+        (fmt, _url_for_format(request, fmt)) for fmt in attempt_order
     )
+
+    provided = [fmt for fmt, url in attempts if url]
+    if not provided:
+        return AcquisitionResult(
+            doc_id=request.doc_id,
+            success=False,
+            format=None,
+            url=None,
+            path=None,
+            needs_human_confirmation=True,
+            error_message="No full-text URLs provided (pdf/xml/html). Flagged for human confirmation.",
+        )
 
     last_error: Optional[str] = None
 
@@ -102,3 +132,46 @@ def acquire_full_text(
         needs_human_confirmation=True,
         error_message=f"All retrieval attempts failed. Last error: {last_error}",
     )
+
+
+def acquire_full_text_pair(
+        preprint: AcquisitionRequest,
+        published: AcquisitionRequest,
+        base_dir: Path,
+        http_get: HttpGet,
+        timeout_seconds: float = 30.0,
+) -> tuple[AcquisitionResult, AcquisitionResult]:
+    """Acquire full text for a matched preprint/published pair.
+
+    Rule:
+    - If the *published* version has exactly one available format (e.g., HTML only),
+      then force the *preprint* acquisition to use that same format first/only.
+    - Otherwise both use the default order (pdf -> xml -> html).
+
+    Returns (preprint_result, published_result).
+    """
+    published_formats = _available_formats(published)
+
+    pub_attempt_order: Sequence[AcquiredFormat] = ("pdf", "xml", "html")
+    pre_attempt_order: Sequence[AcquiredFormat] = ("pdf", "xml", "html")
+
+    if len(published_formats) == 1:
+        only = published_formats[0]
+        pub_attempt_order = (only,)
+        pre_attempt_order = (only,)
+
+    pub_res = acquire_full_text(
+        published,
+        base_dir=base_dir,
+        http_get=http_get,
+        timeout_seconds=timeout_seconds,
+        attempt_order=pub_attempt_order,
+    )
+    pre_res = acquire_full_text(
+        preprint,
+        base_dir=base_dir,
+        http_get=http_get,
+        timeout_seconds=timeout_seconds,
+        attempt_order=pre_attempt_order,
+    )
+    return pre_res, pub_res

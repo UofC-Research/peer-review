@@ -7,6 +7,7 @@ from typing import Mapping
 from peer_elt.acquire.full_text import (
     AcquisitionRequest,
     acquire_full_text,
+    acquire_full_text_pair,
 )
 
 
@@ -137,3 +138,73 @@ def test_acquire_flags_for_human_when_all_fail(tmp_path: Path) -> None:
     assert result.path is None
     assert result.needs_human_confirmation is True
     assert "All retrieval attempts failed" in (result.error_message or "")
+
+
+def test_acquire_flags_for_human_when_no_urls_exist(tmp_path: Path) -> None:
+    calls: list[str] = []
+
+    def http_get(url: str, timeout: float) -> FakeResponse:
+        calls.append(url)
+        return FakeResponse(status_code=200, content=b"should not be called")
+
+    req = AcquisitionRequest(
+        doc_id="doc-no-urls",
+        pdf_url=None,
+        xml_url=None,
+        html_url=None,
+    )
+
+    result = acquire_full_text(req, base_dir=tmp_path, http_get=http_get)
+
+    assert result.success is False
+    assert result.format is None
+    assert result.path is None
+    assert result.needs_human_confirmation is True
+    assert "All retrieval attempts failed" in (result.error_message or "")
+    assert calls == []
+
+
+def test_pair_acquisition_matches_html_when_published_only_has_html(tmp_path: Path) -> None:
+    calls: list[str] = []
+
+    def http_get(url: str, timeout: float) -> FakeResponse:
+        calls.append(url)
+        # Always succeed for whatever is requested so we can inspect *order*
+        if url.endswith(".html"):
+            return FakeResponse(status_code=200, content=b"<html>ok</html>")
+        if url.endswith(".pdf"):
+            return FakeResponse(status_code=200, content=b"%PDF ok")
+        if url.endswith(".xml"):
+            return FakeResponse(status_code=200, content=b"<xml>ok</xml>")
+        return FakeResponse(status_code=404)
+
+    preprint = AcquisitionRequest(
+        doc_id="pre-1",
+        pdf_url="https://example.org/preprint.pdf",
+        xml_url="https://example.org/preprint.xml",
+        html_url="https://example.org/preprint.html",
+    )
+    published = AcquisitionRequest(
+        doc_id="pub-1",
+        pdf_url=None,
+        xml_url=None,
+        html_url="https://example.org/published.html",
+    )
+
+    pre_res, pub_res = acquire_full_text_pair(
+        preprint=preprint,
+        published=published,
+        base_dir=tmp_path,
+        http_get=http_get,
+    )
+
+    assert pub_res.success is True
+    assert pub_res.format == "html"
+    assert pre_res.success is True
+    assert pre_res.format == "html"
+
+    # Key behavior: preprint should NOT try PDF/XML first in this case
+    assert calls == [
+        "https://example.org/published.html",
+        "https://example.org/preprint.html",
+    ]
