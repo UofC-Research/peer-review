@@ -155,7 +155,7 @@ def test_requests_http_get_applies_backoff_delay_on_retries(monkeypatch: pytest.
     assert len(session.calls) == 3
 
     # Two retryable failures -> two sleeps before the final successful attempt.
-    assert len(sleeps) == 2  # TODO: test failed - need to findout how Tencity has setup the monkey patch
+    assert len(sleeps) == 2
     assert sleeps[0] >= 1.0
     assert sleeps[1] >= sleeps[0]
     assert sleeps[1] >= 2.0
