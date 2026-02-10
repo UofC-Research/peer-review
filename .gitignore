@@ -1,0 +1,15 @@
+.obsidian/
+.idea/
+data/
+results/
+src/*.egg-info/
+__pycache__/
+*.py[cod]
+.venv/
+data/
+.ipynb_checkpoints/
+__pycache__/
+*.zip
+Peer Review Project.Data/
+Peer Review Project.enl
+.pytest_cache
