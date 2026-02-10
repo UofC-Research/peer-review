@@ -529,6 +529,9 @@ Scoring is conducted using preregistered criteria only. No indicator definitions
 
 ## **13.2 Deviations and Decision Log**
 
+**Pre-Lock Development Note.**  
+Certain architectural and pipeline-level design changes referenced elsewhere in this project were implemented **prior to the literature review and prior to OSF preregistration lock**. These changes occurred during exploratory planning and code scaffolding and do not reflect post-hoc modification of preregistered variables, scoring rules, inclusion criteria, or analytic procedures. All preregistered commitments apply exclusively to decisions finalized at the planning lock date.
+
 **Entry: Exploratory time-period review prior to lock.**  
 Before the planning lock, an exploratory review was conducted to confirm the feasibility of the preregistered time window (January 1, 2016–December 31, 2022). This review was limited to confirming the time-period bounds and did not include extraction, scoring, or analysis of study outcomes, nor did it alter preregistered variables, eligibility criteria, or analytic constraints.
 
