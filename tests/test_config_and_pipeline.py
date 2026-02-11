@@ -6,28 +6,29 @@ These tests sit at the "composition" layer of the project: they validate that
 configuration parsing, pipeline helper functions, and CLI entrypoints work
 together with minimal stubs.
 
-What is *not* tested here:
-- correctness of external extractors (network/API),
-- correctness of real storage backends (DB I/O),
-- correctness of transformers (feature logic).
+They intentionally avoid testing business logic of:
+- external extractors (network/API correctness),
+- real storage backends (DB I/O correctness),
+- transformers (feature logic correctness).
 
-Instead, we rely on small dummy implementations plus `monkeypatch` to isolate
-behavior and verify contracts.
+Instead, they rely on small dummy implementations plus `monkeypatch` to isolate
+behavior and verify contracts (inputs/outputs, raised errors, and side effects).
 
 Coverage map
 ------------
-Config loading (peer_elt.config.load_config):
+Config loading (`peer_elt.config.load_config`)
 - validates YAML structure and raises clear errors for common mistakes
 - expands environment variables in storage settings
 - enforces required keys for known backends (duckdb/postgres)
 - allows unknown storage backends and preserves extra backend-specific keys
+- resolves `output.base_dir` relative to the config file when given a relative path
 
-Pipeline helpers (peer_elt.pipeline):
+Pipeline helpers (`peer_elt.pipeline`)
 - `extract_sources` merges per-source DataFrames and tags rows with `source_name`
 - `write_outputs` writes Parquet/CSV files and delegates persistence to storage
 - `run_pipeline` returns a summary and handles empty extraction gracefully
 
-CLI orchestration (peer_elt.cli):
+CLI orchestration (`peer_elt.cli`)
 - `extract` prints a JSON summary to stdout with expected fields
 
 Testing notes
@@ -55,6 +56,8 @@ from peer_elt.config import (
     TransformConfig,
     load_config,
 )
+from peer_elt.factories import ExtractorFactory
+from peer_elt.interfaces import Storage
 from peer_elt.pipeline import extract_sources, run_pipeline, write_outputs
 
 
@@ -478,7 +481,7 @@ def test_extract_sources_combines_and_tags() -> None:
         def fetch(self, source, retry_config):
             return pd.DataFrame([{"doi": f"10.1/{self._server}", "server": self._server}])
 
-    class DummyFactory:
+    class DummyFactory(ExtractorFactory):
         """Factory stub constructing DummyExtractor from SourceConfig."""
 
         def create(self, source):
@@ -508,11 +511,17 @@ def test_write_outputs_writes_files_and_calls_storage(tmp_path) -> None:
         retry=RetryConfig(),
     )
 
-    class DummyStorage:
+    class DummyStorage(Storage):
         """Storage stub capturing write_table calls."""
 
         def __init__(self) -> None:
             self.calls = []
+
+        def load_raw(self, df: pd.DataFrame) -> None:
+            pass
+
+        def read_raw(self) -> pd.DataFrame:
+            pass
 
         def write_table(self, table_name: str, df: pd.DataFrame) -> None:
             self.calls.append((table_name, df.copy()))
