@@ -64,6 +64,9 @@ from typing import Any, Dict, Optional
 import yaml
 
 
+# ... existing code ...
+
+
 @dataclass(frozen=True)
 class SourceConfig:
     """Source metadata for a preprint server.
@@ -226,46 +229,59 @@ def _as_source_config(item: Dict[str, Any]) -> SourceConfig:
 
 
 def load_config(path: str | Path) -> PipelineConfig:
-    """Load a YAML configuration file into a :class:`PipelineConfig`.
-
-    This function:
-    1) Reads YAML from ``path`` using :func:`yaml.safe_load`.
-    2) Converts ``sources`` entries into :class:`SourceConfig`.
-    3) Expands environment variables for **string values** under ``storage`` via
-       :func:`os.path.expandvars` (useful for secrets like DB URLs).
-    4) Builds dataclass instances for each configuration block.
-
-    Parameters
-    ----------
-    path : str | pathlib.Path
-        Path to the YAML config file.
-
-    Returns
-    -------
-    PipelineConfig
-        Parsed, structured configuration.
-
-    Raises
-    ------
-    FileNotFoundError
-        If ``path`` does not exist.
-    yaml.YAMLError
-        If the YAML cannot be parsed.
-    KeyError
-        If required top-level keys (e.g. ``sources``) are missing.
-    TypeError
-        If the YAML structure doesn't match the expected shapes.
-    """
+    """Load a YAML configuration file into a :class:`PipelineConfig`."""
     config_path = Path(path)
     payload = yaml.safe_load(config_path.read_text(encoding="utf-8"))
 
-    sources = [_as_source_config(item) for item in payload["sources"]]
+    if payload is None:
+        raise ValueError(f"Empty YAML config: {config_path}")
+    if not isinstance(payload, dict):
+        raise TypeError(
+            f"Top-level YAML config must be a mapping/dict, got: {type(payload).__name__}"
+        )
+
+    sources_payload = payload["sources"]
+    if not isinstance(sources_payload, list):
+        raise TypeError(f"`sources` must be a list, got: {type(sources_payload).__name__}")
+
+    storage_block = payload["storage"]
+    if not isinstance(storage_block, dict):
+        raise TypeError(f"`storage` must be a mapping/dict, got: {type(storage_block).__name__}")
+
+    output_block = payload["output"]
+    if not isinstance(output_block, dict):
+        raise TypeError(f"`output` must be a mapping/dict, got: {type(output_block).__name__}")
+
+    for idx, item in enumerate(sources_payload):
+        if not isinstance(item, dict):
+            raise TypeError(
+                "Each item in `sources` must be a mapping/dict; "
+                f"item {idx} is {type(item).__name__}"
+            )
+
+    sources = []
+    for idx, item in enumerate(sources_payload):
+        try:
+            sources.append(_as_source_config(item))
+        except KeyError as exc:
+            missing = exc.args[0] if exc.args else "<unknown>"
+            raise KeyError(f"Source item {idx} missing required key: {missing}") from exc
+
+    if "backend" not in storage_block:
+        raise KeyError("Storage block missing required key: backend")
+
+    backend = storage_block.get("backend")
+    if backend == "duckdb" and "duckdb_path" not in storage_block:
+        raise KeyError("Storage backend 'duckdb' requires key: duckdb_path")
+    if backend == "postgres" and "postgres_url" not in storage_block:
+        raise KeyError("Storage backend 'postgres' requires key: postgres_url")
+
     storage_payload = {
         key: os.path.expandvars(value) if isinstance(value, str) else value
-        for key, value in payload["storage"].items()
+        for key, value in storage_block.items()
     }
     storage = StorageConfig(**storage_payload)
-    output = OutputConfig(**payload["output"])
+    output = OutputConfig(**output_block)
     transform = TransformConfig(**payload.get("transform", {}))
     retry = RetryConfig(**payload.get("retry", {}))
 

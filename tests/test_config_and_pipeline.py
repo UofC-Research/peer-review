@@ -12,6 +12,7 @@ import json
 import sys
 
 import pandas as pd
+import pytest
 from peer_elt import cli
 from peer_elt.config import (
     OutputConfig,
@@ -23,6 +24,117 @@ from peer_elt.config import (
     load_config,
 )
 from peer_elt.pipeline import extract_sources, run_pipeline, write_outputs
+
+
+def test_load_config_raises_clear_error_when_duckdb_storage_missing_path(tmp_path) -> None:
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                "sources:",
+                "  - name: bio",
+                "    server: biorxiv",
+                "    date_from: '2023-01-01'",
+                "    date_to: '2023-01-02'",
+                "storage:",
+                "  backend: duckdb",
+                "  # duckdb_path intentionally missing",
+                "output:",
+                "  base_dir: 'data/out'",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(KeyError, match=r"Storage backend 'duckdb' requires key: duckdb_path"):
+        load_config(config_path)
+
+
+def test_load_config_raises_clear_error_when_postgres_storage_missing_url(tmp_path) -> None:
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                "sources:",
+                "  - name: bio",
+                "    server: biorxiv",
+                "    date_from: '2023-01-01'",
+                "    date_to: '2023-01-02'",
+                "storage:",
+                "  backend: postgres",
+                "  # postgres_url intentionally missing",
+                "output:",
+                "  base_dir: 'data/out'",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(KeyError, match=r"Storage backend 'postgres' requires key: postgres_url"):
+        load_config(config_path)
+
+
+def test_load_config_raises_clear_error_when_source_missing_required_key(tmp_path) -> None:
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                "sources:",
+                "  - name: bio",
+                "    server: biorxiv",
+                "    date_from: '2023-01-01'",
+                "    # date_to intentionally missing",
+                "storage:",
+                "  backend: duckdb",
+                "  duckdb_path: ':memory:'",
+                "output:",
+                "  base_dir: 'data/out'",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(KeyError, match=r"Source item 0 missing required key: date_to"):
+        load_config(config_path)
+
+
+def test_load_config_raises_when_source_item_not_mapping(tmp_path) -> None:
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                "sources:",
+                "  - just-a-string-not-a-mapping",
+                "storage:",
+                "  backend: duckdb",
+                "  duckdb_path: ':memory:'",
+                "output:",
+                "  base_dir: 'data/out'",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TypeError, match="Each item in `sources` must be a mapping"):
+        load_config(config_path)
+
+
+def test_load_config_raises_on_empty_yaml(tmp_path) -> None:
+    """Empty YAML should raise a clear error instead of a cryptic TypeError."""
+    config_path = tmp_path / "config.yml"
+    config_path.write_text("", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="Empty YAML config"):
+        load_config(config_path)
+
+
+def test_load_config_raises_on_non_mapping_payload(tmp_path) -> None:
+    """Top-level YAML must be a mapping/dict."""
+    config_path = tmp_path / "config.yml"
+    config_path.write_text("- just\n- a\n- list\n", encoding="utf-8")
+
+    with pytest.raises(TypeError, match="Top-level YAML config must be a mapping"):
+        load_config(config_path)
 
 
 def test_load_config_expands_env(tmp_path, monkeypatch) -> None:
@@ -60,6 +172,71 @@ def test_load_config_expands_env(tmp_path, monkeypatch) -> None:
 
     assert config.storage.postgres_url == "postgresql://user:pass@localhost/db"
     assert config.retry.max_attempts == 5
+
+
+def test_load_config_raises_when_sources_not_list(tmp_path) -> None:
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                "sources: {}",
+                "storage:",
+                "  backend: duckdb",
+                "  duckdb_path: ':memory:'",
+                "output:",
+                "  base_dir: 'data/out'",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TypeError, match="`sources` must be a list"):
+        load_config(config_path)
+
+
+def test_load_config_raises_when_storage_not_mapping(tmp_path) -> None:
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                "sources:",
+                "  - name: bio",
+                "    server: biorxiv",
+                "    date_from: '2023-01-01'",
+                "    date_to: '2023-01-02'",
+                "storage: []",
+                "output:",
+                "  base_dir: 'data/out'",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TypeError, match="`storage` must be a mapping"):
+        load_config(config_path)
+
+
+def test_load_config_raises_when_output_not_mapping(tmp_path) -> None:
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                "sources:",
+                "  - name: bio",
+                "    server: biorxiv",
+                "    date_from: '2023-01-01'",
+                "    date_to: '2023-01-02'",
+                "storage:",
+                "  backend: duckdb",
+                "  duckdb_path: ':memory:'",
+                "output: []",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TypeError, match="`output` must be a mapping"):
+        load_config(config_path)
 
 
 def test_extract_sources_combines_and_tags() -> None:
