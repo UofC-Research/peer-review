@@ -44,6 +44,7 @@ import sys
 
 import pandas as pd
 import pytest
+
 from peer_elt import cli
 from peer_elt.config import (
     OutputConfig,
@@ -55,6 +56,150 @@ from peer_elt.config import (
     load_config,
 )
 from peer_elt.pipeline import extract_sources, run_pipeline, write_outputs
+
+
+def test_load_config_resolves_output_base_dir_relative_to_config_file(tmp_path) -> None:
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                "sources:",
+                "  - name: bio",
+                "    server: biorxiv",
+                "    date_from: '2023-01-01'",
+                "    date_to: '2023-01-02'",
+                "storage:",
+                "  backend: duckdb",
+                "  duckdb_path: ':memory:'",
+                "output:",
+                "  base_dir: out",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    config = load_config(config_path)
+
+    assert config.output.base_dir == str((tmp_path / "out").resolve())
+
+
+def test_load_config_raises_when_storage_env_var_unset(tmp_path) -> None:
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                "sources:",
+                "  - name: bio",
+                "    server: biorxiv",
+                "    date_from: '2023-01-01'",
+                "    date_to: '2023-01-02'",
+                "storage:",
+                "  backend: postgres",
+                "  postgres_url: '${UNSET_DB_URL}'",
+                "output:",
+                "  base_dir: 'data/out'",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match=r"Unexpanded environment variable in storage\.postgres_url"):
+        load_config(config_path)
+
+
+def test_load_config_allows_storage_env_var_when_set(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("SET_DB_URL", "postgresql://<user>:<pass>@<host>/<db>")
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                "sources:",
+                "  - name: bio",
+                "    server: biorxiv",
+                "    date_from: '2023-01-01'",
+                "    date_to: '2023-01-02'",
+                "storage:",
+                "  backend: postgres",
+                "  postgres_url: '${SET_DB_URL}'",
+                "output:",
+                "  base_dir: 'data/out'",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    config = load_config(config_path)
+    assert config.storage.postgres_url == "postgresql://<user>:<pass>@<host>/<db>"
+
+
+def test_load_config_raises_when_retry_not_mapping(tmp_path) -> None:
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                "sources:",
+                "  - name: bio",
+                "    server: biorxiv",
+                "    date_from: '2023-01-01'",
+                "    date_to: '2023-01-02'",
+                "storage:",
+                "  backend: duckdb",
+                "  duckdb_path: ':memory:'",
+                "output:",
+                "  base_dir: 'data/out'",
+                "retry: []",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TypeError, match=r"`retry` must be a mapping"):
+        load_config(config_path)
+
+
+def test_load_config_raises_when_transform_not_mapping(tmp_path) -> None:
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                "sources:",
+                "  - name: bio",
+                "    server: biorxiv",
+                "    date_from: '2023-01-01'",
+                "    date_to: '2023-01-02'",
+                "storage:",
+                "  backend: duckdb",
+                "  duckdb_path: ':memory:'",
+                "output:",
+                "  base_dir: 'data/out'",
+                "transform: []",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TypeError, match=r"`transform` must be a mapping"):
+        load_config(config_path)
+
+
+def test_load_config_raises_clear_error_when_top_level_key_missing(tmp_path) -> None:
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                # sources missing
+                "storage:",
+                "  backend: duckdb",
+                "  duckdb_path: ':memory:'",
+                "output:",
+                "  base_dir: 'data/out'",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(KeyError, match=r"Top-level config missing required key: sources"):
+        load_config(config_path)
 
 
 def test_load_config_raises_clear_error_when_duckdb_storage_missing_path(tmp_path) -> None:
