@@ -2,13 +2,25 @@ from __future__ import annotations
 
 """Configuration models and YAML loader for the ELT pipeline.
 
-This module defines *immutable* (frozen) dataclass models representing the
-pipeline configuration, plus a loader for reading a YAML file into those models.
+This module is the *schema boundary* between a YAML configuration file and the
+pipeline runtime objects.
 
-Why dataclasses?
-----------------
-- They provide an explicit schema (fields + types) that is easy to reason about.
-- They are easy to serialize/debug (repr) and to validate at boundaries.
+It provides:
+
+- Frozen dataclasses that describe the expected config structure.
+- A YAML loader (:func:`load_config`) that validates the high-level shape of the
+  YAML and performs environment-variable expansion for secrets.
+
+Design goals
+------------
+- **Immutability**: config objects are `frozen=True` dataclasses to prevent
+  accidental mutation after load.
+- **Helpful errors**: fail fast with readable exceptions when the YAML is missing
+  required keys or has the wrong top-level types.
+- **Backend extensibility**: `storage.backend` is a string identifier. This loader
+  accepts unknown backends and preserves backend-specific settings in
+  :attr:`StorageConfig.options` so new storage implementations can be added
+  without changing the loader.
 
 Environment-variable expansion
 ------------------------------
@@ -20,43 +32,61 @@ committed config files by using environment variables, e.g.::
       backend: postgres
       postgres_url: ${POSTGRES_URL}
 
-Example YAML
-------------
-A minimal DuckDB + Parquet config might look like::
+Only the `storage` block is expanded (by design), since that is where connection
+strings and credentials typically live.
 
-    sources:
-      - name: biorxiv-jan
-        server: biorxiv
-        date_from: "2023-01-01"
-        date_to: "2023-01-31"
+YAML structure expected by :func:`load_config`
+----------------------------------------------
+Required top-level keys:
+
+- ``sources``: list of mappings
+- ``storage``: mapping
+- ``output``: mapping
+
+Optional top-level keys:
+
+- ``transform``: mapping (defaults to `{}`)
+- ``retry``: mapping (defaults to `{}`)
+
+Storage validation rules
+------------------------
+This module validates *backend-specific required keys* for known backends:
+
+- ``backend: duckdb`` requires ``duckdb_path``
+- ``backend: postgres`` requires ``postgres_url``
+
+For any other backend value, this loader does **not** enforce additional keys.
+Those backend-specific requirements should be enforced by the storage factory /
+implementation.
+
+Extra keys in the storage block
+-------------------------------
+Any keys in the YAML storage block other than ``backend``, ``duckdb_path``, and
+``postgres_url`` are preserved in :attr:`StorageConfig.options`.
+
+Example::
 
     storage:
-      backend: duckdb
-      duckdb_path: "data/peer.duckdb"
+      backend: sqlite
+      sqlite_path: data/app.sqlite
+      pool_size: 5
 
-    output:
-      base_dir: "data/out"
-      write_csv: false
+becomes::
 
-    transform:
-      enable_pdf_diff: false
-      pdf_dir: null
-
-    retry:
-      max_attempts: 5
-      wait_min_seconds: 1
-      wait_max_seconds: 60
-      wait_multiplier: 1
+    StorageConfig(
+      backend="sqlite",
+      duckdb_path=None,
+      postgres_url=None,
+      options={"sqlite_path": "data/app.sqlite", "pool_size": 5},
+    )
 
 Notes
 -----
-- This loader assumes the YAML has the expected top-level keys (``sources``,
-  ``storage``, ``output``). Optional keys: ``transform`` and ``retry``.
 - Date fields are stored as strings (YYYY-MM-DD). Parsing/validation can be
   performed by downstream components if needed.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -95,23 +125,30 @@ class SourceConfig:
 class StorageConfig:
     """Storage backend configuration.
 
-    Exactly which fields are required depends on ``backend``.
+    Exactly which fields are required depends on ``backend``. This loader keeps
+    the schema flexible by:
+
+    - validating required keys for known backends (DuckDB/Postgres)
+    - allowing unknown backend identifiers
+    - preserving backend-specific settings in :attr:`options`
 
     Attributes
     ----------
     backend : str
-        Storage backend identifier. Expected values: ``"duckdb"`` or
-        ``"postgres"``.
+        Storage backend identifier (e.g., ``"duckdb"``, ``"postgres"``, ``"sqlite"``).
     duckdb_path : str | None, default=None
         Path to a local DuckDB database file when using DuckDB.
     postgres_url : str | None, default=None
-        SQLAlchemy connection string when using PostgreSQL. Environment variables
-        may be used in YAML and are expanded at load time.
+        SQLAlchemy connection string when using PostgreSQL.
+    options : dict[str, Any]
+        Extra backend-specific key/value pairs from the YAML storage block that
+        are not part of the core schema.
     """
 
     backend: str
     duckdb_path: Optional[str] = None
     postgres_url: Optional[str] = None
+    options: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -229,7 +266,28 @@ def _as_source_config(item: Dict[str, Any]) -> SourceConfig:
 
 
 def load_config(path: str | Path) -> PipelineConfig:
-    """Load a YAML configuration file into a :class:`PipelineConfig`."""
+    """Load a YAML configuration file into a :class:`PipelineConfig`.
+
+    Parameters
+    ----------
+    path : str | pathlib.Path
+        Path to a YAML configuration file.
+
+    Returns
+    -------
+    PipelineConfig
+        Parsed configuration object.
+
+    Raises
+    ------
+    ValueError
+        If the YAML file is empty.
+    TypeError
+        If the YAML structure is not the expected mapping/list shape.
+    KeyError
+        If required keys are missing, including backend-specific required keys
+        for known storage backends.
+    """
     config_path = Path(path)
     payload = yaml.safe_load(config_path.read_text(encoding="utf-8"))
 
@@ -280,7 +338,16 @@ def load_config(path: str | Path) -> PipelineConfig:
         key: os.path.expandvars(value) if isinstance(value, str) else value
         for key, value in storage_block.items()
     }
-    storage = StorageConfig(**storage_payload)
+
+    known_keys = {"backend", "duckdb_path", "postgres_url"}
+    options = {k: v for k, v in storage_payload.items() if k not in known_keys}
+
+    storage = StorageConfig(
+        backend=storage_payload["backend"],
+        duckdb_path=storage_payload.get("duckdb_path"),
+        postgres_url=storage_payload.get("postgres_url"),
+        options=options,
+    )
     output = OutputConfig(**output_block)
     transform = TransformConfig(**payload.get("transform", {}))
     retry = RetryConfig(**payload.get("retry", {}))

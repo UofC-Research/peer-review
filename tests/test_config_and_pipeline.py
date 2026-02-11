@@ -1,11 +1,42 @@
-"""Tests for configuration loading, pipeline helpers, and CLI orchestration.
+"""Integration-style tests for config loading, pipeline helpers, and CLI wiring.
 
-This module verifies:
-- YAML config loading (including environment variable expansion),
-- source extraction aggregation and tagging,
-- output writing side effects (Parquet/CSV + storage write),
-- run_pipeline behavior when extraction yields no rows, and
-- CLI output contract for the `extract` command.
+Scope
+-----
+These tests sit at the "composition" layer of the project: they validate that
+configuration parsing, pipeline helper functions, and CLI entrypoints work
+together with minimal stubs.
+
+What is *not* tested here:
+- correctness of external extractors (network/API),
+- correctness of real storage backends (DB I/O),
+- correctness of transformers (feature logic).
+
+Instead, we rely on small dummy implementations plus `monkeypatch` to isolate
+behavior and verify contracts.
+
+Coverage map
+------------
+Config loading (peer_elt.config.load_config):
+- validates YAML structure and raises clear errors for common mistakes
+- expands environment variables in storage settings
+- enforces required keys for known backends (duckdb/postgres)
+- allows unknown storage backends and preserves extra backend-specific keys
+
+Pipeline helpers (peer_elt.pipeline):
+- `extract_sources` merges per-source DataFrames and tags rows with `source_name`
+- `write_outputs` writes Parquet/CSV files and delegates persistence to storage
+- `run_pipeline` returns a summary and handles empty extraction gracefully
+
+CLI orchestration (peer_elt.cli):
+- `extract` prints a JSON summary to stdout with expected fields
+
+Testing notes
+-------------
+- `tmp_path` is used to avoid touching real project directories.
+- `monkeypatch` replaces factories and functions to avoid network/DB work.
+- Assertions focus on observable effects: raised errors, file creation, and
+  printed JSON output.
+
 """
 
 import json
@@ -72,6 +103,38 @@ def test_load_config_raises_clear_error_when_postgres_storage_missing_url(tmp_pa
 
     with pytest.raises(KeyError, match=r"Storage backend 'postgres' requires key: postgres_url"):
         load_config(config_path)
+
+
+def test_load_config_allows_unknown_storage_backend_and_preserves_keys(tmp_path) -> None:
+    """Unknown backends should be accepted by config loading.
+
+    This keeps config parsing decoupled from which Storage implementations exist.
+    """
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                "sources:",
+                "  - name: bio",
+                "    server: biorxiv",
+                "    date_from: '2023-01-01'",
+                "    date_to: '2023-01-02'",
+                "storage:",
+                "  backend: sqlite",
+                "  sqlite_path: 'data/app.sqlite'",
+                "  pool_size: 5",
+                "output:",
+                "  base_dir: 'data/out'",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    config = load_config(config_path)
+
+    assert config.storage.backend == "sqlite"
+    assert config.storage.options["sqlite_path"] == "data/app.sqlite"
+    assert config.storage.options["pool_size"] == 5
 
 
 def test_load_config_raises_clear_error_when_source_missing_required_key(tmp_path) -> None:
@@ -368,13 +431,9 @@ def test_run_pipeline_returns_zero_when_empty(monkeypatch) -> None:
         def create(self, config):
             return object()
 
-    monkeypatch.setattr(
-        "peer_elt.pipeline.ExtractorFactory", DummyExtractorFactory
-    )
+    monkeypatch.setattr("peer_elt.pipeline.ExtractorFactory", DummyExtractorFactory)
     monkeypatch.setattr("peer_elt.pipeline.StorageFactory", DummyStorageFactory)
-    monkeypatch.setattr(
-        "peer_elt.pipeline.TransformerFactory", DummyTransformerFactory
-    )
+    monkeypatch.setattr("peer_elt.pipeline.TransformerFactory", DummyTransformerFactory)
 
     result = run_pipeline(config)
 
