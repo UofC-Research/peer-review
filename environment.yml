@@ -1,0 +1,8 @@
+name: peer_review_env
+channels:
+  - defaults
+dependencies:
+  - python=3.13
+  - r-base
+  - r-essentials
+prefix: C:\Users\Albert Leung\miniconda3\envs\peer_review_env
