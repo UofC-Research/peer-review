@@ -52,6 +52,11 @@ def _collapse_whitespace(text: str) -> str:
     return " ".join(text.split())
 
 
+def _local_name(tag: str) -> str:
+    """Return an XML tag name without its namespace."""
+    return tag.rsplit("}", maxsplit=1)[-1]
+
+
 @dataclass(frozen=True)
 class SectionTagExtractor(XmlSectionExtractor):
     """Extract sections from XML using a dedicated section tag.
@@ -147,6 +152,30 @@ class TeiSectionExtractor(XmlSectionExtractor):
         - If multiple sections have the same inferred name, later sections
           overwrite earlier ones.
         """
+        sections: dict[str, str] = {}
+        for div in root.iter():
+            if _local_name(div.tag) != self.div_tag:
+                continue
+
+            name = div.attrib.get(self.type_attribute)
+            if not name:
+                head = next(
+                    (
+                        child
+                        for child in div
+                        if _local_name(child.tag) == self.head_tag
+                    ),
+                    None,
+                )
+                if head is not None:
+                    name = _collapse_whitespace(" ".join(head.itertext()))
+            if not name:
+                continue
+
+            text = _collapse_whitespace(" ".join(div.itertext()))
+            if text:
+                sections[name] = text
+        return sections
 
 
 @dataclass(frozen=True)

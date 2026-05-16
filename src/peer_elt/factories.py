@@ -14,6 +14,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Iterable
 
+import duckdb
 import pandas as pd
 # from peer_elt.factories import ExtractorFactory, StorageFactory, TransformerFactory
 from peer_elt.config import PipelineConfig, SourceConfig, StorageConfig
@@ -22,6 +23,20 @@ from peer_elt.interfaces import Extractor, Storage, Transformer
 from peer_elt.load.duckdb import DuckDBStorage
 from peer_elt.load.postgres import PostgresStorage
 from peer_elt.transform.diff import DiffTransformer
+
+
+def _write_parquet(df: pd.DataFrame, path: Path) -> None:
+    """Write a DataFrame to Parquet, using DuckDB if pandas lacks an engine."""
+    try:
+        df.to_parquet(path, index=False)
+    except ImportError:
+        escaped_path = path.as_posix().replace("'", "''")
+        with duckdb.connect(":memory:") as conn:
+            conn.register("out_df", df)
+            conn.execute(
+                f"copy (select * from out_df) to '{escaped_path}' (format parquet)"
+            )
+
 
 def extract_sources(
     sources: Iterable[SourceConfig],
@@ -123,7 +138,7 @@ def write_outputs(storage: Storage, config: PipelineConfig, df: pd.DataFrame, na
     output_dir.mkdir(parents=True, exist_ok=True)
 
     parquet_path = output_dir / f"{name}.parquet"
-    df.to_parquet(parquet_path, index=False)
+    _write_parquet(df, parquet_path)
 
     if config.output.write_csv:
         csv_path = output_dir / f"{name}.csv"

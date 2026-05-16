@@ -51,6 +51,14 @@ def _connect(config: StorageConfig) -> duckdb.DuckDBPyConnection:
     return duckdb.connect(config.duckdb_path)
 
 
+def _duckdb_compatible_frame(df: pd.DataFrame) -> pd.DataFrame:
+    """Return a DataFrame whose dtypes can be scanned by DuckDB."""
+    str_columns = [column for column in df.columns if str(df[column].dtype) == "str"]
+    if not str_columns:
+        return df
+    return df.astype({column: object for column in str_columns})
+
+
 def load_raw_duckdb(config: StorageConfig, df: pd.DataFrame) -> None:
     """Append raw preprint metadata into DuckDB.
 
@@ -74,8 +82,9 @@ def load_raw_duckdb(config: StorageConfig, df: pd.DataFrame) -> None:
     """
     if df.empty:
         return
+    raw_df = _duckdb_compatible_frame(df)
     with _connect(config) as conn:
-        conn.register("raw_df", df)
+        conn.register("raw_df", raw_df)
         conn.execute(
             "create table if not exists raw_preprints as select * from raw_df limit 0"
         )
@@ -109,8 +118,9 @@ def write_table_duckdb(config: StorageConfig, table_name: str, df: pd.DataFrame)
     """
     if df.empty:
         return
+    out_df = _duckdb_compatible_frame(df)
     with _connect(config) as conn:
-        conn.register("out_df", df)
+        conn.register("out_df", out_df)
         conn.execute(
             f"create table if not exists {table_name} as select * from out_df limit 0"
         )
