@@ -8,19 +8,17 @@ version = "0.1.0"
 description = "ELT pipeline for quantifying preprint changes in peer review"
 readme = "README.md"
 requires-python = ">=3.13"
-license = { file = "LICENSE" }
 authors = [
   { name = "Albert Leung", email = 'albert.leung@ucalgary.ca' }
 ]
 dependencies = [
-  "duckdb>=0.10.3",
-  "numpy>=2.3.5,<2.4",
+    "duckdb>=1.4.3",
   "pandas>=3.0.3",
   "pyarrow>=24.0.0",
-  "pyyaml>=6.0.2",
+    "pyyaml>=6.0.3",
   "requests>=2.32.3",
-  "tenacity>=8.3.0",
-  "sqlalchemy>=2.0.32",
+    "tenacity>=9.1.4",
+    "sqlalchemy>=2.0.48",
   "psycopg2-binary>=2.9.9",
   "PyPDF2>=3.0.1",
 ]
@@ -35,6 +33,9 @@ classifiers = [
 Repository = "https://github.com/UofC-Research/peer-review"
 Issues = "https://github.com/UofC-Research/peer-review/issues"
 Homepage = "https://github.com/UofC-Research/peer-review"
+
+[project.scripts]
+peer-elt = "peer_elt.cli:main"
 
 [project.optional-dependencies]
 dev = [
@@ -57,8 +58,10 @@ addopts = "-ra -q"
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ["py313"]
 
 [tool.ruff]
 line-length = 88
+
+[tool.ruff.lint]
 select = ["E", "F", "I"]
