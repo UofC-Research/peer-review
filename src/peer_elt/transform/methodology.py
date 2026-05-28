@@ -37,15 +37,47 @@ PREREGISTERED_INDICATORS: tuple[str, ...] = (
 
 
 class SectionScorer(Protocol):
-    """Protocol for objects that score manuscript sections."""
+    """Protocol for objects that score manuscript sections.
+
+    Notes
+    -----
+    This protocol matches scorer objects such as
+    :class:`peer_elt.transform.scoring.HybridScorer`. It is kept minimal so
+    future adjudicated or model-backed scorers can be injected without changing
+    the methodology aggregation layer.
+    """
 
     def score(self, sections: Mapping[str, str]) -> HybridScorecard:
-        """Return a scorecard for a manuscript version."""
+        """Return a scorecard for a manuscript version.
+
+        Parameters
+        ----------
+        sections : Mapping[str, str]
+            Canonical manuscript sections keyed by names such as ``methods``,
+            ``results``, and ``statements``.
+
+        Returns
+        -------
+        peer_elt.transform.scoring.HybridScorecard
+            Indicator-level scores and evidence for one manuscript version.
+        """
 
 
 @dataclass(frozen=True)
 class VersionScorecard:
-    """Scores and audit metadata for one manuscript version."""
+    """Scores and audit metadata for one manuscript version.
+
+    Attributes
+    ----------
+    manuscript_id : str
+        Stable identifier for the matched manuscript pair.
+    version : str
+        Manuscript version label, typically ``"preprint"`` or ``"published"``.
+    document_format : str | None
+        Full-text format used for scoring when known.
+    scores : tuple[peer_elt.transform.scoring.IndicatorScore, ...]
+        Complete V1-V10 score entries for this manuscript version.
+    """
 
     manuscript_id: str
     version: str
@@ -53,26 +85,57 @@ class VersionScorecard:
     scores: tuple[IndicatorScore, ...]
 
     def as_dict(self) -> dict[str, IndicatorScore]:
-        """Return indicator scores keyed by V1-V10."""
+        """Return indicator scores keyed by V1-V10.
+
+        Returns
+        -------
+        dict[str, peer_elt.transform.scoring.IndicatorScore]
+            Indicator score mapping.
+        """
         return {score.indicator: score for score in self.scores}
 
     @property
     def raw_score(self) -> int:
-        """Raw Statistical Rigour Score: sum of V1-V10 for this version."""
+        """Raw Statistical Rigour Score for this version.
+
+        Returns
+        -------
+        int
+            Sum of V1-V10 scores.
+        """
         return sum(score.score for score in self.scores)
 
     @property
     def zero_score_indicators(self) -> tuple[str, ...]:
-        """Indicators scored 0 and therefore flagged for access verification."""
+        """Indicators scored 0 and flagged for access verification.
+
+        Returns
+        -------
+        tuple[str, ...]
+            Indicator names with score 0.
+        """
         return tuple(score.indicator for score in self.scores if score.score == 0)
 
     @property
     def needs_document_completeness_review(self) -> bool:
-        """Whether this version needs human document-completeness review."""
+        """Whether this version needs document-completeness review.
+
+        Returns
+        -------
+        bool
+            True when any V1-V10 indicator is scored 0.
+        """
         return bool(self.zero_score_indicators)
 
     def evidence_rows(self) -> list[dict[str, object]]:
-        """Return one flat audit row per evidence snippet."""
+        """Return one flat audit row per evidence snippet.
+
+        Returns
+        -------
+        list[dict[str, object]]
+            Evidence rows containing manuscript, version, indicator, score,
+            section, text, and provenance fields.
+        """
         rows: list[dict[str, object]] = []
         for score in self.scores:
             for evidence in score.evidence:
@@ -82,7 +145,17 @@ class VersionScorecard:
 
 @dataclass(frozen=True)
 class PairScorecard:
-    """Matched manuscript-pair scoring output."""
+    """Matched manuscript-pair scoring output.
+
+    Attributes
+    ----------
+    manuscript_id : str
+        Stable identifier for the matched pair.
+    preprint : VersionScorecard
+        Scorecard for the selected preprint version.
+    published : VersionScorecard
+        Scorecard for the matched published version.
+    """
 
     manuscript_id: str
     preprint: VersionScorecard
@@ -90,7 +163,13 @@ class PairScorecard:
 
     @property
     def indicator_deltas(self) -> dict[str, int]:
-        """Return published-minus-preprint deltas for all V1-V10."""
+        """Return published-minus-preprint deltas for all V1-V10.
+
+        Returns
+        -------
+        dict[str, int]
+            Mapping from indicator name to ``published - preprint`` score.
+        """
         preprint_scores = self.preprint.as_dict()
         published_scores = self.published.as_dict()
         return {
@@ -100,11 +179,24 @@ class PairScorecard:
 
     @property
     def pres(self) -> int:
-        """Peer-Review Effect Score for the matched pair."""
+        """Peer-Review Effect Score for the matched pair.
+
+        Returns
+        -------
+        int
+            Published raw score minus preprint raw score.
+        """
         return self.published.raw_score - self.preprint.raw_score
 
     def to_record(self) -> dict[str, object]:
-        """Return a flat pair-level record suitable for a table/DataFrame."""
+        """Return a flat pair-level record suitable for tabular storage.
+
+        Returns
+        -------
+        dict[str, object]
+            Table-ready pair score record containing raw scores, PRES, V1-V10
+            scores, V1-V10 deltas, document formats, and review flags.
+        """
         record: dict[str, object] = {
             "manuscript_id": self.manuscript_id,
             "preprint_document_format": self.preprint.document_format,
@@ -130,7 +222,13 @@ class PairScorecard:
         return record
 
     def evidence_rows(self) -> list[dict[str, object]]:
-        """Return flat audit rows from both manuscript versions."""
+        """Return flat audit rows from both manuscript versions.
+
+        Returns
+        -------
+        list[dict[str, object]]
+            Concatenated preprint and published evidence rows.
+        """
         return self.preprint.evidence_rows() + self.published.evidence_rows()
 
 
@@ -141,7 +239,26 @@ def score_manuscript_version(
         scorer: SectionScorer,
         document_format: str | None = None,
 ) -> VersionScorecard:
-    """Score one manuscript version using the fixed V1-V10 workflow."""
+    """Score one manuscript version using the fixed V1-V10 workflow.
+
+    Parameters
+    ----------
+    manuscript_id : str
+        Stable identifier for the matched manuscript pair.
+    version : str
+        Version label, typically ``"preprint"`` or ``"published"``.
+    sections : Mapping[str, str]
+        Canonical manuscript sections to score.
+    scorer : SectionScorer
+        Scorer object used to produce indicator evidence and scores.
+    document_format : str | None, default=None
+        Full-text format used for scoring when known.
+
+    Returns
+    -------
+    VersionScorecard
+        Complete V1-V10 scorecard for one manuscript version.
+    """
     scorecard = scorer.score(sections)
     complete_scores = _complete_indicator_scores(scorecard.as_dict())
     return VersionScorecard(
@@ -160,7 +277,28 @@ def score_manuscript_pair(
         preprint_format: str | None = None,
         published_format: str | None = None,
 ) -> PairScorecard:
-    """Score a matched preprint/published pair and compute deltas plus PRES."""
+    """Score a matched preprint/published pair and compute deltas plus PRES.
+
+    Parameters
+    ----------
+    manuscript_id : str
+        Stable identifier for the matched manuscript pair.
+    preprint_sections : Mapping[str, str]
+        Canonical sections for the selected preprint version.
+    published_sections : Mapping[str, str]
+        Canonical sections for the published article version.
+    scorer : SectionScorer
+        Scorer object applied independently to both versions.
+    preprint_format : str | None, default=None
+        Full-text format used for the preprint version when known.
+    published_format : str | None, default=None
+        Full-text format used for the published version when known.
+
+    Returns
+    -------
+    PairScorecard
+        Matched-pair scorecard with raw scores, deltas, PRES, and evidence.
+    """
     preprint = score_manuscript_version(
         manuscript_id=manuscript_id,
         version="preprint",
@@ -185,7 +323,18 @@ def score_manuscript_pair(
 def _complete_indicator_scores(
         scores: Mapping[str, IndicatorScore],
 ) -> tuple[IndicatorScore, ...]:
-    """Materialize absent indicators as explicit 0 scores."""
+    """Materialize absent indicators as explicit 0 scores.
+
+    Parameters
+    ----------
+    scores : Mapping[str, peer_elt.transform.scoring.IndicatorScore]
+        Score mapping returned by the injected scorer.
+
+    Returns
+    -------
+    tuple[peer_elt.transform.scoring.IndicatorScore, ...]
+        Complete V1-V10 score tuple in preregistered order.
+    """
     complete: list[IndicatorScore] = []
     for indicator in PREREGISTERED_INDICATORS:
         complete.append(
@@ -207,7 +356,22 @@ def _evidence_row(
         score: IndicatorScore,
         evidence: EvidenceSnippet,
 ) -> dict[str, object]:
-    """Build one flat evidence row."""
+    """Build one flat evidence row.
+
+    Parameters
+    ----------
+    version_scorecard : VersionScorecard
+        Version-level scorecard providing manuscript metadata.
+    score : peer_elt.transform.scoring.IndicatorScore
+        Indicator score associated with the evidence snippet.
+    evidence : peer_elt.transform.scoring.EvidenceSnippet
+        Evidence snippet to flatten.
+
+    Returns
+    -------
+    dict[str, object]
+        Audit-ready evidence record.
+    """
     return {
         "manuscript_id": version_scorecard.manuscript_id,
         "version": version_scorecard.version,

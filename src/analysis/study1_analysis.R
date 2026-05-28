@@ -1,13 +1,24 @@
-# Deterministic Study 1 descriptive analysis helpers.
-#
-# These functions consume fixed methodology_pair_scores records produced by the
-# Python scoring layer. They do not estimate causal effects, run hypothesis
-# tests, or modify scoring rules.
+#' Deterministic Study 1 descriptive analysis helpers
+#'
+#' These functions consume fixed `methodology_pair_scores` records produced by
+#' the Python scoring layer. They do not estimate causal effects, run hypothesis
+#' tests, or modify scoring rules.
+#'
+#' @name study1_analysis
+NULL
 
+#' Return preregistered indicator names
+#'
+#' @return Character vector containing `V1` through `V10`.
+#' @export
 indicator_names <- function() {
   paste0("V", 1:10)
 }
 
+#' Return required pair-score columns
+#'
+#' @return Character vector of columns required by the analysis layer.
+#' @export
 required_pair_score_columns <- function() {
   c(
     "manuscript_id",
@@ -18,6 +29,14 @@ required_pair_score_columns <- function() {
   )
 }
 
+#' Validate fixed methodology pair-score records
+#'
+#' @param pair_scores A data frame containing `methodology_pair_scores` records.
+#'
+#' @return Invisibly returns `pair_scores` when validation succeeds.
+#' @throws Error when `pair_scores` is not a data frame or required columns are
+#'   missing.
+#' @export
 validate_pair_scores <- function(pair_scores) {
   if (!is.data.frame(pair_scores)) {
     stop("pair_scores must be a data.frame", call. = FALSE)
@@ -34,12 +53,24 @@ validate_pair_scores <- function(pair_scores) {
   invisible(pair_scores)
 }
 
+#' Read fixed methodology pair-score records from CSV
+#'
+#' @param path Path to a CSV file containing `methodology_pair_scores` records.
+#'
+#' @return Validated pair-score data frame.
+#' @export
 read_pair_scores <- function(path) {
   pair_scores <- read.csv(path, stringsAsFactors = FALSE, check.names = FALSE)
   validate_pair_scores(pair_scores)
   pair_scores
 }
 
+#' Summarize Peer-Review Effect Scores
+#'
+#' @param pair_scores A validated or validatable pair-score data frame.
+#'
+#' @return A one-row data frame with descriptive PRES counts and summaries.
+#' @export
 summarize_pres <- function(pair_scores) {
   validate_pair_scores(pair_scores)
   pres <- pair_scores$PRES
@@ -57,6 +88,12 @@ summarize_pres <- function(pair_scores) {
   )
 }
 
+#' Summarize indicator-level changes
+#'
+#' @param pair_scores A validated or validatable pair-score data frame.
+#'
+#' @return Data frame with one row per indicator and descriptive delta counts.
+#' @export
 summarize_indicator_deltas <- function(pair_scores) {
   validate_pair_scores(pair_scores)
 
@@ -80,6 +117,13 @@ summarize_indicator_deltas <- function(pair_scores) {
   do.call(rbind, rows)
 }
 
+#' Summarize raw statistical rigour scores by manuscript version
+#'
+#' @param pair_scores A validated or validatable pair-score data frame.
+#'
+#' @return Data frame with one row for preprints and one row for published
+#'   articles.
+#' @export
 summarize_raw_scores <- function(pair_scores) {
   validate_pair_scores(pair_scores)
 
@@ -105,6 +149,13 @@ summarize_raw_scores <- function(pair_scores) {
   do.call(rbind, rows)
 }
 
+#' Build all Study 1 descriptive summaries
+#'
+#' @param pair_scores A validated or validatable pair-score data frame.
+#'
+#' @return Named list with `pres`, `indicator_deltas`, and `raw_scores` data
+#'   frames.
+#' @export
 build_study1_summary <- function(pair_scores) {
   validate_pair_scores(pair_scores)
 
@@ -115,6 +166,13 @@ build_study1_summary <- function(pair_scores) {
   )
 }
 
+#' Write Study 1 summary tables to CSV
+#'
+#' @param summary Named summary list from [build_study1_summary()].
+#' @param output_dir Directory where CSV files should be written.
+#'
+#' @return Named list of output paths for the written CSV files.
+#' @export
 write_study1_summary <- function(summary, output_dir) {
   if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE)
@@ -133,6 +191,14 @@ write_study1_summary <- function(summary, output_dir) {
   paths
 }
 
+#' Run Study 1 analysis from a pair-score CSV
+#'
+#' @param pair_scores_path Path to a CSV file containing fixed pair-score
+#'   records.
+#' @param output_dir Directory where summary CSV files should be written.
+#'
+#' @return Named list of output paths for the written CSV files.
+#' @export
 run_study1_analysis <- function(pair_scores_path, output_dir) {
   pair_scores <- read_pair_scores(pair_scores_path)
   summary <- build_study1_summary(pair_scores)

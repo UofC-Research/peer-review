@@ -34,7 +34,23 @@ from peer_elt.interfaces import Extractor
 
 @dataclass(frozen=True)
 class MatchedManuscriptPair:
-    """Metadata needed to acquire a matched preprint/published pair."""
+    """Metadata needed to acquire a matched preprint/published pair.
+
+    Attributes
+    ----------
+    manuscript_id : str
+        Stable pair identifier, typically ``"<server>:<preprint_doi>"``.
+    server : str
+        Preprint server slug, currently ``"biorxiv"`` or ``"medrxiv"``.
+    preprint_doi : str
+        DOI of the preprint manuscript.
+    preprint_version : str
+        Version identifier selected as the preregistered baseline comparator.
+    preprint_date : str | None
+        Posting date for the selected preprint version when available.
+    published_doi : str
+        DOI of the matched peer-reviewed published article.
+    """
 
     manuscript_id: str
     server: str
@@ -46,7 +62,17 @@ class MatchedManuscriptPair:
 
 @dataclass(frozen=True)
 class PairAcquisitionResult:
-    """Full-text acquisition result for a matched manuscript pair."""
+    """Full-text acquisition result for a matched manuscript pair.
+
+    Attributes
+    ----------
+    pair : MatchedManuscriptPair
+        Pair metadata used to construct the acquisition requests.
+    preprint : peer_elt.acquire.full_text.AcquisitionResult
+        Download result for the selected initial preprint version.
+    published : peer_elt.acquire.full_text.AcquisitionResult
+        Download result for the matched published article.
+    """
 
     pair: MatchedManuscriptPair
     preprint: AcquisitionResult
@@ -58,7 +84,23 @@ def query_preprint_servers_for_pairs(
         extractor: Extractor,
         retry_config: RetryConfig,
 ) -> list[MatchedManuscriptPair]:
-    """Query configured preprint sources and build matched manuscript pairs."""
+    """Query configured preprint sources and build matched manuscript pairs.
+
+    Parameters
+    ----------
+    sources : Iterable[peer_elt.config.SourceConfig]
+        Source configurations defining server slugs and date windows.
+    extractor : peer_elt.interfaces.Extractor
+        Metadata extractor used to query each configured source.
+    retry_config : peer_elt.config.RetryConfig
+        Retry/backoff settings forwarded to the extractor.
+
+    Returns
+    -------
+    list[MatchedManuscriptPair]
+        Matched manuscript pairs that have an initial preprint version and a
+        corresponding published DOI.
+    """
     frames: list[pd.DataFrame] = []
     for source in sources:
         frame = extractor.fetch(source, retry_config)
@@ -79,6 +121,23 @@ def build_matched_manuscript_pairs(raw_df: pd.DataFrame) -> list[MatchedManuscri
     The published side uses the first non-empty `published_doi`/`published`
     value observed for that preprint across versions. Records with no published
     DOI are omitted because there is no matched published article to acquire.
+
+    Parameters
+    ----------
+    raw_df : pandas.DataFrame
+        Raw preprint metadata. Required columns are ``doi``, ``server``, and
+        ``version``. Optional columns include ``date``, ``published_doi``, and
+        ``published``.
+
+    Returns
+    -------
+    list[MatchedManuscriptPair]
+        One matched pair per `(server, doi)` group with a published DOI.
+
+    Raises
+    ------
+    KeyError
+        If required metadata columns are missing.
     """
     if raw_df.empty:
         return []
@@ -137,7 +196,19 @@ def build_matched_manuscript_pairs(raw_df: pd.DataFrame) -> list[MatchedManuscri
 def build_acquisition_requests(
         pair: MatchedManuscriptPair,
 ) -> tuple[AcquisitionRequest, AcquisitionRequest]:
-    """Create full-text acquisition requests for a matched pair."""
+    """Create full-text acquisition requests for a matched pair.
+
+    Parameters
+    ----------
+    pair : MatchedManuscriptPair
+        Pair metadata containing the selected initial preprint version and
+        matched published DOI.
+
+    Returns
+    -------
+    tuple[AcquisitionRequest, AcquisitionRequest]
+        Preprint and published-article acquisition requests, respectively.
+    """
     preprint_url_base = _preprint_content_url(pair.server, pair.preprint_doi, pair.preprint_version)
     preprint = AcquisitionRequest(
         doc_id=_safe_doc_id(f"{pair.server}_{pair.preprint_doi}_v{pair.preprint_version}_preprint"),
@@ -160,7 +231,25 @@ def acquire_matched_pair_full_text(
         http_get: HttpGet,
         timeout_seconds: float = 30.0,
 ) -> PairAcquisitionResult:
-    """Download the initial preprint version and published version."""
+    """Download the initial preprint version and published version.
+
+    Parameters
+    ----------
+    pair : MatchedManuscriptPair
+        Matched pair to acquire.
+    base_dir : pathlib.Path
+        Directory under which downloaded artifacts are saved.
+    http_get : peer_elt.acquire.full_text.HttpGet
+        Injected HTTP getter used for deterministic testing and production
+        retry behavior.
+    timeout_seconds : float, default=30.0
+        Per-request timeout passed to the downloader.
+
+    Returns
+    -------
+    PairAcquisitionResult
+        Pair metadata plus acquisition results for both manuscript versions.
+    """
     preprint_request, published_request = build_acquisition_requests(pair)
     preprint_result, published_result = acquire_full_text_pair(
         preprint=preprint_request,
@@ -182,7 +271,24 @@ def acquire_corpus_full_text(
         http_get: HttpGet,
         timeout_seconds: float = 30.0,
 ) -> list[PairAcquisitionResult]:
-    """Download full text for an iterable of matched manuscript pairs."""
+    """Download full text for an iterable of matched manuscript pairs.
+
+    Parameters
+    ----------
+    pairs : Iterable[MatchedManuscriptPair]
+        Matched manuscript pairs to acquire.
+    base_dir : pathlib.Path
+        Directory under which downloaded artifacts are saved.
+    http_get : peer_elt.acquire.full_text.HttpGet
+        Injected HTTP getter.
+    timeout_seconds : float, default=30.0
+        Per-request timeout passed to each acquisition call.
+
+    Returns
+    -------
+    list[PairAcquisitionResult]
+        Acquisition results in the same order as the input pairs.
+    """
     return [
         acquire_matched_pair_full_text(
             pair=pair,
@@ -195,14 +301,45 @@ def acquire_corpus_full_text(
 
 
 def _preprint_content_url(server: str, doi: str, version: str) -> str:
-    """Return the bioRxiv/medRxiv content URL for a DOI version."""
+    """Return the bioRxiv/medRxiv content URL for a DOI version.
+
+    Parameters
+    ----------
+    server : str
+        Preprint server slug.
+    doi : str
+        Preprint DOI.
+    version : str
+        Preprint version identifier.
+
+    Returns
+    -------
+    str
+        Version-specific preprint content URL.
+
+    Raises
+    ------
+    ValueError
+        If URL construction is requested for an unsupported server.
+    """
     if server not in {"biorxiv", "medrxiv"}:
         raise ValueError(f"Unsupported preprint server for URL construction: {server}")
     return f"https://www.{server}.org/content/{doi}v{version}"
 
 
 def _clean_optional_text(value) -> str | None:
-    """Normalize optional string-like metadata values."""
+    """Normalize optional string-like metadata values.
+
+    Parameters
+    ----------
+    value
+        Raw metadata value.
+
+    Returns
+    -------
+    str | None
+        Trimmed string value, or None for null/empty sentinel values.
+    """
     if value is None:
         return None
     try:
@@ -217,7 +354,18 @@ def _clean_optional_text(value) -> str | None:
 
 
 def _first_non_empty(values) -> str | None:
-    """Return the first normalized non-empty value from a sequence/Series."""
+    """Return the first normalized non-empty value from a sequence.
+
+    Parameters
+    ----------
+    values
+        Iterable of metadata values.
+
+    Returns
+    -------
+    str | None
+        First non-empty normalized string, or None when no value is available.
+    """
     for value in values:
         text = _clean_optional_text(value)
         if text:
@@ -226,7 +374,23 @@ def _first_non_empty(values) -> str | None:
 
 
 def _format_version(value) -> str:
-    """Format API version values as stable strings for URLs and IDs."""
+    """Format API version values as stable strings for URLs and IDs.
+
+    Parameters
+    ----------
+    value
+        Raw version value from preprint metadata.
+
+    Returns
+    -------
+    str
+        Version string with integer-like values normalized without decimals.
+
+    Raises
+    ------
+    ValueError
+        If the version value is missing.
+    """
     text = _clean_optional_text(value)
     if text is None:
         raise ValueError("Preprint version is required")
@@ -240,5 +404,17 @@ def _format_version(value) -> str:
 
 
 def _safe_doc_id(value: str) -> str:
-    """Return a filesystem-friendly document identifier."""
+    """Return a filesystem-friendly document identifier.
+
+    Parameters
+    ----------
+    value : str
+        Raw identifier string.
+
+    Returns
+    -------
+    str
+        Identifier containing only alphanumeric characters, dots, underscores,
+        and hyphens.
+    """
     return re.sub(r"[^A-Za-z0-9._-]+", "_", value).strip("_")
