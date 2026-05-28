@@ -15,18 +15,20 @@
 - Added explicit raw statistical rigour, indicator delta, and PRES computation in Python
 - Added audit-ready evidence-row exports and document-completeness review flags for zero scores
 - Added TDD coverage for the methodology workflow and retained full-suite passing status
+- Implemented TDD-covered framework to query preprint sources, select initial preprint versions, carry published DOIs
+  forward, and download matched full text
+- Added deterministic acquisition-request construction for initial preprint and published DOI resolver workflows
 
 ## In Progress
 
 - Integrating full-text parsing outputs with the methodology scoring workflow
-- Building corpus assembly for matched preprint-published manuscript pairs (server metadata, DOI linkage, eligibility
-  filters)
+- Connecting acquired full-text artifacts to parsing and methodology scoring
 
 ## Planned
 
 - Connect methodology score records to persistent storage/output tables
-- Implement end-to-end full-text acquisition, parsing, and format metadata capture per access hierarchy (
-  PDF/HTML/supplements)
+- Extend published-article full-text resolution beyond DOI landing pages for publisher-specific PDF/XML/HTML sources
+- Implement end-to-end parsing and format metadata capture per access hierarchy (PDF/HTML/supplements)
 - Generate descriptive summaries from fixed V1-V10 score records (PRES and indicator-level change distributions)
 - Run preregistered descriptive analyses and heterogeneity summaries (context, journal practices)
 - Conduct reliability checks (double-coding, adjudication, IRR reporting)

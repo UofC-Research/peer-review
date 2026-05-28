@@ -17,11 +17,13 @@ flowchart TD
     C[configs/local.yml or configs/prod.yml] --> D[peer_elt CLI]
     D --> E[Extract metadata from bioRxiv and medRxiv]
     E --> F[Load raw_preprints into DuckDB or PostgreSQL]
-    F --> G[Transform first vs latest versions]
-    G --> H[Write diff_features to storage and files]
-    H --> I[Score V1-V10 for matched manuscript pairs]
-    I --> J[Compute indicator deltas and PRES]
-    J --> K[Downstream R analysis and documentation]
+    F --> G[Select initial preprint version and published DOI]
+    G --> H[Download initial preprint and published article full text]
+    H --> I[Transform first vs latest metadata versions]
+    I --> J[Write diff_features to storage and files]
+    J --> K[Score V1-V10 for matched manuscript pairs]
+    K --> L[Compute indicator deltas and PRES]
+    L --> M[Downstream R analysis and documentation]
 ```
 
 At runtime the pipeline does four things:
@@ -30,9 +32,13 @@ At runtime the pipeline does four things:
    retry settings.
 2. Extracts preprint metadata from configured preprint servers.
 3. Appends raw rows to `raw_preprints` in the configured storage backend.
-4. Builds `diff_features` and writes Parquet output, optional CSV output, and a
+4. Builds matched manuscript pairs by selecting the initial preprint version and
+   carrying forward the corresponding published DOI.
+5. Builds deterministic full-text acquisition requests and downloads the
+   initial preprint and published article using PDF/XML/HTML fallback.
+6. Builds `diff_features` and writes Parquet output, optional CSV output, and a
    storage table.
-5. Supports the preregistered V1-V10 methodology workflow for matched
+7. Supports the preregistered V1-V10 methodology workflow for matched
    preprint-published pairs through `peer_elt.transform.methodology`.
 
 ## Environment Setup
@@ -125,6 +131,23 @@ The main tables are documented in `docs/data_model.md`.
 `diff_features` is always written as Parquet. CSV is written when
 `output.write_csv` is `true`.
 
+## Corpus and Full-Text Acquisition
+
+The acquisition framework is implemented in `peer_elt.acquire.corpus` and
+`peer_elt.acquire.full_text`.
+
+- `query_preprint_servers_for_pairs(...)` queries configured preprint sources
+  through the extractor interface and returns matched manuscript pairs.
+- `build_matched_manuscript_pairs(...)` selects the initial preprint version
+  for each preprint DOI and requires a corresponding published DOI.
+- `build_acquisition_requests(...)` creates URL candidates for the initial
+  preprint version and the published article DOI resolver.
+- `acquire_matched_pair_full_text(...)` downloads both sides using the existing
+  PDF/XML/HTML fallback downloader and injected HTTP client.
+
+Tests use fake HTTP clients, so acquisition behavior is covered without live
+network access.
+
 ## Analysis Layer
 
 Python owns the ELT pipeline. R is reserved for downstream analysis and reporting
@@ -154,6 +177,9 @@ the package without extra path setup.
 - `src/peer_elt/pipeline.py`: extract, load, transform, and write orchestration.
 - `src/peer_elt/config.py`: YAML config schema and loader.
 - `src/peer_elt/factories.py`: extractor, storage, and transformer selection.
+- `src/peer_elt/acquire/corpus.py`: query-to-pair selection and matched
+  preprint/published full-text acquisition.
+- `src/peer_elt/acquire/full_text.py`: PDF/XML/HTML fallback downloader.
 - `src/peer_elt/transform/methodology.py`: V1-V10 pair scoring, deltas, PRES,
   and audit exports.
 - `src/peer_elt/transform/scoring.py`: rule-based and hybrid indicator scoring.
