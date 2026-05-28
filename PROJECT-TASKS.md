@@ -18,18 +18,21 @@
 - Implemented TDD-covered framework to query preprint sources, select initial preprint versions, carry published DOIs
   forward, and download matched full text
 - Added deterministic acquisition-request construction for initial preprint and published DOI resolver workflows
+- Implemented TDD-covered R analysis layer for descriptive PRES, indicator-delta, and raw-score summaries
+- Added R command-line wrapper for generating Study 1 summary CSV files from fixed pair-score records
 
 ## In Progress
 
 - Integrating full-text parsing outputs with the methodology scoring workflow
 - Connecting acquired full-text artifacts to parsing and methodology scoring
+- Connecting persisted Python methodology outputs to the R analysis runner
 
 ## Planned
 
 - Connect methodology score records to persistent storage/output tables
 - Extend published-article full-text resolution beyond DOI landing pages for publisher-specific PDF/XML/HTML sources
 - Implement end-to-end parsing and format metadata capture per access hierarchy (PDF/HTML/supplements)
-- Generate descriptive summaries from fixed V1-V10 score records (PRES and indicator-level change distributions)
+- Generate manuscript-quality reporting artifacts from fixed R summary tables
 - Run preregistered descriptive analyses and heterogeneity summaries (context, journal practices)
 - Conduct reliability checks (double-coding, adjudication, IRR reporting)
 - Prepare Study 1 data-quality reporting and exclusion audit logs

@@ -151,8 +151,22 @@ network access.
 ## Analysis Layer
 
 Python owns the ELT pipeline. R is reserved for downstream analysis and reporting
-work tied to the preregistered Study 1 analysis plan. The starter R setup script
-is:
+work tied to the preregistered Study 1 analysis plan.
+
+The implemented R layer consumes `methodology_pair_scores` records after V1-V10
+scores are fixed. It produces descriptive, non-inferential Study 1 summaries:
+
+- `pres_summary.csv`
+- `indicator_delta_summary.csv`
+- `raw_score_summary.csv`
+
+Run it from a pair-score CSV:
+
+```bash
+Rscript scripts/run_study1_analysis.R data/processed/methodology_pair_scores.csv data/analysis
+```
+
+The starter R setup script is:
 
 ```bash
 Rscript src/analysis/init_r.R
@@ -169,6 +183,12 @@ pytest
 Pytest reads `pythonpath = ["src"]` from `pyproject.toml`, so tests can import
 the package without extra path setup.
 
+Run the R analysis tests:
+
+```bash
+Rscript tests/test_analysis_layer.R
+```
+
 ## Key Files
 
 - `environment.yml`: Conda environment definition.
@@ -183,5 +203,9 @@ the package without extra path setup.
 - `src/peer_elt/transform/methodology.py`: V1-V10 pair scoring, deltas, PRES,
   and audit exports.
 - `src/peer_elt/transform/scoring.py`: rule-based and hybrid indicator scoring.
+- `src/analysis/study1_analysis.R`: R summaries for PRES, indicator deltas, and
+  raw version scores.
+- `scripts/run_study1_analysis.R`: command-line wrapper for the R analysis
+  layer.
 - `docs/peer_review_planning_document.md`: controlling preregistration document.
 - `docs/data_model.md`: raw and derived table definitions.
