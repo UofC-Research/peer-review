@@ -470,7 +470,12 @@ def default_rule_patterns() -> tuple[RulePattern, ...]:
         RulePattern("V4", 2, "methods", r"\b(power|alpha|effect size)\b"),
         RulePattern("V5", 1, "methods", r"\b(regression|model|anova|cox|glm)\b"),
         RulePattern("V5", 2, "methods", r"\b(covariate|adjusted for|assumption|interaction)\b"),
-        RulePattern("V6", 1, "methods", r"\b(multiple comparisons|multiplicity|adjusted)\b"),
+        RulePattern(
+            "V6",
+            1,
+            "methods",
+            r"\b(multiple comparisons|multiplicity|multiple testing)\b",
+        ),
         RulePattern("V6", 2, "methods", r"\b(bonferroni|fdr|holm)\b"),
         RulePattern("V7", 1, "results", r"\b(sensitivity analysis|robustness check)\b"),
         RulePattern("V7", 2, "results", r"\b(alternative model|subgroup analysis|leave-one-out)\b"),

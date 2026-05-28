@@ -1,1 +1,1 @@
-__all__ = ["diff"]
+__all__ = ["diff", "methodology", "scoring"]

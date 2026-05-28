@@ -19,7 +19,9 @@ flowchart TD
     E --> F[Load raw_preprints into DuckDB or PostgreSQL]
     F --> G[Transform first vs latest versions]
     G --> H[Write diff_features to storage and files]
-    H --> I[Downstream R analysis and documentation]
+    H --> I[Score V1-V10 for matched manuscript pairs]
+    I --> J[Compute indicator deltas and PRES]
+    J --> K[Downstream R analysis and documentation]
 ```
 
 At runtime the pipeline does four things:
@@ -30,6 +32,8 @@ At runtime the pipeline does four things:
 3. Appends raw rows to `raw_preprints` in the configured storage backend.
 4. Builds `diff_features` and writes Parquet output, optional CSV output, and a
    storage table.
+5. Supports the preregistered V1-V10 methodology workflow for matched
+   preprint-published pairs through `peer_elt.transform.methodology`.
 
 ## Environment Setup
 
@@ -113,6 +117,10 @@ The main tables are documented in `docs/data_model.md`.
 - `raw_preprints`: raw metadata rows from the preprint APIs.
 - `diff_features`: per-DOI comparison features between the first observed
   preprint version and the latest observed version.
+- `methodology_pair_scores`: table-ready V1-V10 preprint scores, published
+  scores, deltas, raw version scores, PRES, document formats, and review flags.
+- `methodology_evidence_rows`: audit-ready evidence snippets supporting
+  indicator scores.
 
 `diff_features` is always written as Parquet. CSV is written when
 `output.write_csv` is `true`.
@@ -146,5 +154,8 @@ the package without extra path setup.
 - `src/peer_elt/pipeline.py`: extract, load, transform, and write orchestration.
 - `src/peer_elt/config.py`: YAML config schema and loader.
 - `src/peer_elt/factories.py`: extractor, storage, and transformer selection.
+- `src/peer_elt/transform/methodology.py`: V1-V10 pair scoring, deltas, PRES,
+  and audit exports.
+- `src/peer_elt/transform/scoring.py`: rule-based and hybrid indicator scoring.
 - `docs/peer_review_planning_document.md`: controlling preregistration document.
 - `docs/data_model.md`: raw and derived table definitions.

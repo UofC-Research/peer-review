@@ -2,6 +2,31 @@
 
 ## Purpose of This Document
 
+## Current Python Implementation Status
+
+The current repository implements the methodology-level scoring orchestration in
+`src/peer_elt/transform/methodology.py`. This layer does not define new scoring
+rules. It applies the fixed V1-V10 workflow from the preregistered planning
+document by:
+
+- scoring preprint and published manuscript versions independently
+- retaining all preregistered indicators V1-V10, including explicit 0 scores
+- computing raw statistical rigour scores for each manuscript version
+- computing indicator-level changes as `published - preprint`
+- computing the Peer-Review Effect Score (PRES)
+- exporting flat pair-level records and evidence rows for audit
+- flagging manuscript versions with one or more zero scores for
+  document-completeness review
+
+The current scorer is dependency-injected. In tests and baseline execution it
+uses the existing conservative rule-based or hybrid scorer from
+`src/peer_elt/transform/scoring.py`. Model training and frozen model artifacts
+remain planned implementation work; this document's model-development sections
+describe the intended measurement-instrument lifecycle and do not indicate that
+production model training has already been completed.
+
+---
+
 This document describes **how results were generated**, including the machine-learning–assisted scoring pipeline, temporal data splits, model freezing procedures, and the rationale behind these design choices.
 
 This document is descriptive, not preregistered. All inferential decisions are governed by the preregistered planning document. This file exists to ensure transparency, reproducibility, and auditability of the analytic workflow, without introducing analytic discretion. All scoring rules, indicators, thresholds, and aggregation logic are fully specified in the preregistered planning document; this file documents only their computational implementation.
@@ -336,6 +361,7 @@ For each manuscript version, the scoring process yields:
 
 - Evidence snippets with source section and matched pattern
 
+- Document-completeness review flag when one or more indicators are scored 0
 
 Scores are stored in structured records to enable reproducibility and independent audit.
 
@@ -344,6 +370,12 @@ Scores are stored in structured records to enable reproducibility and independen
 
 For each matched manuscript pair, within‑manuscript change is computed as:
 $$\Delta V_k = V_{k,published} - V_{k,preprint}$$
+
+In Python, this is represented by `PairScorecard.indicator_deltas` and
+`PairScorecard.pres`. `PairScorecard.to_record()` emits a flat table-ready row
+with V1-V10 preprint scores, V1-V10 published scores, V1-V10 deltas, raw version
+scores, PRES, document formats, and document-completeness review flags.
+
 The Peer‑Review Effect Score (PRES) is computed as the sum of published indicator scores minus the sum of preprint indicator scores.
 
 All summaries are descriptive and interpreted within the preregistered non‑causal framework. 
@@ -351,13 +383,20 @@ All summaries are descriptive and interpreted within the preregistered non‑cau
 ---
 ## 8. Evidence Logging and Audit Trail
 
-Evidence excerpts are mechanically selected based on rule matches or model attention windows, not manually curated. All evidence snippets contributing to indicator scores are logged with:
+Evidence excerpts are mechanically selected based on rule matches or model-provided evidence, not manually curated. All
+evidence snippets contributing to indicator scores are logged with:
 
 - manuscript identifier
 
 - version (preprint or published)
 
+- document format when known
+
 - indicator
+
+- assigned score
+
+- scoring rationale
 
 - section
 
@@ -365,7 +404,9 @@ Evidence excerpts are mechanically selected based on rule matches or model atten
 
 - verbatim text excerpt
 
-These logs support reproducibility, verification, and post hoc inspection. Evidence snippets are mechanically extracted based on matched rule patterns or model attention windows; no post hoc selection, paraphrasing, or curation is performed.
+These logs support reproducibility, verification, and post hoc inspection. Evidence snippets are mechanically extracted
+based on matched rule patterns or model-supplied evidence; no post hoc selection, paraphrasing, or curation is
+performed.
 
 ---
 ## 9. Deterministic Construction of Aggregated Results

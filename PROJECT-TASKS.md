@@ -11,15 +11,23 @@
 - Defined document access rules, preprint version selection, and workflow for within-manuscript comparisons
 - Authored public summary, reader map, and project description to align with preregistered scope
 - Documented data model and terminology for preprint/published manuscript pairing
+- Implemented methodology-level V1-V10 scoring orchestration for matched manuscript pairs
+- Added explicit raw statistical rigour, indicator delta, and PRES computation in Python
+- Added audit-ready evidence-row exports and document-completeness review flags for zero scores
+- Added TDD coverage for the methodology workflow and retained full-suite passing status
 
 ## In Progress
-None (planning locked; no data accessed or analyses performed)
+
+- Integrating full-text parsing outputs with the methodology scoring workflow
+- Building corpus assembly for matched preprint-published manuscript pairs (server metadata, DOI linkage, eligibility
+  filters)
 
 ## Planned
-- Build corpus assembly for matched preprint-published manuscript pairs (server metadata, DOI linkage, eligibility filters)
-- Implement full-text acquisition and format metadata capture per access hierarchy (PDF/HTML/supplements)
-- Implement V1-V10 scoring workflow with evidence logging and audit trail
-- Compute within-manuscript deltas and descriptive summaries (PRES and indicator-level changes)
+
+- Connect methodology score records to persistent storage/output tables
+- Implement end-to-end full-text acquisition, parsing, and format metadata capture per access hierarchy (
+  PDF/HTML/supplements)
+- Generate descriptive summaries from fixed V1-V10 score records (PRES and indicator-level change distributions)
 - Run preregistered descriptive analyses and heterogeneity summaries (context, journal practices)
 - Conduct reliability checks (double-coding, adjudication, IRR reporting)
 - Prepare Study 1 data-quality reporting and exclusion audit logs
