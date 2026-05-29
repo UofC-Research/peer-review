@@ -6,6 +6,10 @@
 #' positional arguments: a `methodology_pair_scores` CSV path and an output
 #' directory for generated summary CSV files.
 #'
+#' @details
+#' The input CSV should be produced by the Python methodology output repository
+#' after V1-V10 scores and PRES values are fixed.
+#'
 #' @return No return value. Writes CSV files and prints their paths.
 #' @examples
 #' \dontrun{

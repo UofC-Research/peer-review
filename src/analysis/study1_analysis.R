@@ -4,6 +4,11 @@
 #' the Python scoring layer. They do not estimate causal effects, run hypothesis
 #' tests, or modify scoring rules.
 #'
+#' @details
+#' The expected input table is produced by the Python methodology output
+#' repository (`peer_elt.transform.outputs`) after all V1-V10 scores, deltas,
+#' and PRES values are fixed.
+#'
 #' @name study1_analysis
 NULL
 
@@ -56,6 +61,10 @@ validate_pair_scores <- function(pair_scores) {
 #' Read fixed methodology pair-score records from CSV
 #'
 #' @param path Path to a CSV file containing `methodology_pair_scores` records.
+#'
+#' @details
+#' The CSV is expected to follow the stable pair-score schema emitted by
+#' `StorageMethodologyOutputRepository` in the Python ELT layer.
 #'
 #' @return Validated pair-score data frame.
 #' @export

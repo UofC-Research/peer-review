@@ -5,25 +5,33 @@
 ## Current Python Implementation Status
 
 The current repository implements the methodology-level scoring orchestration in
-`src/peer_elt/transform/methodology.py`. This layer does not define new scoring
-rules. It applies the fixed V1-V10 workflow from the preregistered planning
+`src/peer_elt/transform/methodology.py`, with section-normalization adapters in
+`src/peer_elt/transform/adapters.py` and output persistence in
+`src/peer_elt/transform/outputs.py`. These layers do not define new scoring
+rules. They apply the fixed V1-V10 workflow from the preregistered planning
 document by:
 
+- normalizing parsed documents into canonical `methods`, `results`, and
+  `statements` sections
 - scoring preprint and published manuscript versions independently
 - retaining all preregistered indicators V1-V10, including explicit 0 scores
 - computing raw statistical rigour scores for each manuscript version
 - computing indicator-level changes as `published - preprint`
 - computing the Peer-Review Effect Score (PRES)
 - exporting flat pair-level records and evidence rows for audit
+- persisting fixed `methodology_pair_scores` records for the R analysis runner
 - flagging manuscript versions with one or more zero scores for
   document-completeness review
 
 The current scorer is dependency-injected. In tests and baseline execution it
 uses the existing conservative rule-based or hybrid scorer from
-`src/peer_elt/transform/scoring.py`. Model training and frozen model artifacts
-remain planned implementation work; this document's model-development sections
-describe the intended measurement-instrument lifecycle and do not indicate that
-production model training has already been completed.
+`src/peer_elt/transform/scoring.py`. The section adapter and methodology output
+repository are also dependency-injected so parser formats and persistence
+targets can change without changing the fixed pair-level aggregation rules.
+Model training and frozen model artifacts remain planned implementation work;
+this document's model-development sections describe the intended
+measurement-instrument lifecycle and do not indicate that production model
+training has already been completed.
 
 ---
 
@@ -305,6 +313,11 @@ These sections are represented as a mapping:
 sections: Mapping[str, str]
 ```
 
+In code, `MethodologySectionAdapter` dispatches to adapter strategies for parsed
+PDF/XML documents, scraped article documents, or direct section mappings. Parser
+headings such as `Materials and Methods`, `Findings`, and `Data availability`
+are normalized to the canonical section names above.
+
 If a section is missing or cannot be reliably extracted, an empty string is supplied and the indicator is treated conservatively.
 
 ---
@@ -365,6 +378,12 @@ For each manuscript version, the scoring process yields:
 
 Scores are stored in structured records to enable reproducibility and independent audit.
 
+The storage boundary is handled by `StorageMethodologyOutputRepository`, which
+materializes two stable tables:
+
+- `methodology_pair_scores`, consumed by the R analysis runner
+- `methodology_evidence_rows`, used for evidence audit and verification
+
 ---
 ## 7. Within-Manuscript Change Metrics ($\Delta V_k$ and PRES)
 
@@ -375,6 +394,9 @@ In Python, this is represented by `PairScorecard.indicator_deltas` and
 `PairScorecard.pres`. `PairScorecard.to_record()` emits a flat table-ready row
 with V1-V10 preprint scores, V1-V10 published scores, V1-V10 deltas, raw version
 scores, PRES, document formats, and document-completeness review flags.
+`build_methodology_output_frames()` collects these records into DataFrames with
+stable empty schemas so downstream scripts see the same column contract even
+when no pairs are available.
 
 The Peer‑Review Effect Score (PRES) is computed as the sum of published indicator scores minus the sum of preprint indicator scores.
 
@@ -422,6 +444,11 @@ Aggregated results are constructed programmatically from fixed scoring outputs a
 - Counts of indicators showing improvement, no change, or decline
 
 No inferential testing or causal claims are introduced at this stage. No weighting, normalization, thresholding, or inferential interpretation is applied to composite scores.
+
+The R analysis implementation in `src/analysis/study1_analysis.R` is documented
+with roxygen comments and consumes only fixed `methodology_pair_scores` records.
+It writes deterministic CSV summaries for PRES, indicator deltas, and raw
+version scores.
 
 ---
 ## 10. Deterministic Generation of Methods and Results Text

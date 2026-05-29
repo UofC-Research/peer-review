@@ -20,6 +20,7 @@ changing the pair-level aggregation rules.
 from dataclasses import dataclass
 from typing import Mapping, Protocol
 
+from peer_elt.transform.adapters import MethodologySectionAdapter, SectionAdapter
 from peer_elt.transform.scoring import EvidenceSnippet, HybridScorecard, IndicatorScore
 
 PREREGISTERED_INDICATORS: tuple[str, ...] = (
@@ -61,6 +62,70 @@ class SectionScorer(Protocol):
         peer_elt.transform.scoring.HybridScorecard
             Indicator-level scores and evidence for one manuscript version.
         """
+
+
+class MethodologyScoringWorkflow:
+    """Score parsed manuscript pairs through injected adapter/scorer strategies.
+
+    Parameters
+    ----------
+    scorer : SectionScorer
+        Scorer used after manuscript documents are normalized to canonical
+        sections.
+    section_adapter : peer_elt.transform.adapters.SectionAdapter | None, default=None
+        Adapter strategy used to convert parsed documents or section mappings
+        into ``methods``, ``results``, and ``statements`` sections.
+    """
+
+    def __init__(
+            self,
+            scorer: SectionScorer,
+            section_adapter: SectionAdapter | None = None,
+    ) -> None:
+        self._scorer = scorer
+        self._section_adapter = section_adapter or MethodologySectionAdapter()
+
+    def score_pair(
+            self,
+            manuscript_id: str,
+            preprint_document,
+            published_document,
+            preprint_format: str | None = None,
+            published_format: str | None = None,
+    ) -> "PairScorecard":
+        """Score a matched pair from parsed document objects or section mappings.
+
+        Parameters
+        ----------
+        manuscript_id : str
+            Stable identifier for the matched manuscript pair.
+        preprint_document
+            Parsed preprint document or section mapping accepted by the
+            configured section adapter.
+        published_document
+            Parsed published-article document or section mapping accepted by
+            the configured section adapter.
+        preprint_format : str | None, default=None
+            Full-text format used for the preprint version when known.
+        published_format : str | None, default=None
+            Full-text format used for the published version when known.
+
+        Returns
+        -------
+        PairScorecard
+            Matched-pair scorecard with V1-V10 scores, deltas, PRES, and
+            evidence rows.
+        """
+        preprint_sections = self._section_adapter.to_sections(preprint_document)
+        published_sections = self._section_adapter.to_sections(published_document)
+        return score_manuscript_pair(
+            manuscript_id=manuscript_id,
+            preprint_sections=preprint_sections,
+            published_sections=published_sections,
+            scorer=self._scorer,
+            preprint_format=preprint_format,
+            published_format=published_format,
+        )
 
 
 @dataclass(frozen=True)
