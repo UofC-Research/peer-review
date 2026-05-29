@@ -157,7 +157,7 @@ network access.
 Python owns the ELT pipeline. R is reserved for downstream analysis and reporting
 work tied to the preregistered Study 1 analysis plan.
 
-The Python scoring workflow now separates three responsibilities:
+The Python scoring workflow separates three responsibilities:
 
 - `peer_elt.transform.adapters` converts parsed PDF/XML/article outputs or
   section mappings into canonical methodology sections.

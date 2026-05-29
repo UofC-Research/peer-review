@@ -15,6 +15,7 @@ from typing import Protocol
 
 from peer_elt.parse.models import ArticleDocument, ParsedDocument
 
+
 CANONICAL_SECTIONS: tuple[str, ...] = ("methods", "results", "statements")
 
 SECTION_ALIASES: Mapping[str, tuple[str, ...]] = {

@@ -377,7 +377,6 @@ For each manuscript version, the scoring process yields:
 - Document-completeness review flag when one or more indicators are scored 0
 
 Scores are stored in structured records to enable reproducibility and independent audit.
-
 The storage boundary is handled by `StorageMethodologyOutputRepository`, which
 materializes two stable tables:
 
@@ -444,7 +443,6 @@ Aggregated results are constructed programmatically from fixed scoring outputs a
 - Counts of indicators showing improvement, no change, or decline
 
 No inferential testing or causal claims are introduced at this stage. No weighting, normalization, thresholding, or inferential interpretation is applied to composite scores.
-
 The R analysis implementation in `src/analysis/study1_analysis.R` is documented
 with roxygen comments and consumes only fixed `methodology_pair_scores` records.
 It writes deterministic CSV summaries for PRES, indicator deltas, and raw

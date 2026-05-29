@@ -20,16 +20,17 @@
 - Added deterministic acquisition-request construction for initial preprint and published DOI resolver workflows
 - Implemented TDD-covered R analysis layer for descriptive PRES, indicator-delta, and raw-score summaries
 - Added R command-line wrapper for generating Study 1 summary CSV files from fixed pair-score records
+- Refactored factory, adapter, workflow, and repository boundaries using design-pattern-oriented components
+- Integrated parsed full-text section adapters with the methodology scoring workflow
+- Connected Python methodology score records to persistent output tables for the R analysis runner
+- Updated Python documentation to use NumPy-style docstrings and R documentation to use roxygen comments
 
 ## In Progress
 
-- Integrating full-text parsing outputs with the methodology scoring workflow
 - Connecting acquired full-text artifacts to parsing and methodology scoring
-- Connecting persisted Python methodology outputs to the R analysis runner
 
 ## Planned
 
-- Connect methodology score records to persistent storage/output tables
 - Extend published-article full-text resolution beyond DOI landing pages for publisher-specific PDF/XML/HTML sources
 - Implement end-to-end parsing and format metadata capture per access hierarchy (PDF/HTML/supplements)
 - Generate manuscript-quality reporting artifacts from fixed R summary tables
