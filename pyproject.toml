@@ -40,7 +40,7 @@ peer-elt = "peer_elt.cli:main"
 [project.optional-dependencies]
 dev = [
   "pytest>=9.0.3",
-  "pytest-cov",
+    "pytest-cov>=7.1.0",
   "black",
   "ruff",
 ]
@@ -55,6 +55,13 @@ where = ["src"]
 pythonpath = ["src"]
 testpaths = ["tests"]
 addopts = "-ra -q"
+
+[tool.coverage.run]
+branch = true
+source = ["peer_elt"]
+
+[tool.coverage.report]
+show_missing = true
 
 [tool.black]
 line-length = 88

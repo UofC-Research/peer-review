@@ -20,8 +20,8 @@ Audit date: 2026-05-29
 Verification performed:
 
 - `conda run -n peer_review_env python -m pytest` -> 78 passed, with one cache-permission warning for `.pytest_cache`
-- `conda run -n peer_review_env python -m pytest --cov=peer_elt --cov-report=term-missing -q` -> 78 passed, 91% total
-  Python coverage
+- `conda run -n peer_review_env python -m pytest --cov=peer_elt --cov-report=term-missing -q` -> 78 passed, 88% total
+  Python coverage with branch coverage enabled
 - `conda run -n peer_review_env Rscript tests/test_analysis_layer.R` -> passed with exit code 0
 - `python -m compileall -q src tests` -> passed
 - Placeholder scan across `src`, `tests`, and `scripts` found no TODO/FIXME markers. `NotImplementedError` appears only
@@ -97,7 +97,7 @@ Verification performed:
 - Updated Python documentation to use NumPy-style docstrings and R documentation to use roxygen comments
 - Connected acquired full-text artifacts to parsing and methodology scoring through artifact parser strategies
 - Completed TDD module implementation audit for Python and R modules
-- Enabled pytest-cov verification and recorded 91% total Python coverage
+- Enabled pytest-cov verification and recorded 88% branch-aware total Python coverage
 
 ## In Progress
 
