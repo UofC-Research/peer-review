@@ -1,6 +1,7 @@
 # Docstring Style Policy
 
-This repository intentionally uses two docstring styles based on code role.
+This repository intentionally uses language-specific documentation styles based
+on code role.
 
 ## src/ — NumPy Style
 
@@ -10,6 +11,12 @@ Production and analytical code uses NumPy-style docstrings to support:
 - complex return structures
 - scientific documentation standards
 - future auto-generated API documentation
+
+## R scripts - roxygen Style
+
+R analysis code and command-line wrappers use roxygen-style comments so function
+contracts are explicit and can be promoted into package documentation if the R
+analysis layer is later packaged.
 
 ## tests/ — Google Style
 

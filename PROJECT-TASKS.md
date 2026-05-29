@@ -24,10 +24,11 @@
 - Integrated parsed full-text section adapters with the methodology scoring workflow
 - Connected Python methodology score records to persistent output tables for the R analysis runner
 - Updated Python documentation to use NumPy-style docstrings and R documentation to use roxygen comments
+- Connected acquired full-text artifacts to parsing and methodology scoring through artifact parser strategies
 
 ## In Progress
 
-- Connecting acquired full-text artifacts to parsing and methodology scoring
+- None currently
 
 ## Planned
 

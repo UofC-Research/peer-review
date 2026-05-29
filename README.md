@@ -38,11 +38,13 @@ At runtime the pipeline does four things:
    initial preprint and published article using PDF/XML/HTML fallback.
 6. Builds `diff_features` and writes Parquet output, optional CSV output, and a
    storage table.
-7. Normalizes parsed full-text outputs into canonical `methods`, `results`, and
+7. Parses acquired local full-text artifacts through format-specific parser
+   strategies in `peer_elt.transform.artifacts`.
+8. Normalizes parsed full-text outputs into canonical `methods`, `results`, and
    `statements` sections through `peer_elt.transform.adapters`.
-8. Scores matched preprint-published pairs through
+9. Scores matched preprint-published pairs through
    `peer_elt.transform.methodology.MethodologyScoringWorkflow`.
-9. Writes fixed `methodology_pair_scores` and `methodology_evidence_rows`
+10. Writes fixed `methodology_pair_scores` and `methodology_evidence_rows`
    outputs through `peer_elt.transform.outputs` for downstream R analysis.
 
 ## Environment Setup
@@ -159,6 +161,9 @@ work tied to the preregistered Study 1 analysis plan.
 
 The Python scoring workflow separates three responsibilities:
 
+- `peer_elt.transform.artifacts` dispatches acquired local full-text artifacts
+  (`pdf`, `xml`, `html`) to parser strategies and scores parsed pairs through a
+  facade workflow.
 - `peer_elt.transform.adapters` converts parsed PDF/XML/article outputs or
   section mappings into canonical methodology sections.
 - `peer_elt.transform.methodology` applies the fixed V1-V10 scoring workflow and
@@ -214,6 +219,8 @@ Rscript tests/test_analysis_layer.R
 - `src/peer_elt/acquire/corpus.py`: query-to-pair selection and matched
   preprint/published full-text acquisition.
 - `src/peer_elt/acquire/full_text.py`: PDF/XML/HTML fallback downloader.
+- `src/peer_elt/transform/artifacts.py`: parser-strategy registry and facade
+  for connecting acquired artifacts to methodology scoring.
 - `src/peer_elt/transform/adapters.py`: adapter strategies that canonicalize
   parsed document outputs for methodology scoring.
 - `src/peer_elt/transform/methodology.py`: V1-V10 pair scoring, deltas, PRES,

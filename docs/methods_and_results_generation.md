@@ -1,4 +1,4 @@
-# Methods: Model Training, Scoring, and Result Generation
+﻿# Methods: Model Training, Scoring, and Result Generation
 
 ## Purpose of This Document
 
@@ -6,11 +6,14 @@
 
 The current repository implements the methodology-level scoring orchestration in
 `src/peer_elt/transform/methodology.py`, with section-normalization adapters in
-`src/peer_elt/transform/adapters.py` and output persistence in
+`src/peer_elt/transform/adapters.py`, acquired-artifact parser strategies in
+`src/peer_elt/transform/artifacts.py`, and output persistence in
 `src/peer_elt/transform/outputs.py`. These layers do not define new scoring
 rules. They apply the fixed V1-V10 workflow from the preregistered planning
 document by:
 
+- dispatching acquired local full-text artifacts to format-specific parser
+  strategies
 - normalizing parsed documents into canonical `methods`, `results`, and
   `statements` sections
 - scoring preprint and published manuscript versions independently
@@ -28,6 +31,8 @@ uses the existing conservative rule-based or hybrid scorer from
 `src/peer_elt/transform/scoring.py`. The section adapter and methodology output
 repository are also dependency-injected so parser formats and persistence
 targets can change without changing the fixed pair-level aggregation rules.
+`AcquiredArtifactScoringWorkflow` provides the facade that connects
+`PairAcquisitionResult` records to parsing and fixed methodology scoring.
 Model training and frozen model artifacts remain planned implementation work;
 this document's model-development sections describe the intended
 measurement-instrument lifecycle and do not indicate that production model
@@ -35,12 +40,14 @@ training has already been completed.
 
 ---
 
-This document describes **how results were generated**, including the machine-learning–assisted scoring pipeline, temporal data splits, model freezing procedures, and the rationale behind these design choices.
+This document describes **how results were generated**, including the machine-learningâ€“assisted scoring pipeline,
+temporal data splits, model freezing procedures, and the rationale behind these design choices.
 
 This document is descriptive, not preregistered. All inferential decisions are governed by the preregistered planning document. This file exists to ensure transparency, reproducibility, and auditability of the analytic workflow, without introducing analytic discretion. All scoring rules, indicators, thresholds, and aggregation logic are fully specified in the preregistered planning document; this file documents only their computational implementation.
 
 ---
-## Reader’s Map: Model Development, Freeze, and Scoring Workflow
+
+## Readerâ€™s Map: Model Development, Freeze, and Scoring Workflow
 ```mermaid
 flowchart TD
 
@@ -70,7 +77,11 @@ J --> K["INDICATOR SCORES<br/>Ordinal 0 1 2<br/>Plus evidence snippets and logs"
 ```
 
 **Figure 1. Lifecycle of the scoring instrument (training, evaluation, and freeze).**  
-This figure situates the reader in the temporal lifecycle of the scoring instrument. Manuscripts are parsed and transformed into section-aware representations prior to any modeling. A temporally separated training (2016–2020), validation (2021), and test (2022) scheme is used during model development. After evaluation, the model is frozen and applied without further learning to all manuscript pairs from 2016–2022. No parameters, thresholds, or feature representations are updated beyond the model-freeze boundary shown.
+This figure situates the reader in the temporal lifecycle of the scoring instrument. Manuscripts are parsed and
+transformed into section-aware representations prior to any modeling. A temporally separated training (2016â€“2020),
+validation (2021), and test (2022) scheme is used during model development. After evaluation, the model is frozen and
+applied without further learning to all manuscript pairs from 2016â€“2022. No parameters, thresholds, or feature
+representations are updated beyond the model-freeze boundary shown.
 
 ---
 ## Phase I: Construction of the Scoring Instrument
@@ -82,9 +93,9 @@ The model functions as a **measurement instrument**, analogous to a trained huma
 ---
 ### Data Scope
 
-- **Corpus:** Matched preprint–published manuscript pairs
+- **Corpus:** Matched preprintâ€“published manuscript pairs
 - **Preprint sources:** bioRxiv, medRxiv
-- **Eligible preprint posting dates:** January 1, 2016 – December 31, 2022
+- **Eligible preprint posting dates:** January 1, 2016 â€“ December 31, 2022
 - **Unit of analysis:** manuscript pair
 
 All manuscripts scored in the production phase fall within this temporal window.
@@ -95,7 +106,7 @@ All manuscripts scored in the production phase fall within this temporal window.
 To minimize temporal leakage and assess robustness to time-dependent reporting changes, data were split by **publication year**, not randomly.
 #### Temporal splits
 
-- **Training set:** 2016–2020
+- **Training set:** 2016â€“2020
 - **Validation set:** 2021
 - **Test set:** 2022
 
@@ -106,10 +117,10 @@ The test set was not used for model selection, threshold adjustment, or feature 
 ---
 ### Training Data Size and Labeling
 
-- Target training size: approximately 800–1,200 manuscript pairs
+- Target training size: approximately 800â€“1,200 manuscript pairs
 - Indicators scored: preregistered ordinal indicators (0/1/2)
 - Evidence snippets were logged for every score
-- A subset of training data (approximately 15–25%) was double-coded to assess
+- A subset of training data (approximately 15â€“25%) was double-coded to assess
   inter-rater reliability and guide model calibration
 
 Human coding followed the preregistered codebook and scoring rules.
@@ -146,14 +157,15 @@ The frozen model defines the scoring instrument used for all reported results.
 ---
 ### Interpretation
 
-The term ‘prediction’ is used operationally to denote automated score assignment and carries no inferential or probabilistic interpretation.
+The term â€˜predictionâ€™ is used operationally to denote automated score assignment and carries no inferential or
+probabilistic interpretation.
 
 ---
 ## Phase II: Application of the Frozen Scoring Instrument
 
 All model development occurs prior to this phase; no results, comparisons, or aggregations are produced until indicator scores are fixed. Following model freezing, the scoring model was applied to:
 
-- **All eligible manuscript pairs from 2016–2022**
+- **All eligible manuscript pairs from 2016â€“2022**
 
 During this phase:
 
@@ -235,7 +247,7 @@ In summary:
 
 - A temporally separated training/validation/test scheme was used
 - The model was frozen prior to full-corpus scoring
-- All manuscripts from 2016–2022 were scored using the same fixed instrument
+- All manuscripts from 2016â€“2022 were scored using the same fixed instrument
 - Results represent descriptive measurements, not causal or normative claims
 
 This design aligns with the preregistered study goals of transparency,
@@ -244,7 +256,11 @@ replicability, and non-normative assessment of manuscript change.
 ---
 # Phase III: Derivation and Reporting of Within-Manuscript Changes
 
-This phase performs no statistical testing, estimation, or model fitting; it transforms fixed scores into summaries for reporting. This document describes how preregistered statistical‐rigor indicators (V1–V10) are operationalized in code and how fixed scoring outputs are transformed into reproducible Methods and Results sections. This file documents **implementation details only** and does not supersede the preregistered codebook ([`Appendix A of the peer review planning document`](peer_review_planning_document.md#appendix-a-preregistered-codebook-for-statistical-rigor-indicators-v1-v10)).
+This phase performs no statistical testing, estimation, or model fitting; it transforms fixed scores into summaries for
+reporting. This document describes how preregistered statisticalâ€rigor indicators (V1â€“V10) are operationalized in
+code and how fixed scoring outputs are transformed into reproducible Methods and Results sections. This file documents *
+*implementation details only** and does not supersede the preregistered codebook ([
+`Appendix A of the peer review planning document`](peer_review_planning_document.md#appendix-a-preregistered-codebook-for-statistical-rigor-indicators-v1-v10)).
 
 ---
 ## 1. Role of Phase III in the Study
@@ -258,39 +274,47 @@ No new analytic decisions, scoring criteria, or interpretive rules are introduce
 
 ```mermaid
 flowchart TD
-    A["Parsed Manuscript<br/>(preprint or published)"] --> B["Section Extraction"]
-    B --> C{"Canonical Sections"}
-    C -->|methods| D["Rule-Based Scoring"]
-    C -->|results| D
-    C -->|statements| D
-    D --> E{"Model Scorer Enabled?"}
-    E -->|No| F["Rule-Based Scores"]
-    E -->|Yes| G["Model Predictions"]
-    G --> H["Conservative Merge"]
-    F --> H
-    H --> I["Indicator Scores V1–V10"]
-    I --> J["Evidence Snippet Log"]
-    I --> K["Compute ΔVk and PRES"]
-    K --> L["Aggregated Results Tables"]
-    L --> M["Methods & Results Text Generation"]
+    A["Acquired Full-Text Artifact<br/>(PDF / XML / HTML)"] --> B{"Artifact Parser Registry"}
+    B --> C["Parsed Manuscript<br/>(preprint or published)"]
+    C --> D["Section Extraction"]
+    D --> E{"Canonical Sections"}
+    E -->|methods| F["Rule-Based Scoring"]
+    E -->|results| F
+    E -->|statements| F
+    F --> G{"Model Scorer Enabled?"}
+    G -->|No| H["Rule-Based Scores"]
+    G -->|Yes| I["Model Predictions"]
+    I --> J["Conservative Merge"]
+    H --> J
+    J --> K["Indicator Scores V1-V10"]
+    K --> L["Evidence Snippet Log"]
+    K --> M["Compute Delta Vk and PRES"]
+    M --> N["Aggregated Results Tables"]
+    N --> O["Methods & Results Text Generation"]
 ```
 
 **Figure 2. Execution pipeline for fixed indicator scoring and results construction.**  
-This figure depicts the irreversible execution path from parsed manuscript text to fixed indicator scores, within-manuscript change metrics ($\Delta V_k$), and deterministic construction of aggregated results and reported text. No learning, tuning, or interpretive decisions occur within this pipeline.
+This figure depicts the irreversible execution path from acquired full-text
+artifacts to parsed manuscript text, fixed indicator scores, within-manuscript
+change metrics ($\Delta V_k$), and deterministic construction of aggregated
+results and reported text. No learning, tuning, or interpretive decisions occur
+within this pipeline.
 
 For each matched manuscript pair (preprint and published version), scoring proceeds in the following stages:
 
-1. **Document parsing and sectionization**
+1. **Artifact parser selection and document parsing**
 
-2. **Rule‑based indicator detection**
+2. **Section canonicalization**
 
-3. **Optional model‑assisted scoring**
+3. **Rule-based indicator detection**
 
-4. **Conservative score merging**
+4. **Optional model-assisted scoring**
 
-5. **Delta computation and aggregation**
+5. **Conservative score merging**
 
-6. **Evidence logging for auditability**
+6. **Delta computation and aggregation**
+
+7. **Evidence logging for auditability**
 
 
 All steps are applied symmetrically to preprint and published versions.
@@ -318,17 +342,24 @@ PDF/XML documents, scraped article documents, or direct section mappings. Parser
 headings such as `Materials and Methods`, `Findings`, and `Data availability`
 are normalized to the canonical section names above.
 
+Acquired artifacts are parsed before this step by `ArtifactParser` strategies:
+`PdfArtifactParser` wraps the PDF parsing pipeline, `XmlArtifactParser` reads
+XML into section mappings, and `HtmlArtifactParser` converts local HTML
+artifacts into article documents without making network calls. The
+`ArtifactParserRegistry` selects the parser by acquired format.
+
 If a section is missing or cannot be reliably extracted, an empty string is supplied and the indicator is treated conservatively.
 
 ---
 ## 4. Indicator Detection and Scoring  (Fixed Rules)
 ### 4.1 Rule-Based Indicator Detection
 
-A conservative rule‑based scorer is applied using preregistered indicator cues expressed as regular‑expression patterns. Each rule specifies:
+A conservative ruleâ€‘based scorer is applied using preregistered indicator cues expressed as regularâ€‘expression
+patterns. Each rule specifies:
 
-- indicator (V1–V10)
+- indicator (V1â€“V10)
 
-- ordinal level (0–2)
+- ordinal level (0â€“2)
 
 - target section
 
@@ -340,12 +371,14 @@ For each matched pattern:
 
 - The maximum matched level per indicator is recorded
 
-Rule‑based scores correspond directly to preregistered indicator definitions and are interpreted as **assistive operationalization**, not independent criteria.
+Ruleâ€‘based scores correspond directly to preregistered indicator definitions and are interpreted as **assistive
+operationalization**, not independent criteria.
 
 ---
 ### 4.2 Model-Assisted Indicator Scoring (Optional)
 
-Where enabled, a model scorer may generate indicator‑level predictions with associated confidence scores. Model outputs are converted into indicator scores using the same 0–2 ordinal scale.
+Where enabled, a model scorer may generate indicatorâ€‘level predictions with associated confidence scores. Model
+outputs are converted into indicator scores using the same 0â€“2 ordinal scale.
 
 Model predictions are never used in isolation and do not override preregistered definitions. Automated assistance cannot increase an indicator score unless model confidence exceeds a preregistered threshold.
 
@@ -355,9 +388,9 @@ Model predictions are never used in isolation and do not override preregistered 
 
 When both rule-based and model-assisted scores are available, a conservative merge strategy is applied to ensure that automated assistance cannot inflate indicator scores beyond preregistered bounds.
 
-- If model confidence ≥ predefined threshold (default 0.8), the model score is used
+- If model confidence â‰¥ predefined threshold (default 0.8), the model score is used
 
-- Otherwise, the lower of the rule‑based and model‑based scores is assigned
+- Otherwise, the lower of the ruleâ€‘based and modelâ€‘based scores is assigned
 
 All contributing evidence snippets are retained.
 
@@ -368,7 +401,7 @@ This strategy ensures that automated assistance cannot inflate indicator scores 
 
 For each manuscript version, the scoring process yields:
 
-- Indicator score (0–2)
+- Indicator score (0â€“2)
 
 - Rationale for the assigned score
 
@@ -386,7 +419,7 @@ materializes two stable tables:
 ---
 ## 7. Within-Manuscript Change Metrics ($\Delta V_k$ and PRES)
 
-For each matched manuscript pair, within‑manuscript change is computed as:
+For each matched manuscript pair, withinâ€‘manuscript change is computed as:
 $$\Delta V_k = V_{k,published} - V_{k,preprint}$$
 
 In Python, this is represented by `PairScorecard.indicator_deltas` and
@@ -397,9 +430,10 @@ scores, PRES, document formats, and document-completeness review flags.
 stable empty schemas so downstream scripts see the same column contract even
 when no pairs are available.
 
-The Peer‑Review Effect Score (PRES) is computed as the sum of published indicator scores minus the sum of preprint indicator scores.
+The Peerâ€‘Review Effect Score (PRES) is computed as the sum of published indicator scores minus the sum of preprint
+indicator scores.
 
-All summaries are descriptive and interpreted within the preregistered non‑causal framework. 
+All summaries are descriptive and interpreted within the preregistered nonâ€‘causal framework.
 
 ---
 ## 8. Evidence Logging and Audit Trail
@@ -436,7 +470,7 @@ Aggregated results are constructed programmatically from fixed scoring outputs a
 
 - Number of included manuscript pairs
 
-- Distribution of indicator‑level changes ($\Delta V_k$)
+- Distribution of indicatorâ€‘level changes ($\Delta V_k$)
 
 - Distribution of PRES values
 
