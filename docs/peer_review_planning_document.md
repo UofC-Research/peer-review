@@ -537,6 +537,149 @@ Before the planning lock, an exploratory review was conducted to confirm the fea
 
 ---
 
+## **13.3 Test Coverage Audit**
+
+This section documents what the current automated tests verify and what
+implementation risks remain insufficiently covered. These tests validate the
+software pipeline; they do not replace the preregistered reliability procedures
+for human scoring, double-coding, adjudication, or inter-rater reliability.
+
+Current executable status:
+
+- Python: `conda run -n peer_review_env python -m pytest` -> 80 passed
+- Python coverage: `conda run -n peer_review_env python -m pytest --cov=peer_elt --cov-report=term-missing -q` -> 80
+  passed, 88% branch-aware coverage
+- R: `conda run -n peer_review_env Rscript tests/test_analysis_layer.R` -> passed
+- Known non-behavioral warning: pytest cannot write cache files under `.pytest_cache`; this does not affect test
+  assertions.
+
+### Python Test Intent
+
+| Test file                                  | Test                                                                    | What it achieves                                                                                                                   |
+|--------------------------------------------|-------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| `test_acquired_artifact_scoring.py`        | `test_acquired_xml_artifacts_are_parsed_and_scored`                     | Verifies acquired XML artifacts are parsed into sections and scored through the artifact parser registry and methodology workflow. |
+| `test_acquired_artifact_scoring.py`        | `test_acquired_html_artifact_parser_builds_article_document`            | Verifies local HTML artifacts are cleaned, converted to article text, and feature-counted without network access.                  |
+| `test_acquired_artifact_scoring.py`        | `test_artifact_registry_rejects_missing_parser`                         | Ensures unsupported acquired formats fail clearly rather than silently skipping parsing.                                           |
+| `test_acquired_artifact_scoring.py`        | `test_artifact_parser_rejects_failed_acquisition`                       | Ensures failed acquisition results cannot be parsed or scored as valid documents.                                                  |
+| `test_article_parsing_pipeline.py`         | `test_article_parsing_pipeline_scrapes_and_embeddings`                  | Verifies article scraping, text extraction, feature processing, and embedding orchestration.                                       |
+| `test_article_parsing_pipeline.py`         | `test_simple_token_stats_processor_handles_article_text`                | Verifies deterministic token and sentence counts for article-level text.                                                           |
+| `test_cli_pipeline.py`                     | `test_cli_run_prints_pipeline_result`                                   | Verifies the `run` CLI command prints structured pipeline output.                                                                  |
+| `test_cli_pipeline.py`                     | `test_cli_transform_reads_raw_writes_outputs_and_prints_diff_rows`      | Verifies the `transform` CLI path reads raw storage, writes outputs, and reports row counts.                                       |
+| `test_cli_pipeline.py`                     | `test_cli_run_prints_error_json_and_returns_nonzero_on_exception`       | Verifies runtime CLI failures return nonzero status and JSON error payloads.                                                       |
+| `test_cli_pipeline.py`                     | `test_cli_argparse_error_prints_json_including_usage_and_returns_2`     | Verifies argument errors return status 2 with usage context.                                                                       |
+| `test_cli_pipeline.py`                     | `test_cli_argparse_error_with_verbose_errors_flag_includes_help`        | Verifies verbose CLI error mode includes expanded help text.                                                                       |
+| `test_config_and_pipeline.py`              | `test_load_config_resolves_output_base_dir_relative_to_config_file`     | Verifies output paths are resolved relative to the config file.                                                                    |
+| `test_config_and_pipeline.py`              | `test_load_config_raises_when_storage_env_var_unset`                    | Verifies missing storage environment variables fail clearly.                                                                       |
+| `test_config_and_pipeline.py`              | `test_load_config_allows_storage_env_var_when_set`                      | Verifies configured environment variables are expanded for storage URLs.                                                           |
+| `test_config_and_pipeline.py`              | `test_load_config_raises_when_retry_not_mapping`                        | Verifies malformed retry config is rejected.                                                                                       |
+| `test_config_and_pipeline.py`              | `test_load_config_raises_when_transform_not_mapping`                    | Verifies malformed transform config is rejected.                                                                                   |
+| `test_config_and_pipeline.py`              | `test_load_config_raises_clear_error_when_top_level_key_missing`        | Verifies missing required top-level config keys produce clear errors.                                                              |
+| `test_config_and_pipeline.py`              | `test_load_config_raises_clear_error_when_duckdb_storage_missing_path`  | Verifies DuckDB storage config requires a database path.                                                                           |
+| `test_config_and_pipeline.py`              | `test_load_config_raises_clear_error_when_postgres_storage_missing_url` | Verifies PostgreSQL storage config requires a URL.                                                                                 |
+| `test_config_and_pipeline.py`              | `test_load_config_allows_unknown_storage_backend_and_preserves_keys`    | Verifies unknown storage backends can pass through factory-independent config loading.                                             |
+| `test_config_and_pipeline.py`              | `test_load_config_raises_clear_error_when_source_missing_required_key`  | Verifies source entries require mandatory fields.                                                                                  |
+| `test_config_and_pipeline.py`              | `test_load_config_raises_when_source_item_not_mapping`                  | Verifies each source item must be a mapping.                                                                                       |
+| `test_config_and_pipeline.py`              | `test_load_config_raises_on_empty_yaml`                                 | Verifies empty YAML files are rejected.                                                                                            |
+| `test_config_and_pipeline.py`              | `test_load_config_raises_on_non_mapping_payload`                        | Verifies non-mapping YAML payloads are rejected.                                                                                   |
+| `test_config_and_pipeline.py`              | `test_load_config_expands_env`                                          | Verifies environment-variable expansion in config values.                                                                          |
+| `test_config_and_pipeline.py`              | `test_load_config_raises_when_sources_not_list`                         | Verifies `sources` must be a list.                                                                                                 |
+| `test_config_and_pipeline.py`              | `test_load_config_raises_when_storage_not_mapping`                      | Verifies `storage` must be a mapping.                                                                                              |
+| `test_config_and_pipeline.py`              | `test_load_config_raises_when_output_not_mapping`                       | Verifies `output` must be a mapping.                                                                                               |
+| `test_config_and_pipeline.py`              | `test_extract_sources_combines_and_tags`                                | Verifies extraction combines multiple source frames and tags source names.                                                         |
+| `test_config_and_pipeline.py`              | `test_write_outputs_writes_files_and_calls_storage`                     | Verifies output writing creates files and calls storage persistence.                                                               |
+| `test_config_and_pipeline.py`              | `test_run_pipeline_returns_zero_when_empty`                             | Verifies the pipeline handles empty extraction results without false success counts.                                               |
+| `test_config_and_pipeline.py`              | `test_cli_extract_prints_counts`                                        | Verifies the extract CLI command reports extracted row counts.                                                                     |
+| `test_corpus_acquisition.py`               | `test_build_pairs_selects_initial_preprint_version_and_published_doi`   | Verifies matched-pair construction selects the first preprint version and carries the published DOI forward.                       |
+| `test_corpus_acquisition.py`               | `test_query_preprint_servers_for_pairs_uses_configured_sources`         | Verifies configured sources are queried and converted into matched pairs.                                                          |
+| `test_corpus_acquisition.py`               | `test_build_acquisition_requests_uses_preprint_v1_and_doi_resolver`     | Verifies deterministic preprint URL construction and generic DOI resolver fallback.                                                |
+| `test_corpus_acquisition.py`               | `test_build_acquisition_requests_resolves_elife_full_text_candidates`   | Verifies eLife DOIs produce publisher-specific PDF, XML, and HTML candidates.                                                      |
+| `test_corpus_acquisition.py`               | `test_build_acquisition_requests_resolves_plos_full_text_candidates`    | Verifies PLOS DOIs produce journal-specific PDF, XML, and HTML candidates.                                                         |
+| `test_corpus_acquisition.py`               | `test_acquire_matched_pair_full_text_downloads_preprint_and_published`  | Verifies matched pair acquisition downloads both preprint and published artifacts through the injected downloader.                 |
+| `test_extractors.py`                       | `test_fetch_preprints_paginates_and_sets_fields`                        | Verifies bioRxiv/medRxiv API pagination and normalized metadata fields.                                                            |
+| `test_extractors.py`                       | `test_fetch_medrxiv_passes_server`                                      | Verifies the medRxiv wrapper uses the medRxiv server setting.                                                                      |
+| `test_extractors.py`                       | `test_registry_extractor_fetches_from_registered_client`                | Verifies registry-based extractor dispatch and server tagging.                                                                     |
+| `test_factories.py`                        | `test_extractor_factory_supported_sources`                              | Verifies supported source configs resolve to an extractor.                                                                         |
+| `test_factories.py`                        | `test_extractor_factory_rejects_unsupported_sources`                    | Verifies unsupported sources fail early.                                                                                           |
+| `test_factories.py`                        | `test_storage_factory_duckdb`                                           | Verifies DuckDB storage factory selection.                                                                                         |
+| `test_factories.py`                        | `test_transformer_factory_diff`                                         | Verifies diff transformer factory selection.                                                                                       |
+| `test_full_text_acquisition.py`            | `test_acquire_prefers_pdf_then_stops_on_success`                        | Verifies PDF is preferred and fallback stops after first success.                                                                  |
+| `test_full_text_acquisition.py`            | `test_acquire_falls_back_pdf_to_xml`                                    | Verifies XML fallback when PDF retrieval fails.                                                                                    |
+| `test_full_text_acquisition.py`            | `test_acquire_falls_back_pdf_to_xml_to_html`                            | Verifies HTML fallback when PDF and XML retrieval fail.                                                                            |
+| `test_full_text_acquisition.py`            | `test_acquire_flags_for_human_when_all_fail`                            | Verifies failed retrievals are flagged for human confirmation.                                                                     |
+| `test_full_text_acquisition.py`            | `test_acquire_flags_for_human_when_no_urls_exist`                       | Verifies missing URL candidates are flagged without network calls.                                                                 |
+| `test_full_text_acquisition.py`            | `test_pair_acquisition_matches_html_when_published_only_has_html`       | Verifies format harmonization when the published article has only HTML available.                                                  |
+| `test_http_retry.py`                       | `test_requests_http_get_retries_on_503_then_succeeds`                   | Verifies transient HTTP 503 responses are retried.                                                                                 |
+| `test_http_retry.py`                       | `test_requests_http_get_does_not_retry_on_404`                          | Verifies non-retryable HTTP 404 responses stop immediately.                                                                        |
+| `test_http_retry.py`                       | `test_requests_http_get_retries_on_exception_then_succeeds`             | Verifies transient request exceptions are retried.                                                                                 |
+| `test_http_retry.py`                       | `test_requests_http_get_applies_backoff_delay_on_retries`               | Verifies configured backoff delay is applied between retry attempts.                                                               |
+| `test_methodology.py`                      | `test_version_scorecard_materializes_all_preregistered_indicators`      | Verifies version scorecards contain all V1-V10 indicators and review flags.                                                        |
+| `test_methodology.py`                      | `test_pair_scorecard_computes_deltas_and_pres_independently`            | Verifies indicator deltas and PRES are computed after independent version scoring.                                                 |
+| `test_methodology.py`                      | `test_pair_scorecard_exports_flat_record_and_evidence_rows`             | Verifies flat pair records and evidence rows are audit-ready.                                                                      |
+| `test_methodology_integration_patterns.py` | `test_section_adapter_normalizes_parsed_document_sections`              | Verifies parsed document sections are normalized for scoring.                                                                      |
+| `test_methodology_integration_patterns.py` | `test_article_adapter_extracts_headed_sections_for_scoring`             | Verifies headed article text can be split into canonical sections.                                                                 |
+| `test_methodology_integration_patterns.py` | `test_methodology_workflow_scores_parsed_pair_through_adapter_strategy` | Verifies parsed preprint/published pairs are scored through adapter strategies.                                                    |
+| `test_methodology_integration_patterns.py` | `test_methodology_output_repository_writes_r_ready_tables`              | Verifies methodology outputs are persisted as R-ready pair and evidence tables.                                                    |
+| `test_methodology_integration_patterns.py` | `test_methodology_output_frames_have_stable_empty_schema`               | Verifies empty methodology output frames retain stable schemas.                                                                    |
+| `test_pdf_parsing_pipeline.py`             | `test_pdf_parsing_pipeline_composes_services`                           | Verifies PDF parsing composes GROBID, layout segmentation, features, and embeddings.                                               |
+| `test_pdf_parsing_pipeline.py`             | `test_simple_token_stats_processor_counts`                              | Verifies token and sentence counts for empty, single-sentence, and multi-sentence text.                                            |
+| `test_postgres_storage.py`                 | `test_engine_requires_url`                                              | Verifies PostgreSQL storage requires a database URL.                                                                               |
+| `test_postgres_storage.py`                 | `test_load_raw_postgres_skips_empty`                                    | Verifies empty raw frames are not written to PostgreSQL.                                                                           |
+| `test_postgres_storage.py`                 | `test_write_table_postgres_skips_empty`                                 | Verifies empty derived frames are not written to PostgreSQL.                                                                       |
+| `test_scoring.py`                          | `test_rule_based_scoring_hits_all_indicators`                           | Verifies rule patterns can score all V1-V10 indicators.                                                                            |
+| `test_scoring.py`                          | `test_hybrid_scoring_prefers_lower_score_when_low_confidence`           | Verifies low-confidence model predictions do not override stricter rule scores.                                                    |
+| `test_scoring.py`                          | `test_hybrid_scoring_allows_high_confidence_override`                   | Verifies high-confidence model predictions can override rule scores when permitted.                                                |
+| `test_scoring.py`                          | `test_model_scorer_builds_indicator_scores_from_predictions`            | Verifies model predictions become indicator score objects with rationales.                                                         |
+| `test_transformer_and_storage.py`          | `test_diff_transformer_basic`                                           | Verifies version-to-version diff features are built from raw metadata.                                                             |
+| `test_transformer_and_storage.py`          | `test_duckdb_storage_round_trip`                                        | Verifies DuckDB raw-data persistence and retrieval.                                                                                |
+| `test_xml_reader.py`                       | `test_section_tag_reader_extracts_named_sections`                       | Verifies generic XML section extraction by section name.                                                                           |
+| `test_xml_reader.py`                       | `test_tei_reader_prefers_type_attribute_and_falls_back_to_head`         | Verifies TEI section extraction from `type` attributes and headings.                                                               |
+| `test_xml_reader.py`                       | `test_reader_factory_handles_formats_and_rejects_unknown`               | Verifies XML reader factory dispatch and rejection of unknown formats.                                                             |
+| `test_xml_reader.py`                       | `test_reader_raises_on_invalid_xml`                                     | Verifies malformed XML fails clearly.                                                                                              |
+
+### R Test Intent
+
+| Test file               | Test                                                         | What it achieves                                                                         |
+|-------------------------|--------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| `test_analysis_layer.R` | `PRES summary is descriptive and non-inferential`            | Verifies PRES summaries report descriptive counts and central tendency only.             |
+| `test_analysis_layer.R` | `indicator delta summary counts direction per V1-V10`        | Verifies indicator-level delta summaries count declines, no changes, and improvements.   |
+| `test_analysis_layer.R` | `raw score summary compares preprint and published versions` | Verifies raw statistical rigour summaries are reported separately by manuscript version. |
+| `test_analysis_layer.R` | `study summary validates required pair-score columns`        | Verifies missing required pair-score columns fail before analysis.                       |
+| `test_analysis_layer.R` | `summary CSV exports are written with stable file names`     | Verifies summary export filenames remain stable for downstream reporting.                |
+| `test_analysis_layer.R` | `run_study1_analysis reads pair scores and writes summaries` | Verifies the R analysis runner reads fixed pair scores and writes all summary tables.    |
+
+### Potentially Missing Tests
+
+The current suite is strongest for deterministic unit behavior, injected
+service orchestration, and stable output schemas. The following tests are still
+potentially missing or deferred:
+
+- Live integration tests against real bioRxiv/medRxiv API responses and real
+  publisher pages. Current tests use fake HTTP clients to remain deterministic.
+- Publisher-specific full-text tests beyond eLife and PLOS, especially for
+  high-frequency publishers in the final matched corpus.
+- DOI normalization edge cases for whitespace, URL-encoded DOIs, query strings,
+  and mixed DOI URL forms from metadata providers.
+- End-to-end tests from real acquired PDF/XML/HTML artifacts through parsing,
+  scoring, persistence, and R summary generation.
+- Live PostgreSQL integration tests. Current PostgreSQL tests mock write paths
+  and validate configuration and empty-frame behavior.
+- CLI smoke tests for `scripts/run_study1_analysis.R`, including argument errors
+  and printed output.
+- Tests for manuscript-quality reporting artifacts once those artifacts are
+  implemented.
+- Tests for exclusion audit logs and data-quality reporting once those outputs
+  are implemented.
+- Tests for supplementary-material retrieval and format metadata capture across
+  the full access hierarchy.
+- Reliability workflow tests for double-coding, adjudication, and IRR reporting
+  once those procedures are implemented as executable code.
+- Performance or batch-scale tests for large metadata windows and large
+  acquired-artifact collections.
+- Mutation or property-based tests for scoring rules, if stronger protection is
+  needed against accidental broadening or narrowing of V1-V10 criteria.
+
+---
+
 ## 14. Planning Status Declaration
 
 At the time of this export:
