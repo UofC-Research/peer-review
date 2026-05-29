@@ -127,6 +127,45 @@ def test_build_acquisition_requests_uses_preprint_v1_and_doi_resolver() -> None:
     assert published.html_url == "https://doi.org/10.7554/elife.abc"
 
 
+def test_build_acquisition_requests_resolves_elife_full_text_candidates() -> None:
+    """eLife DOIs should use publisher PDF/XML/HTML candidates before DOI fallback."""
+    pair = MatchedManuscriptPair(
+        manuscript_id="biorxiv:10.1101/elife",
+        server="biorxiv",
+        preprint_doi="10.1101/elife",
+        preprint_version="1",
+        preprint_date="2020-01-01",
+        published_doi="10.7554/eLife.12345",
+    )
+
+    _, published = build_acquisition_requests(pair)
+
+    assert published.doc_id == "doi_10.7554_eLife.12345_published"
+    assert published.pdf_url == "https://elifesciences.org/articles/12345.pdf"
+    assert published.xml_url == "https://elifesciences.org/articles/12345.xml"
+    assert published.html_url == "https://elifesciences.org/articles/12345"
+
+
+def test_build_acquisition_requests_resolves_plos_full_text_candidates() -> None:
+    """PLOS DOIs should resolve to journal-specific PDF/XML/HTML candidates."""
+    pair = MatchedManuscriptPair(
+        manuscript_id="biorxiv:10.1101/plos",
+        server="biorxiv",
+        preprint_doi="10.1101/plos",
+        preprint_version="1",
+        preprint_date="2020-01-01",
+        published_doi="10.1371/journal.pbio.3000001",
+    )
+
+    _, published = build_acquisition_requests(pair)
+
+    article_url = "https://journals.plos.org/plosbiology/article"
+    doi = "10.1371/journal.pbio.3000001"
+    assert published.pdf_url == f"{article_url}/file?id={doi}&type=printable"
+    assert published.xml_url == f"{article_url}/file?id={doi}&type=manuscript"
+    assert published.html_url == f"{article_url}?id={doi}"
+
+
 def test_acquire_matched_pair_full_text_downloads_preprint_and_published(
         tmp_path: Path,
 ) -> None:

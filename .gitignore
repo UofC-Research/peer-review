@@ -6,3 +6,6 @@ src/*.egg-info/
 __pycache__/
 *.py[cod]
 .venv/
+.coverage
+.coverage.*
+htmlcov/

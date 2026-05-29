@@ -31,6 +31,16 @@ from peer_elt.acquire.full_text import (
 )
 from peer_elt.interfaces import Extractor
 
+_PLOS_JOURNAL_SLUGS = {
+    "pbio": "plosbiology",
+    "pmed": "plosmedicine",
+    "pgen": "plosgenetics",
+    "ppat": "plospathogens",
+    "pntd": "plosntds",
+    "pcbi": "ploscompbiol",
+    "pone": "plosone",
+}
+
 
 @dataclass(frozen=True)
 class MatchedManuscriptPair:
@@ -138,18 +148,27 @@ def build_acquisition_requests(
         pair: MatchedManuscriptPair,
 ) -> tuple[AcquisitionRequest, AcquisitionRequest]:
     """Create full-text acquisition requests for a matched pair."""
-    preprint_url_base = _preprint_content_url(pair.server, pair.preprint_doi, pair.preprint_version)
+    preprint_url_base = _preprint_content_url(
+        pair.server,
+        pair.preprint_doi,
+        pair.preprint_version,
+    )
+    published_pdf_url, published_xml_url, published_html_url = _published_full_text_urls(
+        pair.published_doi
+    )
     preprint = AcquisitionRequest(
-        doc_id=_safe_doc_id(f"{pair.server}_{pair.preprint_doi}_v{pair.preprint_version}_preprint"),
+        doc_id=_safe_doc_id(
+            f"{pair.server}_{pair.preprint_doi}_v{pair.preprint_version}_preprint"
+        ),
         pdf_url=f"{preprint_url_base}.full.pdf",
         xml_url=f"{preprint_url_base}.source.xml",
         html_url=preprint_url_base,
     )
     published = AcquisitionRequest(
         doc_id=_safe_doc_id(f"doi_{pair.published_doi}_published"),
-        pdf_url=None,
-        xml_url=None,
-        html_url=f"https://doi.org/{pair.published_doi}",
+        pdf_url=published_pdf_url,
+        xml_url=published_xml_url,
+        html_url=published_html_url,
     )
     return preprint, published
 
@@ -199,6 +218,47 @@ def _preprint_content_url(server: str, doi: str, version: str) -> str:
     if server not in {"biorxiv", "medrxiv"}:
         raise ValueError(f"Unsupported preprint server for URL construction: {server}")
     return f"https://www.{server}.org/content/{doi}v{version}"
+
+
+def _published_full_text_urls(doi: str) -> tuple[str | None, str | None, str]:
+    """Return publisher-specific PDF/XML/HTML candidates for a published DOI."""
+    normalized = _normalize_doi(doi)
+    lower = normalized.lower()
+
+    elife = re.fullmatch(r"10\.7554/elife\.(\d+)", lower)
+    if elife:
+        article_id = elife.group(1)
+        article_url = f"https://elifesciences.org/articles/{article_id}"
+        return (
+            f"{article_url}.pdf",
+            f"{article_url}.xml",
+            article_url,
+        )
+
+    plos = re.fullmatch(r"10\.1371/journal\.([a-z0-9]+)\..+", lower)
+    if plos:
+        journal_slug = _PLOS_JOURNAL_SLUGS.get(plos.group(1))
+        if journal_slug:
+            article_url = f"https://journals.plos.org/{journal_slug}/article"
+            return (
+                f"{article_url}/file?id={normalized}&type=printable",
+                f"{article_url}/file?id={normalized}&type=manuscript",
+                f"{article_url}?id={normalized}",
+            )
+
+    return None, None, f"https://doi.org/{normalized}"
+
+
+def _normalize_doi(value: str) -> str:
+    """Normalize DOI strings while preserving case used by publisher URLs."""
+    doi = _clean_optional_text(value)
+    if doi is None:
+        raise ValueError("Published DOI is required")
+
+    for prefix in ("https://doi.org/", "http://doi.org/", "doi:"):
+        if doi.lower().startswith(prefix):
+            return doi[len(prefix):]
+    return doi
 
 
 def _clean_optional_text(value) -> str | None:

@@ -147,7 +147,8 @@ The acquisition framework is implemented in `peer_elt.acquire.corpus` and
 - `build_matched_manuscript_pairs(...)` selects the initial preprint version
   for each preprint DOI and requires a corresponding published DOI.
 - `build_acquisition_requests(...)` creates URL candidates for the initial
-  preprint version and the published article DOI resolver.
+  preprint version plus publisher-specific published article candidates for
+  supported DOI families, with DOI resolver fallback.
 - `acquire_matched_pair_full_text(...)` downloads both sides using the existing
   PDF/XML/HTML fallback downloader and injected HTTP client.
 
