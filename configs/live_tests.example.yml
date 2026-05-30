@@ -1,0 +1,103 @@
+# Example configuration for opt-in live integration tests.
+#
+# Recommended workflow:
+#   1. Copy this file to configs/live_tests.local.yml.
+#   2. Replace placeholder DOIs/date windows with stable cases you want to
+#      monitor.
+#   3. Set enabled: true in the local copy.
+#   4. Run:
+#        pytest -m live --live-config configs/live_tests.local.yml
+#
+# You can also point tests at a config with:
+#   PEER_REVIEW_LIVE_CONFIG=configs/live_tests.local.yml pytest -m live
+#
+# Live tests are opt-in because they use external network resources and may
+# fail when upstream services change, rate-limit, or go offline.
+#
+# The example file is intentionally disabled so normal test runs stay
+# deterministic, offline, and safe for CI.
+enabled: false
+
+# Per-request timeout, in seconds, for live full-text retrieval tests.
+# If omitted, tests default to 20 seconds.
+timeout_seconds: 20
+
+# Retry settings passed to peer_elt.config.RetryConfig for live HTTP calls.
+# Keep these conservative: live tests are health checks, not long-running
+# acquisition jobs.
+retry:
+  # Total attempts per request, including the first attempt.
+  max_attempts: 2
+
+  # Minimum and maximum exponential backoff delay between retry attempts.
+  wait_min_seconds: 1
+  wait_max_seconds: 5
+
+  # Exponential backoff multiplier used by tenacity.wait_exponential.
+  wait_multiplier: 1
+
+# Live preprint API checks.
+#
+# Each entry calls the configured preprint server API for a small date window
+# and asserts that enough rows and expected columns are returned.
+preprint_sources:
+  # Human-readable case name used in assertion messages.
+  - name: biorxiv_small_window
+
+    # Supported values are currently biorxiv and medrxiv.
+    server: biorxiv
+
+    # Inclusive date window passed to the bioRxiv/medRxiv API.
+    # Use a stable historical window that is unlikely to disappear.
+    date_from: "2023-01-01"
+    date_to: "2023-01-02"
+
+    # Minimum acceptable number of returned metadata rows.
+    min_records: 1
+
+    # Columns that must be present in the returned DataFrame.
+    required_columns:
+      - doi
+      - title
+      - version
+      - server
+      - published_doi
+
+# Live published full-text checks.
+#
+# Each entry builds published-article full-text candidates from the DOI and
+# asserts that at least one acceptable format can be downloaded.
+published_full_text:
+  - name: elife_sample
+
+    # Published article DOI to resolve. Replace placeholder examples with known
+    # stable, accessible articles before enabling live tests.
+    published_doi: "10.7554/eLife.12345"
+
+    # Acceptable retrieved artifact formats for this DOI.
+    expected_formats:
+      - pdf
+      - xml
+      - html
+
+# Live matched-pair acquisition checks.
+#
+# Each entry exercises the same acquisition pathway used by matched
+# preprint/published pairs. Use carefully selected stable examples here because
+# this test may attempt both preprint and publisher downloads.
+matched_pairs:
+  - name: elife_matched_pair
+
+    # Source preprint server and selected preprint DOI/version.
+    server: biorxiv
+    preprint_doi: "10.1101/2020.01.01.000001"
+    preprint_version: "1"
+
+    # Paired published article DOI.
+    published_doi: "10.7554/eLife.12345"
+
+    # When true, both the preprint and published article must download
+    # successfully. When false, at least one side must download successfully.
+    # Set false for monitoring upstream availability during early setup; set
+    # true for strict release/data-acquisition validation.
+    require_both_success: false

@@ -546,9 +546,10 @@ for human scoring, double-coding, adjudication, or inter-rater reliability.
 
 Current executable status:
 
-- Python: `conda run -n peer_review_env python -m pytest` -> 80 passed
+- Python: `conda run -n peer_review_env python -m pytest` -> 80 passed,
+  3 live tests skipped when no live config is supplied
 - Python coverage: `conda run -n peer_review_env python -m pytest --cov=peer_elt --cov-report=term-missing -q` -> 80
-  passed, 88% branch-aware coverage
+  passed, 3 skipped, 88% branch-aware coverage
 - R: `conda run -n peer_review_env Rscript tests/test_analysis_layer.R` -> passed
 - Known non-behavioral warning: pytest cannot write cache files under `.pytest_cache`; this does not affect test
   assertions.
@@ -612,6 +613,9 @@ Current executable status:
 | `test_http_retry.py`                       | `test_requests_http_get_does_not_retry_on_404`                          | Verifies non-retryable HTTP 404 responses stop immediately.                                                                        |
 | `test_http_retry.py`                       | `test_requests_http_get_retries_on_exception_then_succeeds`             | Verifies transient request exceptions are retried.                                                                                 |
 | `test_http_retry.py`                       | `test_requests_http_get_applies_backoff_delay_on_retries`               | Verifies configured backoff delay is applied between retry attempts.                                                               |
+| `test_live_integration.py`                 | `test_live_preprint_sources_return_expected_metadata`                   | Optionally validates configured live bioRxiv/medRxiv API windows against expected metadata columns and minimum row counts.         |
+| `test_live_integration.py`                 | `test_live_published_full_text_candidates_are_retrievable`              | Optionally validates configured live published DOI candidates can retrieve at least one PDF, XML, or HTML full-text artifact.      |
+| `test_live_integration.py`                 | `test_live_matched_pairs_can_be_acquired`                               | Optionally validates configured live preprint/published pairs through the matched acquisition workflow.                            |
 | `test_methodology.py`                      | `test_version_scorecard_materializes_all_preregistered_indicators`      | Verifies version scorecards contain all V1-V10 indicators and review flags.                                                        |
 | `test_methodology.py`                      | `test_pair_scorecard_computes_deltas_and_pres_independently`            | Verifies indicator deltas and PRES are computed after independent version scoring.                                                 |
 | `test_methodology.py`                      | `test_pair_scorecard_exports_flat_record_and_evidence_rows`             | Verifies flat pair records and evidence rows are audit-ready.                                                                      |
@@ -647,14 +651,77 @@ Current executable status:
 | `test_analysis_layer.R` | `summary CSV exports are written with stable file names`     | Verifies summary export filenames remain stable for downstream reporting.                |
 | `test_analysis_layer.R` | `run_study1_analysis reads pair scores and writes summaries` | Verifies the R analysis runner reads fixed pair scores and writes all summary tables.    |
 
+### Live Test Configuration
+
+The file `configs/live_tests.example.yml` documents the schema for opt-in live
+integration tests. It is intentionally disabled by default:
+
+```yaml
+enabled: false
+```
+
+Live tests are skipped unless a config path is supplied through either:
+
+```bash
+pytest -m live --live-config configs/live_tests.local.yml
+```
+
+or the `PEER_REVIEW_LIVE_CONFIG` environment variable. Local live-test configs
+should remain outside version control; `configs/live_tests.local.yml` is ignored
+by Git.
+
+The configuration fields have the following meanings:
+
+| Field                 | Required | Purpose                                                                                                                                                   |
+|-----------------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `enabled`             | Yes      | Must be `true` for live tests to run. The example file uses `false` so default runs remain offline.                                                       |
+| `timeout_seconds`     | No       | Per-request timeout used by live full-text acquisition tests. Defaults to 20 seconds in the tests.                                                        |
+| `retry`               | No       | Retry settings passed to `RetryConfig` for live HTTP calls. Supports `max_attempts`, `wait_min_seconds`, `wait_max_seconds`, and `wait_multiplier`.       |
+| `preprint_sources`    | No       | List of live preprint API windows to validate. Each entry specifies a `server`, `date_from`, `date_to`, minimum row count, and expected metadata columns. |
+| `published_full_text` | No       | List of published DOIs whose publisher-specific or DOI-fallback full-text candidates should retrieve at least one artifact.                               |
+| `matched_pairs`       | No       | List of concrete preprint/published DOI pairs to exercise through the matched acquisition workflow.                                                       |
+
+`preprint_sources` entries support:
+
+- `name`: human-readable case name for assertion messages
+- `server`: preprint server slug, currently `biorxiv` or `medrxiv`
+- `date_from` and `date_to`: inclusive API date window
+- `min_records`: minimum acceptable number of returned metadata rows
+- `required_columns`: metadata columns expected in the returned frame
+
+`published_full_text` entries support:
+
+- `name`: human-readable case name
+- `published_doi`: DOI to resolve into full-text URL candidates
+- `expected_formats`: acceptable retrieved formats, usually some subset of
+  `pdf`, `xml`, and `html`
+
+`matched_pairs` entries support:
+
+- `name`: human-readable case name
+- `server`: source preprint server
+- `preprint_doi`: DOI for the selected preprint version
+- `preprint_version`: selected preprint version number
+- `preprint_date`: optional selected preprint date
+- `published_doi`: paired published article DOI
+- `require_both_success`: if `true`, both sides must download successfully; if
+  `false`, at least one side must download successfully. The latter is useful
+  when a case is intended to monitor upstream availability rather than enforce a
+  strict eligibility decision.
+
+The example values are placeholders for demonstrating structure. Stable cases
+should be selected and maintained separately in a local config before live tests
+are used for release or data-acquisition validation.
+
 ### Potentially Missing Tests
 
 The current suite is strongest for deterministic unit behavior, injected
 service orchestration, and stable output schemas. The following tests are still
 potentially missing or deferred:
 
-- Live integration tests against real bioRxiv/medRxiv API responses and real
-  publisher pages. Current tests use fake HTTP clients to remain deterministic.
+- Scheduled execution of the opt-in live integration tests against real
+  bioRxiv/medRxiv API responses and real publisher pages. The tests now exist,
+  but default test runs skip them unless a live config is supplied.
 - Publisher-specific full-text tests beyond eLife and PLOS, especially for
   high-frequency publishers in the final matched corpus.
 - DOI normalization edge cases for whitespace, URL-encoded DOIs, query strings,

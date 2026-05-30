@@ -19,8 +19,10 @@ Audit date: 2026-05-29
 
 Verification performed:
 
-- `conda run -n peer_review_env python -m pytest` -> 80 passed, with one cache-permission warning for `.pytest_cache`
-- `conda run -n peer_review_env python -m pytest --cov=peer_elt --cov-report=term-missing -q` -> 80 passed, 88% total
+- `conda run -n peer_review_env python -m pytest` -> 80 passed, 3 live tests skipped, with one cache-permission warning
+  for `.pytest_cache`
+- `conda run -n peer_review_env python -m pytest --cov=peer_elt --cov-report=term-missing -q` -> 80 passed, 3 skipped,
+  88% total
   Python coverage with branch coverage enabled
 - `conda run -n peer_review_env Rscript tests/test_analysis_layer.R` -> passed with exit code 0
 - `python -m compileall -q src tests` -> passed
@@ -99,6 +101,8 @@ Verification performed:
 - Completed TDD module implementation audit for Python and R modules
 - Enabled pytest-cov verification and recorded 88% branch-aware total Python coverage
 - Extended published-article full-text resolution for eLife and PLOS DOI patterns using TDD
+- Added config-driven opt-in live integration tests for preprint APIs, published full-text retrieval, and matched-pair
+  acquisition
 
 ## In Progress
 
@@ -107,6 +111,7 @@ Verification performed:
 ## Planned
 
 - Add direct smoke test coverage for the R command-line wrapper
+- Run live integration tests periodically with a maintained local live-test config
 - Implement end-to-end parsing and format metadata capture per access hierarchy (PDF/HTML/supplements)
 - Generate manuscript-quality reporting artifacts from fixed R summary tables
 - Run preregistered descriptive analyses and heterogeneity summaries (context, journal practices)

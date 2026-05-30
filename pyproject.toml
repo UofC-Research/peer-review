@@ -55,6 +55,9 @@ where = ["src"]
 pythonpath = ["src"]
 testpaths = ["tests"]
 addopts = "-ra -q"
+markers = [
+    "live: opt-in integration test that may access external network resources",
+]
 
 [tool.coverage.run]
 branch = true

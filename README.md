@@ -209,6 +209,18 @@ Run the R analysis tests:
 Rscript tests/test_analysis_layer.R
 ```
 
+Live integration tests are opt-in and are driven by a YAML config. Normal test
+runs skip them unless you provide a config path:
+
+```bash
+cp configs/live_tests.example.yml configs/live_tests.local.yml
+# edit configs/live_tests.local.yml and set enabled: true
+pytest -m live --live-config configs/live_tests.local.yml
+```
+
+The same config can be supplied with `PEER_REVIEW_LIVE_CONFIG`. Keep local live
+configs out of version control; `configs/live_tests.local.yml` is ignored.
+
 ## Key Files
 
 - `environment.yml`: Conda environment definition.
