@@ -152,6 +152,16 @@ The acquisition framework is implemented in `peer_elt.acquire.corpus` and
 - `acquire_matched_pair_full_text(...)` downloads both sides using the existing
   PDF/XML/HTML fallback downloader and injected HTTP client.
 
+For bulk preprint full-text acquisition, local runs may also use the official
+bioRxiv/medRxiv Text and Data Mining (TDM) repositories. This is documented as
+an optional disabled `tdm_repository` block in `configs/live_tests.example.yml`.
+The TDM repositories provide requester-pays S3 access to bioRxiv/medRxiv
+preprint full-text packages. The helper module `peer_elt.acquire.tdm` parses
+that config, delegates TDM archive sync to an injected S3 client, and downloads
+linked published-article metadata from the bioRxiv API. Published-article full
+text still comes from publisher, DOI-resolver, PMC, or other permitted
+article-level sources.
+
 Tests use fake HTTP clients, so acquisition behavior is covered without live
 network access.
 
@@ -254,6 +264,8 @@ More detail, including which files to modify for each mode, is in
 - `src/peer_elt/acquire/corpus.py`: query-to-pair selection and matched
   preprint/published full-text acquisition.
 - `src/peer_elt/acquire/full_text.py`: PDF/XML/HTML fallback downloader.
+- `src/peer_elt/acquire/tdm.py`: optional bioRxiv/medRxiv TDM archive and
+  published-link metadata acquisition helpers.
 - `src/peer_elt/transform/artifacts.py`: parser-strategy registry and facade
   for connecting acquired artifacts to methodology scoring.
 - `src/peer_elt/transform/adapters.py`: adapter strategies that canonicalize

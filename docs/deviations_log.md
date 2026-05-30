@@ -97,8 +97,10 @@ or analytic plan.
 None.
 
 **Current executable status recorded:**  
-Python tests pass with 80 tests; branch-aware Python coverage is 88%; the R
-analysis-layer test file passes.
+Python tests passed with 80 tests at the time of this entry; branch-aware Python
+coverage was 88%; the R analysis-layer test file passed. Later TDM acquisition
+tests increased the Python suite to 85 passing tests without changing total
+coverage.
 
 ---
 
@@ -177,3 +179,46 @@ not define the study corpus or alter Study 1 measurement decisions.
 **Files updated:**  
 `README.md`, `docs/testing.md`, `docs/peer_review_planning_document.md`, and
 `configs/live_tests.example.yml`.
+
+---
+
+### Entry: Optional bioRxiv/medRxiv TDM acquisition helpers added
+
+**Date:** 2026-05-30  
+**Status:** Post-lock implementation clarification  
+**Data accessed:** No study outcome data accessed  
+**Analyses conducted:** No
+
+**Description:**  
+An optional Text and Data Mining (TDM) acquisition path was added for
+bioRxiv/medRxiv preprint full-text archives. The implementation adds
+`peer_elt.acquire.tdm`, which parses a local `tdm_repository` configuration
+block, delegates requester-pays S3 archive sync to an injected client, and
+downloads linked published-article metadata from the bioRxiv API `pubs`
+endpoint for bioRxiv or medRxiv. The example live-test config documents the
+disabled local TDM option.
+
+**Relationship to preregistration:**  
+This is an access-route clarification and software implementation detail. The
+TDM path provides an alternate way to retrieve the same preprint-side full text
+that is otherwise accessible through bioRxiv/medRxiv pages or URLs. It does not
+modify the preregistered corpus definition, first-version selection rule,
+published DOI matching rule, V1-V10 scoring criteria, document-completeness
+requirements, or descriptive analysis plan.
+
+**Impact on registered design:**  
+None. TDM acquisition is optional and limited to retrieval mechanics. Published
+article full text remains governed by the existing publisher, DOI-resolver, PMC,
+or equivalent article-level access route.
+
+**Tests added:**  
+TDD tests were added in `tests/test_tdm_acquisition.py` for TDM config parsing,
+unsupported-server rejection, requester-pays archive-sync delegation for both
+bioRxiv and medRxiv, published metadata URL construction, and published metadata
+payload persistence.
+
+**Files updated:**  
+`src/peer_elt/acquire/tdm.py`, `tests/test_tdm_acquisition.py`,
+`configs/live_tests.example.yml`, `README.md`, `docs/testing.md`,
+`docs/peer_review_planning_document.md`, `docs/use_cases.md`,
+`docs/methods_and_results_generation.md`, and `PROJECT-TASKS.md`.

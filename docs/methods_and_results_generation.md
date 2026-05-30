@@ -14,6 +14,8 @@ document by:
 
 - dispatching acquired local full-text artifacts to format-specific parser
   strategies
+- optionally supporting bioRxiv/medRxiv Text and Data Mining repository
+  preprint archive acquisition through `src/peer_elt/acquire/tdm.py`
 - normalizing parsed documents into canonical `methods`, `results`, and
   `statements` sections
 - scoring preprint and published manuscript versions independently

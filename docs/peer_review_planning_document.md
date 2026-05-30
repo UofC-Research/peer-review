@@ -357,13 +357,22 @@ Acceptable full-text representations include, in descending order of preference:
 
 2. **Publisher-provided full-text HTML or XML**, when a PDF is unavailable, incomplete, malformed, image-only, or unsuitable for reliable text extraction
 
-3. **Preprint server full-text HTML**, when publisher formats are unavailable
+3. **Preprint server full-text HTML or XML**, when publisher formats are unavailable
 
 4. **Supplementary materials** (used to clarify reporting but not to replace missing core sections)
 
 When multiple full-text representations are available, the representation used for scoring is selected **prior to indicator scoring** and recorded in the document metadata log.
 
 Abstract-only pages, truncated previews, or partial text views are not considered sufficient for evaluation.
+
+For bioRxiv and medRxiv preprint-side full text, the official Text and Data
+Mining (TDM) repositories may be used as an alternate bulk acquisition route
+when they provide the same preprint version content that would otherwise be
+accessible from the preprint server. TDM retrieval is an access mechanism only:
+it does not change the selected preprint version, the matched published DOI, the
+document-format hierarchy, or any V1-V10 scoring rule. Published-article
+metadata and published-article full text remain governed by the same matching
+and article-level access rules as other acquisition routes.
 
 ---
 ## **11.2 Use of Supplementary Materials**
@@ -549,9 +558,9 @@ for human scoring, double-coding, adjudication, or inter-rater reliability.
 
 Current executable status:
 
-- Python: `conda run -n peer_review_env python -m pytest` -> 80 passed,
+- Python: `conda run -n peer_review_env python -m pytest` -> 85 passed,
   3 live tests skipped when no live config is supplied
-- Python coverage: `conda run -n peer_review_env python -m pytest --cov=peer_elt --cov-report=term-missing -q` -> 80
+- Python coverage: `conda run -n peer_review_env python -m pytest --cov=peer_elt --cov-report=term-missing -q` -> 85
   passed, 3 skipped, 88% branch-aware coverage
 - R: `conda run -n peer_review_env Rscript tests/test_analysis_layer.R` -> passed
 - Known non-behavioral warning: pytest cannot write cache files under `.pytest_cache`; this does not affect test
@@ -629,6 +638,11 @@ Operational pytest modes are documented in `docs/testing.md`:
 | `test_live_integration.py`                 | `test_live_preprint_sources_return_expected_metadata`                   | Optionally validates configured live bioRxiv/medRxiv API windows against expected metadata columns and minimum row counts.         |
 | `test_live_integration.py`                 | `test_live_published_full_text_candidates_are_retrievable`              | Optionally validates configured live published DOI candidates can retrieve at least one PDF, XML, or HTML full-text artifact.      |
 | `test_live_integration.py`                 | `test_live_matched_pairs_can_be_acquired`                               | Optionally validates configured live preprint/published pairs through the matched acquisition workflow.                            |
+| `test_tdm_acquisition.py`                  | `test_tdm_config_accepts_biorxiv_and_medrxiv_servers`                   | Verifies optional TDM config parsing for bioRxiv and medRxiv requester-pays S3 repositories.                                       |
+| `test_tdm_acquisition.py`                  | `test_tdm_config_from_mapping_rejects_unknown_server`                   | Verifies unsupported TDM server names fail clearly.                                                                                |
+| `test_tdm_acquisition.py`                  | `test_download_tdm_preprint_archive_uses_requester_pays_s3_settings`    | Verifies TDM preprint archive sync delegates requester-pays S3 settings for both bioRxiv and medRxiv.                              |
+| `test_tdm_acquisition.py`                  | `test_build_published_metadata_url_supports_biorxiv_and_medrxiv`        | Verifies published-link metadata URLs are built for both bioRxiv and medRxiv via the bioRxiv API.                                  |
+| `test_tdm_acquisition.py`                  | `test_download_published_metadata_writes_api_payload`                   | Verifies published-link metadata payloads are written to local files through an injected HTTP client.                              |
 | `test_methodology.py`                      | `test_version_scorecard_materializes_all_preregistered_indicators`      | Verifies version scorecards contain all V1-V10 indicators and review flags.                                                        |
 | `test_methodology.py`                      | `test_pair_scorecard_computes_deltas_and_pres_independently`            | Verifies indicator deltas and PRES are computed after independent version scoring.                                                 |
 | `test_methodology.py`                      | `test_pair_scorecard_exports_flat_record_and_evidence_rows`             | Verifies flat pair records and evidence rows are audit-ready.                                                                      |
@@ -716,14 +730,15 @@ Files that usually should not be modified just to switch modes:
 
 The configuration fields have the following meanings:
 
-| Field                 | Required | Purpose                                                                                                                                                   |
-|-----------------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `enabled`             | Yes      | Must be `true` for live tests to run. The example file uses `false` so default runs remain offline.                                                       |
-| `timeout_seconds`     | No       | Per-request timeout used by live full-text acquisition tests. Defaults to 20 seconds in the tests.                                                        |
-| `retry`               | No       | Retry settings passed to `RetryConfig` for live HTTP calls. Supports `max_attempts`, `wait_min_seconds`, `wait_max_seconds`, and `wait_multiplier`.       |
-| `preprint_sources`    | No       | List of live preprint API windows to validate. Each entry specifies a `server`, `date_from`, `date_to`, minimum row count, and expected metadata columns. |
-| `published_full_text` | No       | List of published DOIs whose publisher-specific or DOI-fallback full-text candidates should retrieve at least one artifact.                               |
-| `matched_pairs`       | No       | List of concrete preprint/published DOI pairs to exercise through the matched acquisition workflow.                                                       |
+| Field                 | Required | Purpose                                                                                                                                                                                                     |
+|-----------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `enabled`             | Yes      | Must be `true` for live tests to run. The example file uses `false` so default runs remain offline.                                                                                                         |
+| `timeout_seconds`     | No       | Per-request timeout used by live full-text acquisition tests. Defaults to 20 seconds in the tests.                                                                                                          |
+| `retry`               | No       | Retry settings passed to `RetryConfig` for live HTTP calls. Supports `max_attempts`, `wait_min_seconds`, `wait_max_seconds`, and `wait_multiplier`.                                                         |
+| `preprint_sources`    | No       | List of live preprint API windows to validate. Each entry specifies a `server`, `date_from`, `date_to`, minimum row count, and expected metadata columns.                                                   |
+| `published_full_text` | No       | List of published DOIs whose publisher-specific or DOI-fallback full-text candidates should retrieve at least one artifact.                                                                                 |
+| `matched_pairs`       | No       | List of concrete preprint/published DOI pairs to exercise through the matched acquisition workflow.                                                                                                         |
+| `tdm_repository`      | No       | Advisory/local acquisition block for optional bioRxiv/medRxiv TDM requester-pays S3 preprint full-text retrieval and published-link metadata download. Current pytest live tests do not consume this block. |
 
 `preprint_sources` entries support:
 
@@ -756,6 +771,15 @@ The configuration fields have the following meanings:
 The example values are placeholders for demonstrating structure. Stable cases
 should be selected and maintained separately in a local config before live tests
 are used for release or data-acquisition validation.
+
+`tdm_repository` is an optional local acquisition-planning block consumed by the
+TDD-covered helpers in `peer_elt.acquire.tdm`. It may record the official
+bioRxiv/medRxiv TDM documentation URLs, requester-pays S3 bucket names, local
+cache directory, package format, and preferred preprint content formats. It is
+intended for bulk preprint full-text retrieval. Linked published DOI metadata
+remains a bioRxiv API responsibility, and published-article full text remains a
+publisher, DOI-resolver, PMC, or equivalent article-level retrieval
+responsibility.
 
 ### Potentially Missing Tests
 

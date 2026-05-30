@@ -19,9 +19,9 @@ Audit date: 2026-05-29
 
 Verification performed:
 
-- `conda run -n peer_review_env python -m pytest` -> 80 passed, 3 live tests skipped, with one cache-permission warning
+- `conda run -n peer_review_env python -m pytest` -> 85 passed, 3 live tests skipped, with one cache-permission warning
   for `.pytest_cache`
-- `conda run -n peer_review_env python -m pytest --cov=peer_elt --cov-report=term-missing -q` -> 80 passed, 3 skipped,
+- `conda run -n peer_review_env python -m pytest --cov=peer_elt --cov-report=term-missing -q` -> 85 passed, 3 skipped,
   88% total
   Python coverage with branch coverage enabled
 - `conda run -n peer_review_env Rscript tests/test_analysis_layer.R` -> passed with exit code 0
@@ -43,6 +43,7 @@ Verification performed:
 | `peer_elt.acquire.corpus`        | Covered by corpus acquisition and acquired-artifact scoring tests | Complete for current Study 1 acquisition workflow, including eLife/PLOS published full-text candidates | Add further publisher DOI templates as needed                                               |
 | `peer_elt.acquire.full_text`     | Covered by full-text acquisition tests                            | Complete for configured PDF/XML/HTML fallback requests                                                 | None                                                                                        |
 | `peer_elt.acquire.http`          | Covered by retry tests                                            | Complete                                                                                               | None                                                                                        |
+| `peer_elt.acquire.tdm`           | Covered by TDM acquisition tests                                  | Complete for injectable bioRxiv/medRxiv TDM archive sync and published-link metadata download helpers  | Wire into production acquisition jobs if bulk TDM retrieval is selected                     |
 | `peer_elt.extract.__init__`      | Package export marker                                             | Complete                                                                                               | None                                                                                        |
 | `peer_elt.extract.biorxiv`       | Covered by extractor tests                                        | Complete                                                                                               | None                                                                                        |
 | `peer_elt.extract.medrxiv`       | Covered through extractor tests and bioRxiv-compatible wrapper    | Complete                                                                                               | None                                                                                        |
@@ -103,6 +104,8 @@ Verification performed:
 - Extended published-article full-text resolution for eLife and PLOS DOI patterns using TDD
 - Added config-driven opt-in live integration tests for preprint APIs, published full-text retrieval, and matched-pair
   acquisition
+- Added TDD-covered optional TDM acquisition helpers for bioRxiv/medRxiv requester-pays preprint archive sync and
+  bioRxiv API published-link metadata download
 
 ## In Progress
 

@@ -53,6 +53,9 @@ Edit `configs/live_tests.local.yml` before running live tests:
   published articles.
 - Replace placeholder `matched_pairs` preprint/published DOI pairs with stable
   examples.
+- Optionally document a local `tdm_repository` plan if bulk bioRxiv/medRxiv
+  preprint full-text acquisition will use the official Text and Data Mining
+  requester-pays S3 repositories.
 - Adjust `timeout_seconds` and `retry` only when the external services need
   more conservative timing.
 
@@ -78,6 +81,27 @@ Live tests may fail because of upstream changes, rate limiting, network
 availability, DOI-resolution changes, or publisher access changes. Treat those
 failures as integration-health signals before treating them as code regressions.
 
+## Optional TDM Repository Use
+
+bioRxiv and medRxiv provide Text and Data Mining repositories for bulk access to
+preprint full-text packages. The example live config includes a disabled
+`tdm_repository` block so local configs can record this acquisition route.
+
+Current pytest live tests do not consume `tdm_repository` and do not sync S3
+buckets directly. The TDD-covered `peer_elt.acquire.tdm` helpers parse the
+block, delegate archive sync to an injected requester-pays S3 client, and
+download linked published-article metadata from the bioRxiv API.
+
+Scope boundaries:
+
+- TDM is an optional bulk source for bioRxiv/medRxiv preprint full text.
+- Linked published-article metadata should still be taken from the bioRxiv API
+  `published` or `pubs` fields.
+- Published-article full text should still be retrieved from publisher-specific,
+  DOI-resolver, PMC, or other permitted article-level sources. The
+  bioRxiv/medRxiv TDM repositories do not replace that published-side
+  acquisition path.
+
 This testing workflow documentation is a post-lock transparency clarification,
 not a study-design change. The audit-trail entry is recorded in
 `docs/deviations_log.md`.
@@ -93,6 +117,10 @@ Files involved:
   validates the YAML mapping, and requires `enabled: true`.
 - `tests/test_live_integration.py`: consumes `preprint_sources`,
   `published_full_text`, `matched_pairs`, `timeout_seconds`, and `retry`.
+  It does not currently consume `tdm_repository`.
+- `tests/test_tdm_acquisition.py`: verifies TDM config parsing, requester-pays
+  archive-sync delegation for bioRxiv and medRxiv, and published-link metadata
+  downloads from the bioRxiv API.
 
 ## R Tests
 

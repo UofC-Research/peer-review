@@ -20,6 +20,15 @@
 # or:
 #   pytest -m "not live"
 #
+# Optional bulk acquisition planning:
+#   bioRxiv and medRxiv also provide Text and Data Mining (TDM) repositories
+#   for bulk preprint full-text access through requester-pays Amazon S3.
+#   This example includes a disabled `tdm_repository` block below so local
+#   configs can record a TDM-based preprint acquisition option alongside the
+#   live API and URL-based tests. The current pytest live tests do not sync S3
+#   buckets directly; `peer_elt.acquire.tdm` provides the injectable helper
+#   boundary for TDM archive sync and published-link metadata download.
+#
 # Live tests are opt-in because they use external network resources and may
 # fail when upstream services change, rate-limit, or go offline.
 #
@@ -110,3 +119,43 @@ matched_pairs:
     # Set false for monitoring upstream availability during early setup; set
     # true for strict release/data-acquisition validation.
     require_both_success: false
+
+# Optional TDM repository acquisition plan.
+#
+# This block is not consumed by the current pytest live tests. It records how
+# `peer_elt.acquire.tdm` can be configured by a local run to bulk-download
+# preprint full text when URL-by-URL retrieval is too slow or brittle.
+#
+# Important scope note:
+# - The TDM repositories cover bioRxiv/medRxiv preprint full-text packages.
+# - Linked published-article metadata still comes from the bioRxiv API
+#   `published`/`pubs` fields.
+# - Published article full text still comes from publisher, DOI-resolver, PMC,
+#   or other article-level sources permitted by the access rules; it is not
+#   provided by the bioRxiv/medRxiv preprint TDM buckets.
+tdm_repository:
+  enabled: false
+  purpose: bulk_preprint_full_text
+  access_method: requester_pays_s3
+  local_cache_dir: data/raw/tdm
+  expected_package_format: meca_zip
+  preferred_content_formats:
+    - xml
+    - pdf
+  servers:
+    - server: biorxiv
+      documentation_url: "https://www.biorxiv.org/tdm"
+      bucket: "s3://biorxiv-src-monthly"
+      region: "us-east-1"
+      requester_pays: true
+    - server: medrxiv
+      documentation_url: "https://www.medrxiv.org/tdm"
+      bucket: "s3://medrxiv-src-monthly"
+      region: "us-east-1"
+      requester_pays: true
+  published_metadata:
+    source: "https://api.biorxiv.org/pubs/[server]/[interval]/[cursor]"
+    note: "Use API-linked published DOI metadata to pair preprints with journal articles."
+  published_full_text:
+    source: publisher_or_doi_resolver
+    note: "Use publisher-specific, DOI-resolver, PMC, or other permitted article-level sources for the published manuscript."

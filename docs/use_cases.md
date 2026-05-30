@@ -46,7 +46,7 @@ This document translates the preregistered rules in the peer review planning doc
 
 ---
 
-### UC-3: Retrieve Full Text (PDF/HTML)
+### UC-3: Retrieve Full Text (PDF/XML/HTML)
 
 **Goal:** Access the most complete full-text representation for each version.
 
@@ -55,10 +55,17 @@ This document translates the preregistered rules in the peer review planning doc
 **Preconditions:** Matched preprint and published versions are identified.
 
 **Main Flow:**
-1. Pipeline requests the publisher-provided PDF for each version.
-2. If PDF is unavailable, pipeline retrieves full-text HTML.
-3. If needed, pipeline references supplementary materials to clarify reporting.
-4. Pipeline records which format was used (PDF, HTML, supplementary).
+
+1. Pipeline requests the preferred complete full-text representation for each
+   version.
+2. If PDF is unavailable or unsuitable, pipeline retrieves complete full-text
+   XML or HTML.
+3. For bioRxiv/medRxiv preprint-side bulk acquisition, a local run may use the
+   official Text and Data Mining repository to retrieve equivalent preprint
+   full-text XML/PDF packages.
+4. If needed, pipeline references supplementary materials to clarify reporting.
+5. Pipeline records which format was used (PDF, XML, HTML, supplementary) and
+   which acquisition route supplied it.
 
 **Postconditions:** Full-text content is available for scoring or exclusion.
 
@@ -73,7 +80,8 @@ This document translates the preregistered rules in the peer review planning doc
 **Preconditions:** Full-text access has been attempted for both versions.
 
 **Main Flow:**
-1. Pipeline checks whether full-text PDF or complete HTML is accessible.
+
+1. Pipeline checks whether full-text PDF, XML, or complete HTML is accessible.
 2. Pipeline verifies Methods/Results sections are readable.
 3. If requirements are unmet, pipeline excludes the manuscript and logs the reason.
 
