@@ -143,3 +143,37 @@ post-hoc score weighting.
 **Impact on registered design:**  
 None, provided the R layer remains restricted to fixed pair-score records and
 descriptive summaries as documented.
+
+---
+
+### Entry: Pytest live-data and dummy-data workflows documented
+
+**Date:** 2026-05-30  
+**Status:** Post-lock transparency documentation  
+**Data accessed:** No study outcome data accessed  
+**Analyses conducted:** No
+
+**Description:**  
+Testing documentation was clarified to distinguish deterministic dummy-data
+pytest runs from opt-in live-data integration tests. The README now summarizes
+the default offline workflow, live-test commands, and the local live-config
+workflow. A dedicated `docs/testing.md` file was added, the planning document's
+test coverage audit was cross-referenced to that workflow, and
+`configs/live_tests.example.yml` comments were expanded to explain how to copy
+and modify `configs/live_tests.local.yml`.
+
+**Relationship to preregistration:**  
+This is a software reproducibility and auditability clarification. It documents
+how automated tests are run and how live integration checks are enabled. It does
+not modify the preregistered study design, variables, scoring rules, document
+access hierarchy, eligibility criteria, version-selection rules, or analytic
+plan.
+
+**Impact on registered design:**  
+None. Dummy-data and live-data pytest modes validate implementation behavior
+only. The live-test configuration controls external integration checks; it does
+not define the study corpus or alter Study 1 measurement decisions.
+
+**Files updated:**  
+`README.md`, `docs/testing.md`, `docs/peer_review_planning_document.md`, and
+`configs/live_tests.example.yml`.

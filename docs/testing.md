@@ -78,6 +78,10 @@ Live tests may fail because of upstream changes, rate limiting, network
 availability, DOI-resolution changes, or publisher access changes. Treat those
 failures as integration-health signals before treating them as code regressions.
 
+This testing workflow documentation is a post-lock transparency clarification,
+not a study-design change. The audit-trail entry is recorded in
+`docs/deviations_log.md`.
+
 Files involved:
 
 - `configs/live_tests.example.yml`: committed template and schema. Keep this

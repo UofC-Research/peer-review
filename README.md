@@ -269,5 +269,7 @@ More detail, including which files to modify for each mode, is in
   layer.
 - `docs/peer_review_planning_document.md`: controlling preregistration document.
 - `docs/data_model.md`: raw and derived table definitions.
+- `docs/deviations_log.md`: post-lock deviation and implementation
+  clarification audit trail.
 - `docs/testing.md`: pytest dummy-data and live-data test workflows.
 - `configs/live_tests.example.yml`: template and schema for opt-in live tests.

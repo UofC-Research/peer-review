@@ -535,6 +535,9 @@ Certain architectural and pipeline-level design changes referenced elsewhere in 
 **Entry: Exploratory time-period review prior to lock.**  
 Before the planning lock, an exploratory review was conducted to confirm the feasibility of the preregistered time window (January 1, 2016–December 31, 2022). This review was limited to confirming the time-period bounds and did not include extraction, scoring, or analysis of study outcomes, nor did it alter preregistered variables, eligibility criteria, or analytic constraints.
 
+Post-lock implementation and documentation clarifications are tracked in
+`docs/deviations_log.md`.
+
 ---
 
 ## **13.3 Test Coverage Audit**
