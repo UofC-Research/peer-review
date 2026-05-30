@@ -554,6 +554,16 @@ Current executable status:
 - Known non-behavioral warning: pytest cannot write cache files under `.pytest_cache`; this does not affect test
   assertions.
 
+Operational pytest modes are documented in `docs/testing.md`:
+
+- Dummy-data/offline mode: `pytest` or `pytest -m "not live"`. These tests use
+  local fixtures, temporary files, and fake HTTP clients; no live DOI retrieval
+  or network access is required.
+- Live-data mode: `pytest -m live --live-config configs/live_tests.local.yml`
+  or `pytest --live-config configs/live_tests.local.yml`. These tests use the
+  enabled local YAML config and may call bioRxiv/medRxiv, publisher, and
+  DOI-resolution endpoints.
+
 ### Python Test Intent
 
 | Test file                                  | Test                                                                    | What it achieves                                                                                                                   |
@@ -654,10 +664,18 @@ Current executable status:
 ### Live Test Configuration
 
 The file `configs/live_tests.example.yml` documents the schema for opt-in live
-integration tests. It is intentionally disabled by default:
+integration tests. It is intentionally disabled by default and should be copied
+to `configs/live_tests.local.yml` before live values are edited:
 
 ```yaml
 enabled: false
+```
+
+For dummy-data/offline pytest runs, no YAML config changes are required:
+
+```bash
+pytest
+pytest -m "not live"
 ```
 
 Live tests are skipped unless a config path is supplied through either:
@@ -666,9 +684,32 @@ Live tests are skipped unless a config path is supplied through either:
 pytest -m live --live-config configs/live_tests.local.yml
 ```
 
-or the `PEER_REVIEW_LIVE_CONFIG` environment variable. Local live-test configs
-should remain outside version control; `configs/live_tests.local.yml` is ignored
-by Git.
+or the `PEER_REVIEW_LIVE_CONFIG` environment variable. To include live tests in
+the full Python suite, run:
+
+```bash
+pytest --live-config configs/live_tests.local.yml
+```
+
+Local live-test configs should remain outside version control;
+`configs/live_tests.local.yml` is ignored by Git.
+
+Files to modify for live-data pytest runs:
+
+- `configs/live_tests.local.yml`: create this from
+  `configs/live_tests.example.yml`, set `enabled: true`, and replace placeholder
+  DOI/date-window cases with stable live cases.
+
+Files that usually should not be modified just to switch modes:
+
+- `configs/live_tests.example.yml`: keep as the committed disabled template and
+  schema reference.
+- `tests/conftest.py`: only change when the pytest option or live-config loading
+  behavior itself changes.
+- `tests/test_live_integration.py`: only change when adding or revising live
+  integration assertions.
+- `pyproject.toml`: only change when pytest discovery, markers, or default
+  options change.
 
 The configuration fields have the following meanings:
 

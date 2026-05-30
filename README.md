@@ -194,14 +194,26 @@ Rscript src/analysis/init_r.R
 
 ## Tests
 
-Run the test suite from the repository root:
+Run the default test suite from the repository root:
 
 ```bash
 pytest
 ```
 
-Pytest reads `pythonpath = ["src"]` from `pyproject.toml`, so tests can import
-the package without extra path setup.
+This is the dummy-data/offline mode. The regular suite uses fixtures, temporary
+files, and fake HTTP clients for acquisition tests, so it does not require
+network access or real DOI retrieval. The opt-in tests marked `live` are
+collected but skipped unless a live config is supplied.
+
+To run only the deterministic dummy-data tests and exclude live tests entirely:
+
+```bash
+pytest -m "not live"
+```
+
+Pytest settings live in `pyproject.toml`. In particular,
+`pythonpath = ["src"]` lets tests import the package without extra path setup,
+and the `live` marker identifies tests that may call external services.
 
 Run the R analysis tests:
 
@@ -209,17 +221,27 @@ Run the R analysis tests:
 Rscript tests/test_analysis_layer.R
 ```
 
-Live integration tests are opt-in and are driven by a YAML config. Normal test
-runs skip them unless you provide a config path:
+Live integration tests are opt-in and are driven by a YAML config. To run them
+against real bioRxiv/medRxiv and publisher endpoints:
 
 ```bash
 cp configs/live_tests.example.yml configs/live_tests.local.yml
-# edit configs/live_tests.local.yml and set enabled: true
+# edit configs/live_tests.local.yml:
+#   - set enabled: true
+#   - replace placeholder DOI/date-window cases with stable live examples
 pytest -m live --live-config configs/live_tests.local.yml
+```
+
+To run the full Python suite with live tests included, omit the marker filter:
+
+```bash
+pytest --live-config configs/live_tests.local.yml
 ```
 
 The same config can be supplied with `PEER_REVIEW_LIVE_CONFIG`. Keep local live
 configs out of version control; `configs/live_tests.local.yml` is ignored.
+More detail, including which files to modify for each mode, is in
+`docs/testing.md`.
 
 ## Key Files
 
@@ -247,3 +269,5 @@ configs out of version control; `configs/live_tests.local.yml` is ignored.
   layer.
 - `docs/peer_review_planning_document.md`: controlling preregistration document.
 - `docs/data_model.md`: raw and derived table definitions.
+- `docs/testing.md`: pytest dummy-data and live-data test workflows.
+- `configs/live_tests.example.yml`: template and schema for opt-in live tests.

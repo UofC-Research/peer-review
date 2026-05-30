@@ -1,15 +1,24 @@
 # Example configuration for opt-in live integration tests.
 #
-# Recommended workflow:
+# Recommended workflow for live-data pytest runs:
 #   1. Copy this file to configs/live_tests.local.yml.
-#   2. Replace placeholder DOIs/date windows with stable cases you want to
-#      monitor.
-#   3. Set enabled: true in the local copy.
-#   4. Run:
+#   2. In configs/live_tests.local.yml, set enabled: true.
+#   3. Replace placeholder preprint date windows, published DOIs, and matched
+#      pair DOI/version cases with stable live examples you want to monitor.
+#   4. Optionally tune timeout_seconds and retry for the external services.
+#   5. Run only the live tests:
 #        pytest -m live --live-config configs/live_tests.local.yml
+#
+#      Or run the full Python suite with live tests included:
+#        pytest --live-config configs/live_tests.local.yml
 #
 # You can also point tests at a config with:
 #   PEER_REVIEW_LIVE_CONFIG=configs/live_tests.local.yml pytest -m live
+#
+# For dummy-data/offline runs, do not modify this file. Use:
+#   pytest
+# or:
+#   pytest -m "not live"
 #
 # Live tests are opt-in because they use external network resources and may
 # fail when upstream services change, rate-limit, or go offline.
