@@ -26,8 +26,15 @@
 #   This example includes a disabled `tdm_repository` block below so local
 #   configs can record a TDM-based preprint acquisition option alongside the
 #   live API and URL-based tests. The current pytest live tests do not sync S3
-#   buckets directly; `peer_elt.acquire.tdm` provides the injectable helper
-#   boundary for TDM archive sync and published-link metadata download.
+#   buckets directly. Local acquisition jobs can call
+#   `peer_elt.acquire.tdm.acquire_tdm_preprints_and_published_articles(...)`
+#   to automate:
+#     1. requester-pays TDM archive sync for configured preprint servers,
+#     2. bioRxiv API published-link metadata download for configured windows,
+#     3. published article full-text retrieval in XML -> PDF -> HTML order.
+#   To use TDM in a local acquisition job, configure AWS credentials, accept
+#   requester-pays S3 charges, and provide a client/wrapper that implements
+#   `download_prefix(bucket, destination, region=..., requester_pays=...)`.
 #
 # Live tests are opt-in because they use external network resources and may
 # fail when upstream services change, rate-limit, or go offline.
@@ -122,9 +129,23 @@ matched_pairs:
 
 # Optional TDM repository acquisition plan.
 #
-# This block is not consumed by the current pytest live tests. It records how
-# `peer_elt.acquire.tdm` can be configured by a local run to bulk-download
-# preprint full text when URL-by-URL retrieval is too slow or brittle.
+# This block is not consumed by the current pytest live tests. It is consumed by
+# `peer_elt.acquire.tdm.tdm_config_from_mapping(...)` and can drive a local
+# `acquire_tdm_preprints_and_published_articles(...)` run to sync preprint
+# archives, download published-link metadata, and retrieve published article
+# full text automatically.
+#
+# Before setting enabled: true in configs/live_tests.local.yml:
+# - Confirm an AWS account and credentials are configured for the process that
+#   will run the download.
+# - Confirm the AWS principal is allowed to read requester-pays S3 buckets.
+# - Confirm requester-pays transfer and request charges are acceptable.
+# - Provide an implementation of the `peer_elt.acquire.tdm.TdmArchiveClient`
+#   protocol. For AWS CLI, the equivalent command shape is:
+#     aws s3 sync s3://biorxiv-src-monthly data/raw/tdm/biorxiv \
+#       --region us-east-1 --request-payer requester
+#     aws s3 sync s3://medrxiv-src-monthly data/raw/tdm/medrxiv \
+#       --region us-east-1 --request-payer requester
 #
 # Important scope note:
 # - The TDM repositories cover bioRxiv/medRxiv preprint full-text packages.
@@ -133,15 +154,46 @@ matched_pairs:
 # - Published article full text still comes from publisher, DOI-resolver, PMC,
 #   or other article-level sources permitted by the access rules; it is not
 #   provided by the bioRxiv/medRxiv preprint TDM buckets.
+# - When TDM is selected, process matched preprint and published article files
+#   in XML -> PDF -> HTML order. XML is preferred because structured XML-to-XML
+#   comparison is more efficient and less brittle than PDF extraction. PDF is
+#   the next fallback, and HTML is the final automated fallback to avoid manual
+#   web-page saving whenever possible.
 tdm_repository:
+  # Keep false in this committed example. Set true only in a local config after
+  # AWS credentials, requester-pays acceptance, and a TDM archive client are in
+  # place.
   enabled: false
+
+  # TDM is used for bulk preprint full text. Published article full-text
+  # acquisition is automated separately from publisher/DOI/PMC-style article
+  # sources.
   purpose: bulk_preprint_full_text
+
+  # Current helper boundary expects an injected client for this access method.
+  # Typical implementations can wrap boto3, AWS CLI, or s3cmd.
   access_method: requester_pays_s3
+
+  # Root local cache directory. Each server sync writes below this directory,
+  # for example data/raw/tdm/biorxiv and data/raw/tdm/medrxiv.
   local_cache_dir: data/raw/tdm
+
+  # bioRxiv/medRxiv TDM packages are distributed as MECA zip packages containing
+  # full-text content such as XML and PDF. Some downstream paired published
+  # articles may only expose HTML through publisher/DOI/PMC routes.
   expected_package_format: meca_zip
+
+  # Desired processing order when TDM is selected:
+  # 1. XML: preferred for structured preprint/published comparison.
+  # 2. PDF: fallback when XML is unavailable.
+  # 3. HTML: final automated fallback; avoid manual web-page saving.
   preferred_content_formats:
     - xml
     - pdf
+    - html
+
+  # Server-specific requester-pays S3 resources. Both official buckets are in
+  # us-east-1. The requester_pays flag must be propagated by the client.
   servers:
     - server: biorxiv
       documentation_url: "https://www.biorxiv.org/tdm"
@@ -153,9 +205,23 @@ tdm_repository:
       bucket: "s3://medrxiv-src-monthly"
       region: "us-east-1"
       requester_pays: true
+
+  # Published-link metadata still comes from the bioRxiv API. The helper
+  # function build_published_metadata_url(...) materializes this template for
+  # biorxiv or medrxiv, a date interval, and a cursor. The automated TDM
+  # workflow downloads these JSON payloads before published full-text retrieval.
   published_metadata:
     source: "https://api.biorxiv.org/pubs/[server]/[interval]/[cursor]"
     note: "Use API-linked published DOI metadata to pair preprints with journal articles."
+
+  # Published article full text is outside the TDM buckets and is retrieved from
+  # article-level sources. The automated TDM workflow uses this order for each
+  # linked published DOI so matched comparisons use the most structured common
+  # representation available.
   published_full_text:
     source: publisher_or_doi_resolver
+    preferred_content_formats:
+      - xml
+      - pdf
+      - html
     note: "Use publisher-specific, DOI-resolver, PMC, or other permitted article-level sources for the published manuscript."

@@ -7,13 +7,16 @@ from typing import Mapping
 import pytest
 
 from peer_elt.acquire.tdm import (
+    AwsCliTdmArchiveClient,
     TdmRepositoryConfig,
     TdmServerConfig,
+    acquire_tdm_preprints_and_published_articles,
     build_published_metadata_url,
     download_published_metadata,
     download_tdm_preprint_archive,
     tdm_config_from_mapping,
 )
+from peer_elt.config import SourceConfig
 
 
 @dataclass(frozen=True)
@@ -49,6 +52,7 @@ def test_tdm_config_accepts_biorxiv_and_medrxiv_servers(tmp_path: Path) -> None:
     assert config.local_cache_dir == tmp_path / "tdm"
     assert config.server("biorxiv").bucket == "s3://biorxiv-src-monthly"
     assert config.server("medrxiv").bucket == "s3://medrxiv-src-monthly"
+    assert config.preferred_content_formats == ("xml", "pdf", "html")
     assert all(server.requester_pays for server in config.servers)
 
 
@@ -114,6 +118,132 @@ def test_download_tdm_preprint_archive_uses_requester_pays_s3_settings(
     assert calls == [
         ("s3://biorxiv-src-monthly", tmp_path / "tdm" / "biorxiv", "us-east-1", True),
         ("s3://medrxiv-src-monthly", tmp_path / "tdm" / "medrxiv", "us-east-1", True),
+    ]
+
+
+def test_aws_cli_tdm_archive_client_uses_requester_payer_flag(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(command: list[str], check: bool) -> None:
+        calls.append(command)
+        assert check is True
+
+    client = AwsCliTdmArchiveClient(runner=runner)
+
+    client.download_prefix(
+        "s3://biorxiv-src-monthly",
+        tmp_path / "biorxiv",
+        region="us-east-1",
+        requester_pays=True,
+    )
+
+    assert calls == [
+        [
+            "aws",
+            "s3",
+            "sync",
+            "s3://biorxiv-src-monthly",
+            str(tmp_path / "biorxiv"),
+            "--region",
+            "us-east-1",
+            "--request-payer",
+            "requester",
+        ]
+    ]
+
+
+def test_acquire_tdm_preprints_and_published_articles_automates_tdm_workflow(
+        tmp_path: Path,
+) -> None:
+    archive_calls: list[tuple[str, Path, str, bool]] = []
+    metadata_calls: list[str] = []
+    article_calls: list[str] = []
+
+    class FakeTdmClient:
+        def download_prefix(
+                self,
+                bucket: str,
+                destination: Path,
+                *,
+                region: str,
+                requester_pays: bool,
+        ) -> None:
+            archive_calls.append((bucket, destination, region, requester_pays))
+
+    def metadata_http_get(url: str, timeout_seconds: float) -> FakeResponse:
+        metadata_calls.append(url)
+        if "/biorxiv/" in url:
+            return FakeResponse(
+                200,
+                (
+                    b'{"collection":[{"biorxiv_doi":"10.1101/bio",'
+                    b'"version":"1","published_doi":"10.7554/eLife.12345"}]}'
+                ),
+            )
+        return FakeResponse(
+            200,
+            (
+                b'{"collection":[{"biorxiv_doi":"10.1101/med",'
+                b'"version":"1","published":"10.1371/journal.pbio.3000001"}]}'
+            ),
+        )
+
+    def article_http_get(url: str, timeout_seconds: float) -> FakeResponse:
+        article_calls.append(url)
+        if url.endswith(".xml") or "type=manuscript" in url:
+            return FakeResponse(200, b"<article>published</article>")
+        return FakeResponse(404, b"")
+
+    config = TdmRepositoryConfig(
+        enabled=True,
+        local_cache_dir=tmp_path / "tdm",
+        servers=[
+            TdmServerConfig("biorxiv", "s3://biorxiv-src-monthly"),
+            TdmServerConfig("medrxiv", "s3://medrxiv-src-monthly"),
+        ],
+    )
+    sources = [
+        SourceConfig("bio", "biorxiv", "2020-01-01", "2020-01-31"),
+        SourceConfig("med", "medrxiv", "2020-02-01", "2020-02-28"),
+    ]
+
+    result = acquire_tdm_preprints_and_published_articles(
+        config=config,
+        sources=sources,
+        archive_client=FakeTdmClient(),
+        metadata_http_get=metadata_http_get,
+        article_http_get=article_http_get,
+        timeout_seconds=10,
+    )
+
+    assert result.preprint_archive_dirs == {
+        "biorxiv": tmp_path / "tdm" / "biorxiv",
+        "medrxiv": tmp_path / "tdm" / "medrxiv",
+    }
+    assert result.published_metadata_paths == [
+        tmp_path / "tdm" / "published_metadata" / (
+            "biorxiv_published_metadata_2020-01-01_2020-01-31.json"
+        ),
+        tmp_path / "tdm" / "published_metadata" / (
+            "medrxiv_published_metadata_2020-02-01_2020-02-28.json"
+        ),
+    ]
+    formats = [item.format for item in result.published_full_text_results]
+    assert formats == ["xml", "xml"]
+    assert archive_calls == [
+        ("s3://biorxiv-src-monthly", tmp_path / "tdm" / "biorxiv", "us-east-1", True),
+        ("s3://medrxiv-src-monthly", tmp_path / "tdm" / "medrxiv", "us-east-1", True),
+    ]
+    assert metadata_calls == [
+        "https://api.biorxiv.org/pubs/biorxiv/2020-01-01/2020-01-31/0",
+        "https://api.biorxiv.org/pubs/medrxiv/2020-02-01/2020-02-28/0",
+    ]
+    assert article_calls == [
+        "https://elifesciences.org/articles/12345.xml",
+        (
+            "https://journals.plos.org/plosbiology/article/file?"
+            "id=10.1371/journal.pbio.3000001&type=manuscript"
+        ),
     ]
 
 

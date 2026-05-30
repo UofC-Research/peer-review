@@ -88,13 +88,17 @@ preprint full-text packages. The example live config includes a disabled
 `tdm_repository` block so local configs can record this acquisition route.
 
 Current pytest live tests do not consume `tdm_repository` and do not sync S3
-buckets directly. The TDD-covered `peer_elt.acquire.tdm` helpers parse the
-block, delegate archive sync to an injected requester-pays S3 client, and
-download linked published-article metadata from the bioRxiv API.
+buckets directly. The TDD-covered `peer_elt.acquire.tdm` workflow parses the
+block, delegates archive sync to an injected requester-pays S3 client, downloads
+linked published-article metadata from the bioRxiv API, and retrieves published
+article full text in XML, PDF, then HTML order.
 
 Scope boundaries:
 
 - TDM is an optional bulk source for bioRxiv/medRxiv preprint full text.
+- When TDM is selected, process matched preprint and published article files in
+  XML, PDF, then HTML order. XML is preferred for efficient structured
+  comparison; PDF and HTML are automated fallbacks.
 - Linked published-article metadata should still be taken from the bioRxiv API
   `published` or `pubs` fields.
 - Published-article full text should still be retrieved from publisher-specific,
@@ -118,9 +122,10 @@ Files involved:
 - `tests/test_live_integration.py`: consumes `preprint_sources`,
   `published_full_text`, `matched_pairs`, `timeout_seconds`, and `retry`.
   It does not currently consume `tdm_repository`.
-- `tests/test_tdm_acquisition.py`: verifies TDM config parsing, requester-pays
-  archive-sync delegation for bioRxiv and medRxiv, and published-link metadata
-  downloads from the bioRxiv API.
+- `tests/test_tdm_acquisition.py`: verifies TDM config parsing, AWS CLI
+  requester-pays archive-sync command construction, archive-sync delegation for
+  bioRxiv and medRxiv, published-link metadata downloads from the bioRxiv API,
+  and automated XML-first published article full-text retrieval.
 
 ## R Tests
 

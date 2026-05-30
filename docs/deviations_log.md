@@ -99,7 +99,7 @@ None.
 **Current executable status recorded:**  
 Python tests passed with 80 tests at the time of this entry; branch-aware Python
 coverage was 88%; the R analysis-layer test file passed. Later TDM acquisition
-tests increased the Python suite to 85 passing tests without changing total
+tests increased the Python suite to 87 passing tests without changing total
 coverage.
 
 ---
@@ -193,10 +193,12 @@ not define the study corpus or alter Study 1 measurement decisions.
 An optional Text and Data Mining (TDM) acquisition path was added for
 bioRxiv/medRxiv preprint full-text archives. The implementation adds
 `peer_elt.acquire.tdm`, which parses a local `tdm_repository` configuration
-block, delegates requester-pays S3 archive sync to an injected client, and
-downloads linked published-article metadata from the bioRxiv API `pubs`
-endpoint for bioRxiv or medRxiv. The example live-test config documents the
-disabled local TDM option.
+block, delegates requester-pays S3 archive sync to an injected client or AWS CLI
+wrapper, downloads linked published-article metadata from the bioRxiv API
+`pubs` endpoint for bioRxiv or medRxiv, and retrieves linked published article
+full text in XML, PDF, then HTML order. The example live-test config documents
+the disabled local TDM option and records XML, PDF, then HTML as the preferred
+processing order when TDM is selected.
 
 **Relationship to preregistration:**  
 This is an access-route clarification and software implementation detail. The
@@ -214,8 +216,9 @@ or equivalent article-level access route.
 **Tests added:**  
 TDD tests were added in `tests/test_tdm_acquisition.py` for TDM config parsing,
 unsupported-server rejection, requester-pays archive-sync delegation for both
-bioRxiv and medRxiv, published metadata URL construction, and published metadata
-payload persistence.
+bioRxiv and medRxiv, AWS CLI requester-pays command construction, published
+metadata URL construction, published metadata payload persistence, and automated
+TDM preprint/published acquisition orchestration.
 
 **Files updated:**  
 `src/peer_elt/acquire/tdm.py`, `tests/test_tdm_acquisition.py`,

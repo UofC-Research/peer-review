@@ -157,10 +157,12 @@ bioRxiv/medRxiv Text and Data Mining (TDM) repositories. This is documented as
 an optional disabled `tdm_repository` block in `configs/live_tests.example.yml`.
 The TDM repositories provide requester-pays S3 access to bioRxiv/medRxiv
 preprint full-text packages. The helper module `peer_elt.acquire.tdm` parses
-that config, delegates TDM archive sync to an injected S3 client, and downloads
-linked published-article metadata from the bioRxiv API. Published-article full
-text still comes from publisher, DOI-resolver, PMC, or other permitted
-article-level sources.
+that config and can automate requester-pays TDM archive sync, bioRxiv API
+published-link metadata download, and published-article full-text retrieval.
+When TDM is selected, the preferred processing order is XML, then PDF, then HTML
+for both preprint and published article files. Published-article full text still
+comes from publisher, DOI-resolver, PMC, or other permitted article-level
+sources.
 
 Tests use fake HTTP clients, so acquisition behavior is covered without live
 network access.
