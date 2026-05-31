@@ -15,6 +15,7 @@ resolver concern.
 
 from dataclasses import dataclass
 import json
+import os
 from pathlib import Path
 import subprocess
 from typing import Any, Callable, Iterable, Mapping, Protocol, Sequence
@@ -29,6 +30,16 @@ _DEFAULT_REGION = "us-east-1"
 _DEFAULT_TDM_FORMATS = ("xml", "pdf", "html")
 _PUBLISHED_METADATA_BASE_URL = "https://api.biorxiv.org/pubs"
 _SUPPORTED_TDM_SERVERS = {"biorxiv", "medrxiv"}
+_AWS_DOTENV_KEY_ALIASES = {
+    "aws_access_key_id": "AWS_ACCESS_KEY_ID",
+    "aws_secret_access_key": "AWS_SECRET_ACCESS_KEY",
+    "aws_session_token": "AWS_SESSION_TOKEN",
+    "aws_security_token": "AWS_SECURITY_TOKEN",
+    "aws_default_region": "AWS_DEFAULT_REGION",
+    "aws_region": "AWS_REGION",
+    "aws_profile": "AWS_PROFILE",
+}
+_AWS_ENVIRONMENT_KEYS = frozenset(_AWS_DOTENV_KEY_ALIASES.values())
 
 
 @dataclass(frozen=True)
@@ -159,10 +170,18 @@ class AwsCliTdmArchiveClient:
     runner:
         Callable used to execute the command. Defaults to ``subprocess.run`` and
         is injectable for tests.
+    env_file:
+        Optional dotenv file to read AWS credentials from before invoking the
+        AWS CLI. Defaults to ``.env`` in the current working directory.
+    base_env:
+        Optional baseline environment. Defaults to ``os.environ`` and is
+        injectable for tests.
     """
 
     aws_executable: str = "aws"
     runner: Callable[..., object] = subprocess.run
+    env_file: Path | None = Path(".env")
+    base_env: Mapping[str, str] | None = None
 
     def download_prefix(
             self,
@@ -196,7 +215,60 @@ class AwsCliTdmArchiveClient:
         ]
         if requester_pays:
             command.extend(["--request-payer", "requester"])
-        self.runner(command, check=True)
+        env = (
+            aws_cli_environment_from_dotenv(self.env_file, base_env=self.base_env)
+            if self.env_file is not None
+            else None
+        )
+        kwargs: dict[str, object] = {"check": True}
+        if env is not None:
+            kwargs["env"] = env
+        self.runner(command, **kwargs)
+
+
+def aws_cli_environment_from_dotenv(
+        dotenv_path: Path | str = Path(".env"),
+        *,
+        base_env: Mapping[str, str] | None = None,
+) -> dict[str, str] | None:
+    """Build an AWS CLI environment from a dotenv file if it contains AWS keys.
+
+    Parameters
+    ----------
+    dotenv_path:
+        Path to a dotenv file. Lowercase keys such as
+        ``aws_access_key_id``/``aws_secret_access_key`` are translated to the
+        uppercase environment variables expected by AWS CLI.
+    base_env:
+        Existing environment to copy before applying dotenv values. Defaults to
+        ``os.environ``.
+
+    Returns
+    -------
+    dict[str, str] | None
+        A subprocess environment with AWS dotenv values applied, or ``None`` if
+        the file is absent or contains no recognized AWS keys.
+    """
+    path = Path(dotenv_path)
+    if not path.exists():
+        return None
+
+    aws_values: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        parsed = _parse_dotenv_assignment(line)
+        if parsed is None:
+            continue
+        key, value = parsed
+        aws_key = _normalize_aws_dotenv_key(key)
+        if aws_key is not None:
+            aws_values[aws_key] = value
+
+    if not aws_values:
+        return None
+
+    env = dict(os.environ if base_env is None else base_env)
+    env.update(aws_values)
+    return env
 
 
 @dataclass(frozen=True)
@@ -473,6 +545,35 @@ def _optional_text(value: Any) -> str | None:
         return None
     text = str(value).strip()
     return text or None
+
+
+def _parse_dotenv_assignment(line: str) -> tuple[str, str] | None:
+    text = line.strip()
+    if not text or text.startswith("#"):
+        return None
+    if text.startswith("export "):
+        text = text[len("export "):].strip()
+    if "=" not in text:
+        return None
+
+    key, value = text.split("=", 1)
+    key = key.strip().lstrip("\ufeff")
+    if not key:
+        return None
+    return key, _clean_dotenv_value(value)
+
+
+def _clean_dotenv_value(value: str) -> str:
+    text = value.strip()
+    if len(text) >= 2 and text[0] == text[-1] and text[0] in {"'", '"'}:
+        return text[1:-1]
+    return text.split(" #", 1)[0].rstrip()
+
+
+def _normalize_aws_dotenv_key(key: str) -> str | None:
+    if key in _AWS_ENVIRONMENT_KEYS:
+        return key
+    return _AWS_DOTENV_KEY_ALIASES.get(key.lower())
 
 
 def _preferred_formats_from_mapping(payload: Mapping[str, Any]) -> tuple[str, ...]:

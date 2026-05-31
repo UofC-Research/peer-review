@@ -11,6 +11,7 @@ from peer_elt.acquire.tdm import (
     TdmRepositoryConfig,
     TdmServerConfig,
     acquire_tdm_preprints_and_published_articles,
+    aws_cli_environment_from_dotenv,
     build_published_metadata_url,
     download_published_metadata,
     download_tdm_preprint_archive,
@@ -150,6 +151,75 @@ def test_aws_cli_tdm_archive_client_uses_requester_payer_flag(tmp_path: Path) ->
             "requester",
         ]
     ]
+
+
+def test_aws_cli_environment_from_dotenv_recognizes_lowercase_aws_keys(
+        tmp_path: Path,
+) -> None:
+    dotenv_path = tmp_path / ".env"
+    dotenv_path.write_text(
+        "\n".join(
+            [
+                "aws_access_key_id=example-key",
+                "aws_secret_access_key='example-secret'",
+                "aws_session_token=\"example-token\"",
+                "aws_default_region=us-east-1",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    env = aws_cli_environment_from_dotenv(
+        dotenv_path,
+        base_env={"PATH": "example-path"},
+    )
+
+    assert env is not None
+    assert env["PATH"] == "example-path"
+    assert env["AWS_ACCESS_KEY_ID"] == "example-key"
+    assert env["AWS_SECRET_ACCESS_KEY"] == "example-secret"
+    assert env["AWS_SESSION_TOKEN"] == "example-token"
+    assert env["AWS_DEFAULT_REGION"] == "us-east-1"
+
+
+def test_aws_cli_tdm_archive_client_loads_dotenv_credentials_for_subprocess(
+        tmp_path: Path,
+) -> None:
+    dotenv_path = tmp_path / ".env"
+    dotenv_path.write_text(
+        "\n".join(
+            [
+                "AWS_ACCESS_KEY_ID=example-key",
+                "AWS_SECRET_ACCESS_KEY=example-secret",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    calls: list[dict[str, object]] = []
+
+    def runner(command: list[str], **kwargs: object) -> None:
+        calls.append({"command": command, **kwargs})
+
+    client = AwsCliTdmArchiveClient(
+        runner=runner,
+        env_file=dotenv_path,
+        base_env={"PATH": "example-path"},
+    )
+
+    client.download_prefix(
+        "s3://medrxiv-src-monthly",
+        tmp_path / "medrxiv",
+        region="us-east-1",
+        requester_pays=True,
+    )
+
+    assert len(calls) == 1
+    assert calls[0]["check"] is True
+    env = calls[0]["env"]
+    assert isinstance(env, dict)
+    assert env["AWS_ACCESS_KEY_ID"] == "example-key"
+    assert env["AWS_SECRET_ACCESS_KEY"] == "example-secret"
+    assert env["PATH"] == "example-path"
 
 
 def test_acquire_tdm_preprints_and_published_articles_automates_tdm_workflow(

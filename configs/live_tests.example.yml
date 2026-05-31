@@ -35,6 +35,10 @@
 #   To use TDM in a local acquisition job, configure AWS credentials, accept
 #   requester-pays S3 charges, and provide a client/wrapper that implements
 #   `download_prefix(bucket, destination, region=..., requester_pays=...)`.
+#   The built-in AWS CLI client reads a repo-root `.env` file when present and
+#   recognizes either uppercase AWS CLI variables (`AWS_ACCESS_KEY_ID`,
+#   `AWS_SECRET_ACCESS_KEY`, optional `AWS_SESSION_TOKEN`) or lowercase
+#   `aws_access_key_id` / `aws_secret_access_key` aliases.
 #
 # Live tests are opt-in because they use external network resources and may
 # fail when upstream services change, rate-limit, or go offline.
@@ -138,6 +142,10 @@ matched_pairs:
 # Before setting enabled: true in configs/live_tests.local.yml:
 # - Confirm an AWS account and credentials are configured for the process that
 #   will run the download.
+# - If credentials live in repo-root `.env`, use `AWS_ACCESS_KEY_ID` and
+#   `AWS_SECRET_ACCESS_KEY`, or lowercase `aws_access_key_id` and
+#   `aws_secret_access_key`; optional session-token and region keys are also
+#   propagated to the AWS CLI subprocess.
 # - Confirm the AWS principal is allowed to read requester-pays S3 buckets.
 # - Confirm requester-pays transfer and request charges are acceptable.
 # - Provide an implementation of the `peer_elt.acquire.tdm.TdmArchiveClient`
