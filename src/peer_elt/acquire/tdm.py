@@ -165,15 +165,15 @@ class AwsCliTdmArchiveClient:
 
     Parameters
     ----------
-    aws_executable:
+    aws_executable : str
         AWS CLI executable name or path.
-    runner:
+    runner : Callable[..., object]
         Callable used to execute the command. Defaults to ``subprocess.run`` and
         is injectable for tests.
-    env_file:
+    env_file : pathlib.Path or None
         Optional dotenv file to read AWS credentials from before invoking the
         AWS CLI. Defaults to ``.env`` in the current working directory.
-    base_env:
+    base_env : Mapping[str, str] or None
         Optional baseline environment. Defaults to ``os.environ`` and is
         injectable for tests.
     """
@@ -235,11 +235,11 @@ def aws_cli_environment_from_dotenv(
 
     Parameters
     ----------
-    dotenv_path:
+    dotenv_path : pathlib.Path or str
         Path to a dotenv file. Lowercase keys such as
         ``aws_access_key_id``/``aws_secret_access_key`` are translated to the
         uppercase environment variables expected by AWS CLI.
-    base_env:
+    base_env : Mapping[str, str] or None
         Existing environment to copy before applying dotenv values. Defaults to
         ``os.environ``.
 
@@ -548,6 +548,19 @@ def _optional_text(value: Any) -> str | None:
 
 
 def _parse_dotenv_assignment(line: str) -> tuple[str, str] | None:
+    """Parse one dotenv assignment line.
+
+    Parameters
+    ----------
+    line : str
+        Raw line from a dotenv file.
+
+    Returns
+    -------
+    tuple[str, str] or None
+        Parsed key/value pair, or ``None`` for comments, blank lines, and
+        non-assignment lines.
+    """
     text = line.strip()
     if not text or text.startswith("#"):
         return None
@@ -564,6 +577,19 @@ def _parse_dotenv_assignment(line: str) -> tuple[str, str] | None:
 
 
 def _clean_dotenv_value(value: str) -> str:
+    """Normalize a dotenv value.
+
+    Parameters
+    ----------
+    value : str
+        Raw value text from the right-hand side of a dotenv assignment.
+
+    Returns
+    -------
+    str
+        Value with surrounding whitespace, optional matching quotes, and
+        trailing inline comments removed.
+    """
     text = value.strip()
     if len(text) >= 2 and text[0] == text[-1] and text[0] in {"'", '"'}:
         return text[1:-1]
@@ -571,6 +597,19 @@ def _clean_dotenv_value(value: str) -> str:
 
 
 def _normalize_aws_dotenv_key(key: str) -> str | None:
+    """Normalize a dotenv key to an AWS CLI environment variable name.
+
+    Parameters
+    ----------
+    key : str
+        Dotenv key to normalize.
+
+    Returns
+    -------
+    str or None
+        Uppercase AWS CLI environment variable name, or ``None`` when the key is
+        not recognized as an AWS credential, region, or profile key.
+    """
     if key in _AWS_ENVIRONMENT_KEYS:
         return key
     return _AWS_DOTENV_KEY_ALIASES.get(key.lower())

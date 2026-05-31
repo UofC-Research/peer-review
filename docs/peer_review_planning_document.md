@@ -642,6 +642,8 @@ Operational pytest modes are documented in `docs/testing.md`:
 | `test_tdm_acquisition.py`                  | `test_tdm_config_from_mapping_rejects_unknown_server`                      | Verifies unsupported TDM server names fail clearly.                                                                                |
 | `test_tdm_acquisition.py`                  | `test_download_tdm_preprint_archive_uses_requester_pays_s3_settings`       | Verifies TDM preprint archive sync delegates requester-pays S3 settings for both bioRxiv and medRxiv.                              |
 | `test_tdm_acquisition.py`                  | `test_aws_cli_tdm_archive_client_uses_requester_payer_flag`                | Verifies the AWS CLI TDM client builds requester-pays S3 sync commands.                                                            |
+| `test_tdm_acquisition.py`                  | `test_aws_cli_environment_from_dotenv_recognizes_lowercase_aws_keys`       | Verifies repo-local `.env` AWS credential aliases are translated to AWS CLI environment variables.                                 |
+| `test_tdm_acquisition.py`                  | `test_aws_cli_tdm_archive_client_loads_dotenv_credentials_for_subprocess`  | Verifies the AWS CLI TDM client passes `.env` credentials to the S3 sync subprocess environment.                                   |
 | `test_tdm_acquisition.py`                  | `test_acquire_tdm_preprints_and_published_articles_automates_tdm_workflow` | Verifies the automated TDM workflow syncs preprint archives, downloads published-link metadata, and retrieves published full text. |
 | `test_tdm_acquisition.py`                  | `test_build_published_metadata_url_supports_biorxiv_and_medrxiv`           | Verifies published-link metadata URLs are built for both bioRxiv and medRxiv via the bioRxiv API.                                  |
 | `test_tdm_acquisition.py`                  | `test_download_published_metadata_writes_api_payload`                      | Verifies published-link metadata payloads are written to local files through an injected HTTP client.                              |
@@ -712,6 +714,14 @@ pytest --live-config configs/live_tests.local.yml
 
 Local live-test configs should remain outside version control;
 `configs/live_tests.local.yml` is ignored by Git.
+
+Local secrets and process-level environment variables should also remain outside
+version control. The committed `.env.example` documents accepted keys, while the
+real `.env` file is ignored by Git. `.env` is appropriate for AWS credentials,
+temporary AWS session tokens, AWS region/profile values, and
+`PEER_REVIEW_LIVE_CONFIG`. YAML config files are appropriate for structured
+run settings such as source windows, timeout/retry values, TDM bucket metadata,
+local cache directories, and expected content formats.
 
 Files to modify for live-data pytest runs:
 
@@ -786,6 +796,10 @@ PDF and HTML should remain an automated fallback rather than a manual
 web-page-saving workflow. Linked published DOI metadata remains a bioRxiv API
 responsibility, and published-article full text remains a publisher,
 DOI-resolver, PMC, or equivalent article-level retrieval responsibility.
+The AWS CLI TDM client can read repo-root `.env` credentials when present. It
+recognizes both uppercase AWS CLI variables and lowercase aliases for
+`aws_access_key_id` and `aws_secret_access_key`, then passes those values only
+to the AWS CLI subprocess environment.
 
 ### Potentially Missing Tests
 
@@ -796,6 +810,13 @@ potentially missing or deferred:
 - Scheduled execution of the opt-in live integration tests against real
   bioRxiv/medRxiv API responses and real publisher pages. The tests now exist,
   but default test runs skip them unless a live config is supplied.
+- Real requester-pays S3 sync against the bioRxiv/medRxiv TDM buckets. Current
+  tests validate command construction, requester-pays flags, and `.env`
+  credential propagation with injected runners, but do not run AWS CLI against
+  live buckets because that requires credentials, network access, permissions,
+  and charge acceptance.
+- `.env` parser edge cases beyond the documented AWS key forms, such as escaped
+  quotes, multiline values, duplicate keys, and malformed credential values.
 - Publisher-specific full-text tests beyond eLife and PLOS, especially for
   high-frequency publishers in the final matched corpus.
 - DOI normalization edge cases for whitespace, URL-encoded DOIs, query strings,

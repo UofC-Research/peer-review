@@ -225,3 +225,47 @@ TDM preprint/published acquisition orchestration.
 `configs/live_tests.example.yml`, `README.md`, `docs/testing.md`,
 `docs/peer_review_planning_document.md`, `docs/use_cases.md`,
 `docs/methods_and_results_generation.md`, and `PROJECT-TASKS.md`.
+
+---
+
+### Entry: Local AWS credential wiring and test inventory documented
+
+**Date:** 2026-05-31  
+**Status:** Post-lock engineering maintenance and transparency documentation  
+**Data accessed:** No study outcome data accessed  
+**Analyses conducted:** No
+
+**Description:**  
+The optional AWS CLI TDM client was updated to read repo-local `.env`
+credentials when present and pass recognized AWS credential variables to the
+S3 sync subprocess. A committed `.env.example` file documents local environment
+variables, while `.env` remains ignored by Git. Documentation was updated to
+distinguish `.env` secrets/process-level switches from YAML run configuration,
+and `docs/testing.md` now includes a test-by-test inventory plus known deferred
+coverage areas.
+
+**Relationship to preregistration:**  
+This is a software reproducibility and credential-handling clarification. It
+does not modify the preregistered corpus definition, eligibility criteria,
+document hierarchy, V1-V10 scoring rules, composite-score definitions, or
+descriptive analysis plan.
+
+**Impact on registered design:**  
+None. The change affects only local credential propagation for an optional
+preprint full-text acquisition route and documentation of test coverage.
+
+**Tests added:**  
+TDD tests were added in `tests/test_tdm_acquisition.py` to verify that
+lowercase `.env` AWS aliases are translated to AWS CLI environment variables
+and that the AWS CLI TDM client passes `.env` credentials to the subprocess.
+
+**Current executable status recorded:**  
+The Python suite passed with 89 tests and 3 skipped live tests in
+`peer_review_env`. The skipped tests are opt-in live integration tests that
+require `--live-config` or `PEER_REVIEW_LIVE_CONFIG`.
+
+**Files updated:**  
+`.gitignore`, `.env.example`, `src/peer_elt/acquire/tdm.py`,
+`tests/test_tdm_acquisition.py`, `configs/live_tests.example.yml`, `README.md`,
+`docs/testing.md`, `docs/peer_review_planning_document.md`, and
+`docs/deviations_log.md`.

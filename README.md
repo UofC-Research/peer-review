@@ -74,6 +74,19 @@ Install the local package in editable mode so the `peer-elt` command and
 python -m pip install -e ".[dev]"
 ```
 
+Local secrets and machine-specific environment variables belong in `.env`.
+Start from the committed template and keep the real file private:
+
+```bash
+cp .env.example .env
+```
+
+Use `.env` for values such as `AWS_ACCESS_KEY_ID`,
+`AWS_SECRET_ACCESS_KEY`, optional `AWS_SESSION_TOKEN`, `AWS_DEFAULT_REGION`,
+and `PEER_REVIEW_LIVE_CONFIG`. Use YAML files in `configs/` for structured
+pipeline and live-test settings such as sources, date windows, storage, output
+paths, TDM buckets, and retry settings.
+
 ## Run the Pipeline
 
 Local development uses DuckDB and writes CSV output as well as Parquet:
@@ -159,6 +172,9 @@ The TDM repositories provide requester-pays S3 access to bioRxiv/medRxiv
 preprint full-text packages. The helper module `peer_elt.acquire.tdm` parses
 that config and can automate requester-pays TDM archive sync, bioRxiv API
 published-link metadata download, and published-article full-text retrieval.
+The built-in AWS CLI TDM client reads repo-root `.env` credentials when present
+and recognizes uppercase AWS CLI variable names as well as lowercase aliases
+such as `aws_access_key_id` and `aws_secret_access_key`.
 When TDM is selected, the preferred processing order is XML, then PDF, then HTML
 for both preprint and published article files. Published-article full text still
 comes from publisher, DOI-resolver, PMC, or other permitted article-level
@@ -251,9 +267,9 @@ pytest --live-config configs/live_tests.local.yml
 ```
 
 The same config can be supplied with `PEER_REVIEW_LIVE_CONFIG`. Keep local live
-configs out of version control; `configs/live_tests.local.yml` is ignored.
-More detail, including which files to modify for each mode, is in
-`docs/testing.md`.
+configs and secrets out of version control; `configs/live_tests.local.yml` and
+`.env` are ignored. More detail, including which files to modify for each mode
+and what each test covers, is in `docs/testing.md`.
 
 ## Key Files
 
@@ -287,3 +303,5 @@ More detail, including which files to modify for each mode, is in
   clarification audit trail.
 - `docs/testing.md`: pytest dummy-data and live-data test workflows.
 - `configs/live_tests.example.yml`: template and schema for opt-in live tests.
+- `.env.example`: template for local environment variables and AWS
+  requester-pays S3 credentials.
