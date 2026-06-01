@@ -86,6 +86,13 @@ def test_load_config_resolves_output_base_dir_relative_to_config_file(tmp_path) 
     assert config.output.base_dir == str((tmp_path / "out").resolve())
 
 
+def test_load_config_raises_clear_error_when_config_file_missing(tmp_path) -> None:
+    config_path = tmp_path / "missing.yml"
+
+    with pytest.raises(FileNotFoundError, match=r"Config file does not exist"):
+        load_config(config_path)
+
+
 def test_load_config_raises_when_storage_env_var_unset(tmp_path) -> None:
     config_path = tmp_path / "config.yml"
     config_path.write_text(
@@ -133,6 +140,72 @@ def test_load_config_allows_storage_env_var_when_set(tmp_path, monkeypatch) -> N
 
     config = load_config(config_path)
     assert config.storage.postgres_url == "postgresql://<user>:<pass>@<host>/<db>"
+
+
+def test_load_config_loads_optional_env_file_before_expanding_storage(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.delenv("TEST_DB_URL", raising=False)
+    env_path = tmp_path / ".env"
+    env_path.write_text("TEST_DB_URL=postgresql://from-env-file/db\n", encoding="utf-8")
+    config_path = tmp_path / "configs" / "config.yml"
+    config_path.parent.mkdir()
+    config_path.write_text(
+        "\n".join(
+            [
+                "environment:",
+                "  load_env_file: true",
+                "  env_file: ../.env",
+                "sources:",
+                "  - name: bio",
+                "    server: biorxiv",
+                "    date_from: '2023-01-01'",
+                "    date_to: '2023-01-02'",
+                "storage:",
+                "  backend: postgres",
+                "  postgres_url: '${TEST_DB_URL}'",
+                "output:",
+                "  base_dir: 'data/out'",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    config = load_config(config_path)
+
+    assert config.environment.load_env_file is True
+    assert config.environment.env_file == str(env_path.resolve())
+    assert config.storage.postgres_url == "postgresql://from-env-file/db"
+
+
+def test_load_config_raises_clear_error_when_enabled_env_file_missing(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.setenv("TEST_DB_URL", "postgresql://from-process-env/db")
+    config_path = tmp_path / "config.yml"
+    config_path.write_text(
+        "\n".join(
+            [
+                "environment:",
+                "  load_env_file: true",
+                "  env_file: missing.env",
+                "sources:",
+                "  - name: bio",
+                "    server: biorxiv",
+                "    date_from: '2023-01-01'",
+                "    date_to: '2023-01-02'",
+                "storage:",
+                "  backend: postgres",
+                "  postgres_url: '${TEST_DB_URL}'",
+                "output:",
+                "  base_dir: 'data/out'",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(FileNotFoundError, match=r"Environment file does not exist"):
+        load_config(config_path)
 
 
 def test_load_config_raises_when_retry_not_mapping(tmp_path) -> None:

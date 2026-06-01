@@ -1,3 +1,10 @@
+# Local development config.
+# Loads repo-root .env before expanding storage variables.
+environment:
+  load_env_file: true
+  env_file: ../.env
+
+# Shorter 2023-only source window for local iteration.
 sources:
   - name: biorxiv
     server: biorxiv
@@ -8,18 +15,22 @@ sources:
     date_from: "2023-01-01"
     date_to: "2023-12-31"
 
+# Local runs use a file-backed DuckDB database.
 storage:
   backend: duckdb
   duckdb_path: data/processed/peer_review.duckdb
 
+# Write CSV locally for easier manual inspection alongside Parquet.
 output:
   base_dir: data/processed
   write_csv: true
 
+# PDF diff is disabled locally to keep iteration faster.
 transform:
   enable_pdf_diff: false
   pdf_dir: data/raw/pdfs
 
+# Conservative retry defaults for development API calls.
 retry:
   max_attempts: 5
   wait_min_seconds: 1
