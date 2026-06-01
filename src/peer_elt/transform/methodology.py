@@ -201,11 +201,11 @@ class VersionScorecard:
             Evidence rows containing manuscript, version, indicator, score,
             section, text, and provenance fields.
         """
-        rows: list[dict[str, object]] = []
-        for score in self.scores:
-            for evidence in score.evidence:
-                rows.append(_evidence_row(self, score, evidence))
-        return rows
+        return [
+            _evidence_row(self, score, evidence)
+            for score in self.scores
+            for evidence in score.evidence
+        ]
 
 
 @dataclass(frozen=True)
@@ -262,7 +262,11 @@ class PairScorecard:
             Table-ready pair score record containing raw scores, PRES, V1-V10
             scores, V1-V10 deltas, document formats, and review flags.
         """
-        record: dict[str, object] = {
+        preprint_scores = self.preprint.as_dict()
+        published_scores = self.published.as_dict()
+        deltas = self.indicator_deltas
+
+        base_record: dict[str, object] = {
             "manuscript_id": self.manuscript_id,
             "preprint_document_format": self.preprint.document_format,
             "published_document_format": self.published.document_format,
@@ -277,14 +281,16 @@ class PairScorecard:
             ),
         }
 
-        preprint_scores = self.preprint.as_dict()
-        published_scores = self.published.as_dict()
-        deltas = self.indicator_deltas
-        for indicator in PREREGISTERED_INDICATORS:
-            record[f"{indicator}_preprint"] = preprint_scores[indicator].score
-            record[f"{indicator}_published"] = published_scores[indicator].score
-            record[f"{indicator}_delta"] = deltas[indicator]
-        return record
+        indicator_record = {
+            column: value
+            for indicator in PREREGISTERED_INDICATORS
+            for column, value in (
+                (f"{indicator}_preprint", preprint_scores[indicator].score),
+                (f"{indicator}_published", published_scores[indicator].score),
+                (f"{indicator}_delta", deltas[indicator]),
+            )
+        }
+        return {**base_record, **indicator_record}
 
     def evidence_rows(self) -> list[dict[str, object]]:
         """Return flat audit rows from both manuscript versions.
@@ -400,20 +406,18 @@ def _complete_indicator_scores(
     tuple[peer_elt.transform.scoring.IndicatorScore, ...]
         Complete V1-V10 score tuple in preregistered order.
     """
-    complete: list[IndicatorScore] = []
-    for indicator in PREREGISTERED_INDICATORS:
-        complete.append(
-            scores.get(
-                indicator,
-                IndicatorScore(
-                    indicator=indicator,
-                    score=0,
-                    rationale="No observable reporting content found",
-                    evidence=(),
-                ),
-            )
+    return tuple(
+        scores.get(
+            indicator,
+            IndicatorScore(
+                indicator=indicator,
+                score=0,
+                rationale="No observable reporting content found",
+                evidence=(),
+            ),
         )
-    return tuple(complete)
+        for indicator in PREREGISTERED_INDICATORS
+    )
 
 
 def _evidence_row(

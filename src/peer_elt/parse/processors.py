@@ -52,12 +52,10 @@ class SimpleTokenStatsProcessor(SpacyProcessor):
             - ``token_count``: number of token-like matches
             - ``sentence_count``: number of sentence-like matches
         """
-        features: dict[str, dict[str, int]] = {}
-        for section, text in sections.items():
-            token_count = len(self._token_pattern.findall(text))
-            sentence_count = len(self._sentence_pattern.findall(text))
-            features[section] = {
-                "token_count": token_count,
-                "sentence_count": sentence_count,
+        return {
+            section: {
+                "token_count": len(self._token_pattern.findall(text)),
+                "sentence_count": len(self._sentence_pattern.findall(text)),
             }
-        return features
+            for section, text in sections.items()
+        }

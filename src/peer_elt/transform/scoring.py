@@ -33,6 +33,7 @@ Notes
 """
 
 from dataclasses import dataclass, field
+from itertools import chain
 import re
 from typing import Callable, Iterable, Mapping, Sequence
 
@@ -163,6 +164,13 @@ class ModelPrediction:
     evidence_text: str
 
 
+@dataclass(frozen=True)
+class _RuleEvaluation:
+    indicator: IndicatorName
+    level: int
+    evidence: tuple[EvidenceSnippet, ...]
+
+
 class RuleBasedScorer:
     """Conservative rule-based scorer using preregistered indicator cues.
 
@@ -204,41 +212,16 @@ class RuleBasedScorer:
             least one match are returned. Indicators with no evidence are
             omitted (callers may treat missing as score 0 if desired).
         """
-        scores: dict[IndicatorName, IndicatorScore] = {}
-        evidence_by_indicator: dict[IndicatorName, list[EvidenceSnippet]] = {}
-        level_by_indicator: dict[IndicatorName, int] = {}
-
-        for rule in self._patterns:
-            text = sections.get(rule.section, "")
-            if not text:
-                continue
-            matches = list(re.finditer(rule.pattern, text, flags=re.IGNORECASE))
-            if not matches:
-                continue
-            evidence_by_indicator.setdefault(rule.indicator, [])
-            for match in matches[:3]:
-                snippet = text[max(match.start() - 80, 0) : match.end() + 80]
-                evidence_by_indicator[rule.indicator].append(
-                    EvidenceSnippet(
-                        indicator=rule.indicator,
-                        section=rule.section,
-                        text=snippet.strip(),
-                        pattern=rule.pattern,
-                    )
-                )
-            previous = level_by_indicator.get(rule.indicator, 0)
-            level_by_indicator[rule.indicator] = max(previous, rule.level)
-
-        for indicator, level in level_by_indicator.items():
-            scores[indicator] = IndicatorScore(
-                indicator=indicator,
-                score=level,
-                rationale="Rule-based pattern match",
-                evidence=tuple(evidence_by_indicator.get(indicator, [])),
-                rule_score=level,
-            )
-
-        return scores
+        evaluations = tuple(
+            evaluation
+            for rule in self._patterns
+            for evaluation in (_evaluate_rule(rule, sections.get(rule.section, "")),)
+            if evaluation is not None
+        )
+        return {
+            indicator: _indicator_score_from_rule_evaluations(indicator, evaluations)
+            for indicator in _matched_indicators(evaluations)
+        }
 
 
 ModelScoringFn = Callable[[Mapping[str, str]], dict[IndicatorName, IndicatorScore]]
@@ -273,26 +256,11 @@ class ModelScorer:
         dict[str, IndicatorScore]
             Mapping from indicator name to model-produced score.
         """
-        scores: dict[IndicatorName, IndicatorScore] = {}
-        for prediction in self._predictions:
-            if prediction.section not in sections:
-                continue
-            scores[prediction.indicator] = IndicatorScore(
-                indicator=prediction.indicator,
-                score=prediction.score,
-                rationale=self._rationale,
-                evidence=(
-                    EvidenceSnippet(
-                        indicator=prediction.indicator,
-                        section=prediction.section,
-                        text=prediction.evidence_text,
-                        pattern="model-prediction",
-                    ),
-                ),
-                model_score=prediction.score,
-                model_confidence=prediction.confidence,
-            )
-        return scores
+        return {
+            prediction.indicator: _score_model_prediction(prediction, self._rationale)
+            for prediction in self._predictions
+            if prediction.section in sections
+        }
 
 
 class HybridScorer:
@@ -350,15 +318,15 @@ class HybridScorer:
         """
         rule_scores = self._rule_scorer.score(sections)
         model_scores = self._model_scorer(sections) if self._model_scorer else {}
-        indicators = set(rule_scores) | set(model_scores)
-        combined: list[IndicatorScore] = []
-
-        for indicator in sorted(indicators):
-            rule_score = rule_scores.get(indicator)
-            model_score = model_scores.get(indicator)
-            combined.append(self._merge_scores(indicator, rule_score, model_score))
-
-        return HybridScorecard(tuple(combined))
+        combined = tuple(
+            self._merge_scores(
+                indicator,
+                rule_scores.get(indicator),
+                model_scores.get(indicator),
+            )
+            for indicator in sorted(set(rule_scores) | set(model_scores))
+        )
+        return HybridScorecard(combined)
 
     def _merge_scores(
         self,
@@ -433,6 +401,83 @@ class HybridScorer:
             model_score=model_value,
             model_confidence=model_score.model_confidence,
         )
+
+
+def _evaluate_rule(rule: RulePattern, text: str) -> _RuleEvaluation | None:
+    if not text:
+        return None
+
+    matches = tuple(re.finditer(rule.pattern, text, flags=re.IGNORECASE))
+    if not matches:
+        return None
+
+    return _RuleEvaluation(
+        indicator=rule.indicator,
+        level=rule.level,
+        evidence=_evidence_snippets(rule, text, matches[:3]),
+    )
+
+
+def _evidence_snippets(
+        rule: RulePattern,
+        text: str,
+        matches: Sequence[re.Match[str]],
+) -> tuple[EvidenceSnippet, ...]:
+    return tuple(
+        EvidenceSnippet(
+            indicator=rule.indicator,
+            section=rule.section,
+            text=text[max(match.start() - 80, 0): match.end() + 80].strip(),
+            pattern=rule.pattern,
+        )
+        for match in matches
+    )
+
+
+def _matched_indicators(
+        evaluations: Sequence[_RuleEvaluation],
+) -> tuple[IndicatorName, ...]:
+    return tuple(dict.fromkeys(evaluation.indicator for evaluation in evaluations))
+
+
+def _indicator_score_from_rule_evaluations(
+        indicator: IndicatorName,
+        evaluations: Sequence[_RuleEvaluation],
+) -> IndicatorScore:
+    matching = tuple(
+        evaluation for evaluation in evaluations if evaluation.indicator == indicator
+    )
+    level = max(evaluation.level for evaluation in matching)
+    return IndicatorScore(
+        indicator=indicator,
+        score=level,
+        rationale="Rule-based pattern match",
+        evidence=tuple(
+            chain.from_iterable(evaluation.evidence for evaluation in matching)
+        ),
+        rule_score=level,
+    )
+
+
+def _score_model_prediction(
+        prediction: ModelPrediction,
+        rationale: str,
+) -> IndicatorScore:
+    return IndicatorScore(
+        indicator=prediction.indicator,
+        score=prediction.score,
+        rationale=rationale,
+        evidence=(
+            EvidenceSnippet(
+                indicator=prediction.indicator,
+                section=prediction.section,
+                text=prediction.evidence_text,
+                pattern="model-prediction",
+            ),
+        ),
+        model_score=prediction.score,
+        model_confidence=prediction.confidence,
+    )
 
 
 def default_rule_patterns() -> tuple[RulePattern, ...]:

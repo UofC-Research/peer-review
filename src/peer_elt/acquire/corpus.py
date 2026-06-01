@@ -69,13 +69,12 @@ def query_preprint_servers_for_pairs(
         retry_config: RetryConfig,
 ) -> list[MatchedManuscriptPair]:
     """Query configured preprint sources and build matched manuscript pairs."""
-    frames: list[pd.DataFrame] = []
-    for source in sources:
-        frame = extractor.fetch(source, retry_config)
-        if frame.empty:
-            continue
-        frames.append(frame)
-
+    frames = tuple(
+        frame
+        for source in sources
+        for frame in (extractor.fetch(source, retry_config),)
+        if not frame.empty
+    )
     if not frames:
         return []
     raw_df = pd.concat(frames, ignore_index=True)
@@ -278,11 +277,15 @@ def _clean_optional_text(value) -> str | None:
 
 def _first_non_empty(values) -> str | None:
     """Return the first normalized non-empty value from a sequence/Series."""
-    for value in values:
-        text = _clean_optional_text(value)
-        if text:
-            return text
-    return None
+    return next(
+        (
+            text
+            for value in values
+            for text in (_clean_optional_text(value),)
+            if text
+        ),
+        None,
+    )
 
 
 def _format_version(value) -> str:

@@ -121,14 +121,11 @@ def _url_for_format(request: AcquisitionRequest, fmt: AcquiredFormat) -> Optiona
 
 def _available_formats(request: AcquisitionRequest) -> list[AcquiredFormat]:
     """List formats that have a non-null URL for this request."""
-    formats: list[AcquiredFormat] = []
-    if request.pdf_url:
-        formats.append("pdf")
-    if request.xml_url:
-        formats.append("xml")
-    if request.html_url:
-        formats.append("html")
-    return formats
+    return [
+        fmt
+        for fmt in ("pdf", "xml", "html")
+        if _url_for_format(request, fmt)
+    ]
 
 
 def acquire_full_text(

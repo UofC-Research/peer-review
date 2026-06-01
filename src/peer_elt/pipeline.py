@@ -61,15 +61,22 @@ def extract_sources(
     This function adds a ``source_name`` column to each extracted frame based on
     :attr:`peer_elt.config.SourceConfig.name`.
     """
-    frames = []
-    for source in sources:
-        extractor = extractor_factory.create(source)
-        frame = extractor.fetch(source, retry_config)
-        frame["source_name"] = source.name
-        frames.append(frame)
+    frames = [
+        _extract_source_frame(source, extractor_factory, retry_config)
+        for source in sources
+    ]
     if not frames:
         return pd.DataFrame()
     return pd.concat(frames, ignore_index=True)
+
+
+def _extract_source_frame(
+        source: SourceConfig,
+        extractor_factory: ExtractorFactory,
+        retry_config,
+) -> pd.DataFrame:
+    extractor = extractor_factory.create(source)
+    return extractor.fetch(source, retry_config).assign(source_name=source.name)
 
 
 def load_raw(storage: Storage, raw_df: pd.DataFrame) -> None:

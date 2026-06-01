@@ -226,11 +226,7 @@ def _canonical_section_name(name: str) -> str | None:
         methodology scoring.
     """
     normalized_name = _normalize_heading(name)
-    for canonical, aliases in SECTION_ALIASES.items():
-        normalized_aliases = {_normalize_heading(alias) for alias in aliases}
-        if normalized_name in normalized_aliases:
-            return canonical
-    return None
+    return NORMALIZED_SECTION_ALIASES.get(normalized_name)
 
 
 def _split_heading_sections(text: str) -> Mapping[str, str]:
@@ -277,6 +273,13 @@ def _normalize_heading(value: str) -> str:
     """
     normalized = re.sub(r"[^a-z0-9]+", " ", value.lower())
     return " ".join(normalized.split())
+
+
+NORMALIZED_SECTION_ALIASES: Mapping[str, str] = {
+    _normalize_heading(alias): canonical
+    for canonical, aliases in SECTION_ALIASES.items()
+    for alias in aliases
+}
 
 
 __all__ = [
