@@ -20,18 +20,24 @@ Required top-level keys
 - `output`: mapping
 
 Optional top-level keys
+- `environment`: mapping (defaults to `{}`)
 - `transform`: mapping (defaults to `{}`)
 - `retry`: mapping (defaults to `{}`)
 
 Environment variables
 ---------------------
+If `environment.load_env_file` is true, `environment.env_file` is read before
+storage values are expanded. The env file path defaults to `.env` beside the
+YAML file. If env-file loading is enabled, the env file must exist.
+
 Only values under the `storage` block are expanded using `os.path.expandvars`.
 After expansion, any remaining `${VARNAME}` placeholders are treated as errors.
 
 Path handling
 -------------
-If `output.base_dir` is a relative path, it is resolved relative to the directory
-containing the config file. Absolute paths are preserved.
+If `output.base_dir` or `environment.env_file` is a relative path, it is resolved
+relative to the directory containing the config file. Absolute paths are
+preserved.
 
 Notes
 -----
@@ -154,6 +160,24 @@ class RetryConfig:
 
 
 @dataclass(frozen=True)
+class EnvironmentConfig:
+    """Optional process-environment settings.
+
+    Parameters
+    ----------
+    load_env_file:
+        If True, read `env_file` before expanding storage environment
+        variables. A missing file raises `FileNotFoundError`.
+    env_file:
+        Path to the dotenv-style file. Relative paths are resolved against the
+        YAML config file location.
+    """
+
+    load_env_file: bool = False
+    env_file: Optional[str] = None
+
+
+@dataclass(frozen=True)
 class PipelineConfig:
     """Top-level configuration returned by `load_config()`."""
 
@@ -162,6 +186,7 @@ class PipelineConfig:
     output: OutputConfig
     transform: TransformConfig
     retry: RetryConfig
+    environment: EnvironmentConfig = field(default_factory=EnvironmentConfig)
 
 
 _ENV_VAR_PATTERN = re.compile(r"\$\{[A-Za-z_][A-Za-z0-9_]*\}")
@@ -185,12 +210,18 @@ def load_config(path: str | Path) -> PipelineConfig:
     ValueError
         If the YAML file is empty, or if a storage value still contains an
         unexpanded `${VARNAME}` placeholder after expansion.
+    FileNotFoundError
+        If the YAML config file does not exist, or if env-file loading is
+        enabled and the configured env file does not exist.
     TypeError
         If the YAML structure is not the expected shape.
     KeyError
         If required keys are missing (including backend-specific required keys).
     """
     config_path = Path(path)
+    if not config_path.exists():
+        raise FileNotFoundError(f"Config file does not exist: {config_path}")
+
     payload = yaml.safe_load(config_path.read_text(encoding="utf-8"))
 
     if payload is None:
@@ -216,6 +247,17 @@ def load_config(path: str | Path) -> PipelineConfig:
     output_block = payload["output"]
     if not isinstance(output_block, dict):
         raise TypeError(f"`output` must be a mapping/dict, got: {type(output_block).__name__}")
+
+    environment_block = payload.get("environment", {})
+    if environment_block is None:
+        environment_block = {}
+    if not isinstance(environment_block, dict):
+        raise TypeError(
+            f"`environment` must be a mapping/dict, got: {type(environment_block).__name__}"
+        )
+    environment = _environment_config_from_block(environment_block, config_path)
+    if environment.load_env_file and environment.env_file is not None:
+        _load_env_file(Path(environment.env_file))
 
     base_dir_value = output_block.get("base_dir")
     if isinstance(base_dir_value, str):
@@ -295,4 +337,59 @@ def load_config(path: str | Path) -> PipelineConfig:
         output=output,
         transform=transform,
         retry=retry,
+        environment=environment,
     )
+
+
+def _environment_config_from_block(
+    environment_block: dict[str, Any], config_path: Path
+) -> EnvironmentConfig:
+    load_env_file = bool(environment_block.get("load_env_file", False))
+    env_file_value = environment_block.get("env_file")
+    if env_file_value is None and load_env_file:
+        env_file_value = ".env"
+    if env_file_value is None:
+        return EnvironmentConfig(load_env_file=load_env_file)
+
+    env_file_path = Path(str(env_file_value)).expanduser()
+    if not env_file_path.is_absolute():
+        env_file_path = (config_path.parent / env_file_path).resolve()
+    return EnvironmentConfig(
+        load_env_file=load_env_file,
+        env_file=str(env_file_path),
+    )
+
+
+def _load_env_file(env_file: Path) -> None:
+    if not env_file.exists():
+        raise FileNotFoundError(f"Environment file does not exist: {env_file}")
+
+    for line in env_file.read_text(encoding="utf-8").splitlines():
+        parsed = _parse_env_assignment(line)
+        if parsed is None:
+            continue
+        key, value = parsed
+        os.environ.setdefault(key, value)
+
+
+def _parse_env_assignment(line: str) -> tuple[str, str] | None:
+    text = line.strip()
+    if not text or text.startswith("#"):
+        return None
+    if text.startswith("export "):
+        text = text[len("export "):].strip()
+    if "=" not in text:
+        return None
+
+    key, value = text.split("=", 1)
+    key = key.strip().lstrip("\ufeff")
+    if not key:
+        return None
+    return key, _clean_env_value(value)
+
+
+def _clean_env_value(value: str) -> str:
+    text = value.strip()
+    if len(text) >= 2 and text[0] == text[-1] and text[0] in {"'", '"'}:
+        return text[1:-1]
+    return text.split(" #", 1)[0].rstrip()

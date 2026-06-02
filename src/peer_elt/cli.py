@@ -60,6 +60,9 @@ from peer_elt.factories import ExtractorFactory, StorageFactory, TransformerFact
 from peer_elt.pipeline import extract_sources, load_raw, run_pipeline, transform, write_outputs
 
 
+DEFAULT_CONFIG_PATH = "configs/local.yml"
+
+
 class UsageError(Exception):
     """Raised for CLI usage/argument errors (maps to exit code 2)."""
 
@@ -114,7 +117,11 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         description="Peer review ELT pipeline",
         include_help_in_errors=include_help,
     )
-    parser.add_argument("--config", required=True, help="Path to pipeline config YAML")
+    parser.add_argument(
+        "--config",
+        default=DEFAULT_CONFIG_PATH,
+        help=f"Path to pipeline config YAML (default: {DEFAULT_CONFIG_PATH})",
+    )
     parser.add_argument(
         "--verbose-errors",
         action="store_true",

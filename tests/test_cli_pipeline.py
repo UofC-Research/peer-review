@@ -69,6 +69,88 @@ def test_cli_run_prints_pipeline_result(monkeypatch, capsys) -> None:
     assert payload == {"raw_rows": 2, "diff_rows": 1}
 
 
+def test_cli_run_uses_local_config_by_default(monkeypatch, capsys) -> None:
+    config = _dummy_config()
+    loaded_paths = []
+
+    def _fake_load_config(path):
+        loaded_paths.append(path)
+        return config
+
+    monkeypatch.setattr(cli, "load_config", _fake_load_config)
+    monkeypatch.setattr(
+        cli, "run_pipeline", lambda cfg: {"raw_rows": 0, "diff_rows": 0}
+    )
+
+    exit_code = cli.main(["run"])
+
+    assert exit_code == 0
+    assert loaded_paths == [cli.DEFAULT_CONFIG_PATH]
+    assert json.loads(capsys.readouterr().out.strip()) == {
+        "raw_rows": 0,
+        "diff_rows": 0,
+    }
+
+
+def test_cli_run_accepts_explicit_config_path(monkeypatch) -> None:
+    config = _dummy_config()
+    loaded_paths = []
+
+    def _fake_load_config(path):
+        loaded_paths.append(path)
+        return config
+
+    monkeypatch.setattr(cli, "load_config", _fake_load_config)
+    monkeypatch.setattr(
+        cli, "run_pipeline", lambda cfg: {"raw_rows": 0, "diff_rows": 0}
+    )
+
+    exit_code = cli.main(["--config", "configs/prod.yml", "run"])
+
+    assert exit_code == 0
+    assert loaded_paths == ["configs/prod.yml"]
+
+
+def test_cli_returns_error_json_when_default_local_config_missing(
+    monkeypatch, capsys
+) -> None:
+    def _fake_load_config(path):
+        raise FileNotFoundError(f"Config file does not exist: {path}")
+
+    monkeypatch.setattr(cli, "load_config", _fake_load_config)
+
+    exit_code = cli.main(["run"])
+
+    captured = capsys.readouterr()
+    assert captured.out.strip() == ""
+    payload = json.loads(captured.err.strip())
+
+    assert exit_code == 1
+    assert payload["ok"] is False
+    assert payload["error"]["type"] == "FileNotFoundError"
+    assert cli.DEFAULT_CONFIG_PATH in payload["error"]["message"]
+
+
+def test_cli_returns_error_json_when_explicit_prod_config_missing(
+    monkeypatch, capsys
+) -> None:
+    def _fake_load_config(path):
+        raise FileNotFoundError(f"Config file does not exist: {path}")
+
+    monkeypatch.setattr(cli, "load_config", _fake_load_config)
+
+    exit_code = cli.main(["--config", "configs/prod.yml", "run"])
+
+    captured = capsys.readouterr()
+    assert captured.out.strip() == ""
+    payload = json.loads(captured.err.strip())
+
+    assert exit_code == 1
+    assert payload["ok"] is False
+    assert payload["error"]["type"] == "FileNotFoundError"
+    assert "configs/prod.yml" in payload["error"]["message"]
+
+
 def test_cli_transform_reads_raw_writes_outputs_and_prints_diff_rows(monkeypatch, capsys) -> None:
     config = _dummy_config()
 

@@ -1,3 +1,10 @@
+# Production config.
+# Loads repo-root .env before expanding POSTGRES_URL.
+environment:
+  load_env_file: true
+  env_file: ../.env
+
+# Full study source window for production extraction.
 sources:
   - name: biorxiv
     server: biorxiv
@@ -8,18 +15,22 @@ sources:
     date_from: "2020-01-01"
     date_to: "2025-12-31"
 
+# Production writes to PostgreSQL using POSTGRES_URL from the environment/.env.
 storage:
   backend: postgres
   postgres_url: ${POSTGRES_URL}
 
+# Production keeps file output compact by writing Parquet only.
 output:
   base_dir: data/processed
   write_csv: false
 
+# Enable PDF-diff features for the production study run.
 transform:
   enable_pdf_diff: true
   pdf_dir: data/raw/pdfs
 
+# Longer retry policy for production network/API calls.
 retry:
   max_attempts: 8
   wait_min_seconds: 2
