@@ -638,10 +638,14 @@ Operational pytest modes are documented in `docs/testing.md`:
 | `test_live_integration.py`                 | `test_live_preprint_sources_return_expected_metadata`                      | Optionally validates configured live bioRxiv/medRxiv API windows against expected metadata columns and minimum row counts.         |
 | `test_live_integration.py`                 | `test_live_published_full_text_candidates_are_retrievable`                 | Optionally validates configured live published DOI candidates can retrieve at least one PDF, XML, or HTML full-text artifact.      |
 | `test_live_integration.py`                 | `test_live_matched_pairs_can_be_acquired`                                  | Optionally validates configured live preprint/published pairs through the matched acquisition workflow.                            |
+| `test_live_integration.py`                 | `test_live_tdm_requester_pays_s3_buckets_are_accessible`                   | Optionally validates AWS CLI requester-pays access to configured TDM S3 buckets without downloading archives.                      |
 | `test_tdm_acquisition.py`                  | `test_tdm_config_accepts_biorxiv_and_medrxiv_servers`                      | Verifies optional TDM config parsing for bioRxiv and medRxiv requester-pays S3 repositories.                                       |
+| `test_tdm_acquisition.py`                  | `test_run_configs_record_disabled_tdm_requester_pays_buckets`              | Verifies `configs/local.yml` and `configs/prod.yml` record official TDM buckets while keeping live AWS probes disabled by default. |
 | `test_tdm_acquisition.py`                  | `test_tdm_config_from_mapping_rejects_unknown_server`                      | Verifies unsupported TDM server names fail clearly.                                                                                |
 | `test_tdm_acquisition.py`                  | `test_download_tdm_preprint_archive_uses_requester_pays_s3_settings`       | Verifies TDM preprint archive sync delegates requester-pays S3 settings for both bioRxiv and medRxiv.                              |
 | `test_tdm_acquisition.py`                  | `test_aws_cli_tdm_archive_client_uses_requester_payer_flag`                | Verifies the AWS CLI TDM client builds requester-pays S3 sync commands.                                                            |
+| `test_tdm_acquisition.py`                  | `test_aws_cli_tdm_archive_client_can_probe_requester_pays_bucket`          | Verifies the AWS CLI TDM client builds lightweight requester-pays S3 probe commands.                                               |
+| `test_tdm_acquisition.py`                  | `test_aws_cli_tdm_archive_client_rejects_non_s3_probe_uri`                 | Verifies AWS probe commands reject non-S3 URIs before invoking the subprocess runner.                                              |
 | `test_tdm_acquisition.py`                  | `test_aws_cli_environment_from_dotenv_recognizes_lowercase_aws_keys`       | Verifies repo-local `.env` AWS credential aliases are translated to AWS CLI environment variables.                                 |
 | `test_tdm_acquisition.py`                  | `test_aws_cli_tdm_archive_client_loads_dotenv_credentials_for_subprocess`  | Verifies the AWS CLI TDM client passes `.env` credentials to the S3 sync subprocess environment.                                   |
 | `test_tdm_acquisition.py`                  | `test_acquire_tdm_preprints_and_published_articles_automates_tdm_workflow` | Verifies the automated TDM workflow syncs preprint archives, downloads published-link metadata, and retrieves published full text. |
@@ -799,7 +803,11 @@ DOI-resolver, PMC, or equivalent article-level retrieval responsibility.
 The AWS CLI TDM client can read repo-root `.env` credentials when present. It
 recognizes both uppercase AWS CLI variables and lowercase aliases for
 `aws_access_key_id` and `aws_secret_access_key`, then passes those values only
-to the AWS CLI subprocess environment.
+to the AWS CLI subprocess environment. Opt-in live pytest runs may also probe
+requester-pays TDM bucket access with `aws s3api list-objects-v2 --max-items 1`
+when both `tdm_repository.enabled` and
+`tdm_repository.live_aws_tests_enabled` are true; this does not sync or download
+archives.
 
 ### Potentially Missing Tests
 
@@ -811,10 +819,9 @@ potentially missing or deferred:
   bioRxiv/medRxiv API responses and real publisher pages. The tests now exist,
   but default test runs skip them unless a live config is supplied.
 - Real requester-pays S3 sync against the bioRxiv/medRxiv TDM buckets. Current
-  tests validate command construction, requester-pays flags, and `.env`
-  credential propagation with injected runners, but do not run AWS CLI against
-  live buckets because that requires credentials, network access, permissions,
-  and charge acceptance.
+  tests validate command construction, requester-pays flags, `.env` credential
+  propagation, and opt-in live AWS list probes, but do not sync archives because
+  that can download large requester-pays data.
 - `.env` parser edge cases beyond the documented AWS key forms, such as escaped
   quotes, multiline values, duplicate keys, and malformed credential values.
 - Publisher-specific full-text tests beyond eLife and PLOS, especially for

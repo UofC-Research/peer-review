@@ -25,8 +25,9 @@
 #   for bulk preprint full-text access through requester-pays Amazon S3.
 #   This example includes a disabled `tdm_repository` block below so local
 #   configs can record a TDM-based preprint acquisition option alongside the
-#   live API and URL-based tests. The current pytest live tests do not sync S3
-#   buckets directly. Local acquisition jobs can call
+#   live API and URL-based tests. The pytest live tests can optionally probe
+#   requester-pays S3 bucket access without syncing or downloading archives.
+#   Local acquisition jobs can call
 #   `peer_elt.acquire.tdm.acquire_tdm_preprints_and_published_articles(...)`
 #   to automate:
 #     1. requester-pays TDM archive sync for configured preprint servers,
@@ -133,7 +134,8 @@ matched_pairs:
 
 # Optional TDM repository acquisition plan.
 #
-# This block is not consumed by the current pytest live tests. It is consumed by
+# This block is consumed by the opt-in live AWS probe only when both `enabled`
+# and `live_aws_tests_enabled` are true. It is also consumed by
 # `peer_elt.acquire.tdm.tdm_config_from_mapping(...)` and can drive a local
 # `acquire_tdm_preprints_and_published_articles(...)` run to sync preprint
 # archives, download published-link metadata, and retrieve published article
@@ -172,6 +174,19 @@ tdm_repository:
   # AWS credentials, requester-pays acceptance, and a TDM archive client are in
   # place.
   enabled: false
+
+  # Keep false unless you explicitly want pytest -m live to run AWS CLI
+  # requester-pays access probes. The live test lists at most one object per
+  # bucket with `aws s3api list-objects-v2 --max-items 1`; it does not sync or
+  # download TDM archives.
+  live_aws_tests_enabled: false
+
+  # AWS CLI executable and dotenv file used by opt-in live AWS probes and by the
+  # built-in AWS CLI archive client. The dotenv file may contain
+  # AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY, optional session token, region, or
+  # profile values.
+  aws_executable: aws
+  env_file: .env
 
   # TDM is used for bulk preprint full text. Published article full-text
   # acquisition is automated separately from publisher/DOI/PMC-style article

@@ -36,3 +36,38 @@ retry:
   wait_min_seconds: 2
   wait_max_seconds: 120
   wait_multiplier: 2
+
+# Optional production TDM requester-pays S3 settings.
+# These keys are ignored by the core pipeline loader but are consumed by
+# peer_elt.acquire.tdm helpers and by opt-in live AWS tests when copied into a
+# live-test config with enabled/live_aws_tests_enabled set to true.
+tdm_repository:
+  enabled: false
+  live_aws_tests_enabled: false
+  aws_executable: aws
+  env_file: .env
+  purpose: bulk_preprint_full_text
+  access_method: requester_pays_s3
+  local_cache_dir: data/raw/tdm
+  expected_package_format: meca_zip
+  preferred_content_formats:
+    - xml
+    - pdf
+    - html
+  servers:
+    - server: biorxiv
+      documentation_url: "https://www.biorxiv.org/tdm"
+      bucket: "s3://biorxiv-src-monthly"
+      region: "us-east-1"
+      requester_pays: true
+    - server: medrxiv
+      documentation_url: "https://www.medrxiv.org/tdm"
+      bucket: "s3://medrxiv-src-monthly"
+      region: "us-east-1"
+      requester_pays: true
+  published_full_text:
+    source: publisher_or_doi_resolver
+    preferred_content_formats:
+      - xml
+      - pdf
+      - html

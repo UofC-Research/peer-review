@@ -180,8 +180,9 @@ for both preprint and published article files. Published-article full text still
 comes from publisher, DOI-resolver, PMC, or other permitted article-level
 sources.
 
-Tests use fake HTTP clients, so acquisition behavior is covered without live
-network access.
+Default tests use fake HTTP/AWS clients, so acquisition behavior is covered
+without live network access. Opt-in live tests can also probe AWS requester-pays
+TDM bucket access without syncing or downloading archives.
 
 ## Analysis Layer
 
@@ -257,6 +258,8 @@ cp configs/live_tests.example.yml configs/live_tests.local.yml
 # edit configs/live_tests.local.yml:
 #   - set enabled: true
 #   - replace placeholder DOI/date-window cases with stable live examples
+#   - optionally set tdm_repository.enabled/live_aws_tests_enabled: true
+#     to probe AWS requester-pays TDM bucket access without archive downloads
 pytest -m live --live-config configs/live_tests.local.yml
 ```
 
