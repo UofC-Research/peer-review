@@ -78,7 +78,7 @@ Local secrets and machine-specific environment variables belong in `.env`.
 Start from the committed template and keep the real file private:
 
 ```bash
-cp .env.example .env
+cp configs/.env.example .env
 ```
 
 Use `.env` for values such as `AWS_ACCESS_KEY_ID`,
@@ -123,9 +123,11 @@ reported as JSON on stderr.
 Config files live in `configs/`.
 
 - `configs/local.yml`: bioRxiv and medRxiv metadata for 2023, DuckDB storage at
-  `data/processed/peer_review.duckdb`, CSV output enabled, PDF diff disabled.
+  `data/processed/peer_review.duckdb`, CSV output enabled, PDF diff disabled,
+  and optional AWS/TDM settings disabled by default.
 - `configs/prod.yml`: bioRxiv and medRxiv metadata for 2020-2025, PostgreSQL
-  storage from `${POSTGRES_URL}`, CSV output disabled, PDF diff enabled.
+  storage from `${POSTGRES_URL}`, CSV output disabled, PDF diff enabled, and
+  optional AWS/TDM settings disabled by default.
 
 Important config sections:
 
@@ -134,6 +136,10 @@ Important config sections:
 - `output`: output directory and CSV toggle.
 - `transform`: optional PDF-diff settings.
 - `retry`: retry and exponential backoff settings for external calls.
+- `tdm_repository`: optional bioRxiv/medRxiv requester-pays S3 acquisition
+  settings for TDM preprint archives. Keep `enabled` and
+  `live_aws_tests_enabled` false unless explicitly running local TDM acquisition
+  or opt-in live AWS probes.
 
 ## Outputs
 
@@ -165,9 +171,10 @@ The acquisition framework is implemented in `peer_elt.acquire.corpus` and
 - `acquire_matched_pair_full_text(...)` downloads both sides using the existing
   PDF/XML/HTML fallback downloader and injected HTTP client.
 
-For bulk preprint full-text acquisition, local runs may also use the official
-bioRxiv/medRxiv Text and Data Mining (TDM) repositories. This is documented as
-an optional disabled `tdm_repository` block in `configs/live_tests.example.yml`.
+For bulk preprint full-text acquisition, local or production runs may also use
+the official bioRxiv/medRxiv Text and Data Mining (TDM) repositories. This is
+documented as an optional disabled `tdm_repository` block in
+`configs/local.yml`, `configs/prod.yml`, and `configs/live_tests.example.yml`.
 The TDM repositories provide requester-pays S3 access to bioRxiv/medRxiv
 preprint full-text packages. The helper module `peer_elt.acquire.tdm` parses
 that config and can automate requester-pays TDM archive sync, bioRxiv API
@@ -306,5 +313,5 @@ and what each test covers, is in `docs/testing.md`.
   clarification audit trail.
 - `docs/testing.md`: pytest dummy-data and live-data test workflows.
 - `configs/live_tests.example.yml`: template and schema for opt-in live tests.
-- `.env.example`: template for local environment variables and AWS
+- `configs/.env.example`: template for local environment variables and AWS
   requester-pays S3 credentials.

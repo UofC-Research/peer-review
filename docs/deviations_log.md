@@ -238,8 +238,8 @@ TDM preprint/published acquisition orchestration.
 **Description:**  
 The optional AWS CLI TDM client was updated to read repo-local `.env`
 credentials when present and pass recognized AWS credential variables to the
-S3 sync subprocess. A committed `.env.example` file documents local environment
-variables, while `.env` remains ignored by Git. Documentation was updated to
+S3 sync subprocess. A committed `configs/.env.example` file documents local
+environment variables, while `.env` remains ignored by Git. Documentation was updated to
 distinguish `.env` secrets/process-level switches from YAML run configuration,
 and `docs/testing.md` now includes a test-by-test inventory plus known deferred
 coverage areas.
@@ -265,7 +265,7 @@ The Python suite passed with 89 tests and 3 skipped live tests in
 require `--live-config` or `PEER_REVIEW_LIVE_CONFIG`.
 
 **Files updated:**  
-`.gitignore`, `.env.example`, `src/peer_elt/acquire/tdm.py`,
+`.gitignore`, `configs/.env.example`, `src/peer_elt/acquire/tdm.py`,
 `tests/test_tdm_acquisition.py`, `configs/live_tests.example.yml`, `README.md`,
 `docs/testing.md`, `docs/peer_review_planning_document.md`, and
 `docs/deviations_log.md`.

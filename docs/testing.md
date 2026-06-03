@@ -270,8 +270,9 @@ failures as integration-health signals before treating them as code regressions.
 ## Optional TDM Repository Use
 
 bioRxiv and medRxiv provide Text and Data Mining repositories for bulk access to
-preprint full-text packages. The example live config includes a disabled
-`tdm_repository` block so local configs can record this acquisition route.
+preprint full-text packages. `configs/local.yml`, `configs/prod.yml`, and the
+example live config include disabled `tdm_repository` blocks so run configs can
+record this acquisition route without enabling AWS access by default.
 
 Pytest live tests consume `tdm_repository` only when both `enabled` and
 `live_aws_tests_enabled` are true. The live AWS test uses AWS CLI

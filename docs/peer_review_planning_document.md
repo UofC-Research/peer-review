@@ -720,9 +720,9 @@ Local live-test configs should remain outside version control;
 `configs/live_tests.local.yml` is ignored by Git.
 
 Local secrets and process-level environment variables should also remain outside
-version control. The committed `.env.example` documents accepted keys, while the
-real `.env` file is ignored by Git. `.env` is appropriate for AWS credentials,
-temporary AWS session tokens, AWS region/profile values, and
+version control. The committed `configs/.env.example` documents accepted keys,
+while the real `.env` file is ignored by Git. `.env` is appropriate for AWS
+credentials, temporary AWS session tokens, AWS region/profile values, and
 `PEER_REVIEW_LIVE_CONFIG`. YAML config files are appropriate for structured
 run settings such as source windows, timeout/retry values, TDM bucket metadata,
 local cache directories, and expected content formats.
@@ -746,15 +746,15 @@ Files that usually should not be modified just to switch modes:
 
 The configuration fields have the following meanings:
 
-| Field                 | Required | Purpose                                                                                                                                                                                                     |
-|-----------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `enabled`             | Yes      | Must be `true` for live tests to run. The example file uses `false` so default runs remain offline.                                                                                                         |
-| `timeout_seconds`     | No       | Per-request timeout used by live full-text acquisition tests. Defaults to 20 seconds in the tests.                                                                                                          |
-| `retry`               | No       | Retry settings passed to `RetryConfig` for live HTTP calls. Supports `max_attempts`, `wait_min_seconds`, `wait_max_seconds`, and `wait_multiplier`.                                                         |
-| `preprint_sources`    | No       | List of live preprint API windows to validate. Each entry specifies a `server`, `date_from`, `date_to`, minimum row count, and expected metadata columns.                                                   |
-| `published_full_text` | No       | List of published DOIs whose publisher-specific or DOI-fallback full-text candidates should retrieve at least one artifact.                                                                                 |
-| `matched_pairs`       | No       | List of concrete preprint/published DOI pairs to exercise through the matched acquisition workflow.                                                                                                         |
-| `tdm_repository`      | No       | Advisory/local acquisition block for optional bioRxiv/medRxiv TDM requester-pays S3 preprint full-text retrieval and published-link metadata download. Current pytest live tests do not consume this block. |
+| Field                 | Required | Purpose                                                                                                                                                                                                           |
+|-----------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `enabled`             | Yes      | Must be `true` for live tests to run. The example file uses `false` so default runs remain offline.                                                                                                               |
+| `timeout_seconds`     | No       | Per-request timeout used by live full-text acquisition tests. Defaults to 20 seconds in the tests.                                                                                                                |
+| `retry`               | No       | Retry settings passed to `RetryConfig` for live HTTP calls. Supports `max_attempts`, `wait_min_seconds`, `wait_max_seconds`, and `wait_multiplier`.                                                               |
+| `preprint_sources`    | No       | List of live preprint API windows to validate. Each entry specifies a `server`, `date_from`, `date_to`, minimum row count, and expected metadata columns.                                                         |
+| `published_full_text` | No       | List of published DOIs whose publisher-specific or DOI-fallback full-text candidates should retrieve at least one artifact.                                                                                       |
+| `matched_pairs`       | No       | List of concrete preprint/published DOI pairs to exercise through the matched acquisition workflow.                                                                                                               |
+| `tdm_repository`      | No       | Optional bioRxiv/medRxiv TDM requester-pays S3 settings for preprint full-text retrieval, published-link metadata download, and opt-in live AWS probes when both `enabled` and `live_aws_tests_enabled` are true. |
 
 `preprint_sources` entries support:
 
@@ -788,7 +788,7 @@ The example values are placeholders for demonstrating structure. Stable cases
 should be selected and maintained separately in a local config before live tests
 are used for release or data-acquisition validation.
 
-`tdm_repository` is an optional local acquisition block consumed by the
+`tdm_repository` is an optional run-configuration acquisition block consumed by the
 TDD-covered workflow in `peer_elt.acquire.tdm`. It may record the official
 bioRxiv/medRxiv TDM documentation URLs, requester-pays S3 bucket names, local
 cache directory, package format, and preferred preprint content formats. It is
