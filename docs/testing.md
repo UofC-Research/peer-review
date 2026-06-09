@@ -139,11 +139,12 @@ update this section with the behavior the test is meant to lock down.
 
 ### Live Integration
 
-| Test                                                       | What it verifies                                                                              |
-|------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `test_live_preprint_sources_return_expected_metadata`      | Enabled live configs can query bioRxiv/medRxiv metadata windows and receive required columns. |
-| `test_live_published_full_text_candidates_are_retrievable` | Configured published DOIs have at least one retrievable full-text candidate.                  |
-| `test_live_matched_pairs_can_be_acquired`                  | Configured preprint/published pairs can be acquired through the live acquisition path.        |
+| Test                                                       | What it verifies                                                                                    |
+|------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| `test_live_preprint_sources_return_expected_metadata`      | Enabled live configs can query bioRxiv/medRxiv metadata windows and receive required columns.       |
+| `test_live_published_full_text_candidates_are_retrievable` | Configured published DOIs have at least one retrievable full-text candidate.                        |
+| `test_live_matched_pairs_can_be_acquired`                  | Configured preprint/published pairs can be acquired through the live acquisition path.              |
+| `test_live_tdm_requester_pays_s3_buckets_are_accessible`   | Opt-in TDM live configs can probe AWS requester-pays S3 bucket access without downloading archives. |
 
 ### Methodology And Scoring
 
@@ -185,35 +186,37 @@ update this section with the behavior the test is meant to lock down.
 
 ### TDM Acquisition
 
-| Test                                                                       | What it verifies                                                                                        |
-|----------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
-| `test_tdm_config_accepts_biorxiv_and_medrxiv_servers`                      | TDM config parsing accepts official bioRxiv and medRxiv S3 resources.                                   |
-| `test_tdm_config_from_mapping_rejects_unknown_server`                      | Unsupported TDM server names fail clearly.                                                              |
-| `test_download_tdm_preprint_archive_uses_requester_pays_s3_settings`       | Archive sync delegates bucket, destination, region, and requester-pays settings to the client.          |
-| `test_aws_cli_tdm_archive_client_uses_requester_payer_flag`                | AWS CLI sync commands include `--request-payer requester` when needed.                                  |
-| `test_aws_cli_environment_from_dotenv_recognizes_lowercase_aws_keys`       | `.env` lowercase AWS aliases are translated to AWS CLI environment variables.                           |
-| `test_aws_cli_tdm_archive_client_loads_dotenv_credentials_for_subprocess`  | The AWS CLI TDM client passes `.env` credentials to the subprocess environment.                         |
-| `test_acquire_tdm_preprints_and_published_articles_automates_tdm_workflow` | Automated TDM workflow syncs archives, downloads published metadata, and retrieves published full text. |
-| `test_build_published_metadata_url_supports_biorxiv_and_medrxiv`           | Published-metadata API URLs are built for both bioRxiv and medRxiv.                                     |
-| `test_download_published_metadata_writes_api_payload`                      | Published-metadata downloads write the API payload to disk.                                             |
+| Test                                                                       | What it verifies                                                                                                               |
+|----------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| `test_tdm_config_accepts_biorxiv_and_medrxiv_servers`                      | TDM config parsing accepts official bioRxiv and medRxiv S3 resources.                                                          |
+| `test_run_configs_record_disabled_tdm_requester_pays_buckets`              | `configs/local.yml` and `configs/prod.yml` record official requester-pays TDM buckets with live AWS tests disabled by default. |
+| `test_tdm_config_from_mapping_rejects_unknown_server`                      | Unsupported TDM server names fail clearly.                                                                                     |
+| `test_download_tdm_preprint_archive_uses_requester_pays_s3_settings`       | Archive sync delegates bucket, destination, region, and requester-pays settings to the client.                                 |
+| `test_aws_cli_tdm_archive_client_uses_requester_payer_flag`                | AWS CLI sync commands include `--request-payer requester` when needed.                                                         |
+| `test_aws_cli_tdm_archive_client_can_probe_requester_pays_bucket`          | AWS CLI probes list at most one object from a requester-pays TDM S3 bucket.                                                    |
+| `test_aws_cli_tdm_archive_client_rejects_non_s3_probe_uri`                 | AWS CLI probes reject non-S3 URIs before invoking a subprocess.                                                                |
+| `test_aws_cli_environment_from_dotenv_recognizes_lowercase_aws_keys`       | `.env` lowercase AWS aliases are translated to AWS CLI environment variables.                                                  |
+| `test_aws_cli_tdm_archive_client_loads_dotenv_credentials_for_subprocess`  | The AWS CLI TDM client passes `.env` credentials to the subprocess environment.                                                |
+| `test_acquire_tdm_preprints_and_published_articles_automates_tdm_workflow` | Automated TDM workflow syncs archives, downloads published metadata, and retrieves published full text.                        |
+| `test_build_published_metadata_url_supports_biorxiv_and_medrxiv`           | Published-metadata API URLs are built for both bioRxiv and medRxiv.                                                            |
+| `test_download_published_metadata_writes_api_payload`                      | Published-metadata downloads write the API payload to disk.                                                                    |
 
 ## Potential Missing Tests
 
 These are known gaps or deferred tests. They are not necessarily bugs, but they
 are useful candidates when hardening the project.
 
-| Area                         | Missing or deferred coverage                                                                                                                                                                                                                                  |
-|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Real AWS/TDM S3 access       | No automated test performs a real requester-pays S3 sync against `biorxiv-src-monthly` or `medrxiv-src-monthly`; this is intentionally avoided in default tests because it requires credentials, network access, AWS CLI, permissions, and charge acceptance. |
-| `.env` parsing edge cases    | Current tests cover uppercase keys, lowercase aliases, simple quotes, session token, and region. They do not cover escaped quotes, multiline values, duplicate keys, or malformed credential values.                                                          |
-| Live TDM config consumption  | `tests/test_live_integration.py` does not consume the `tdm_repository` block; live tests currently cover API/full-text routes rather than S3 archive sync.                                                                                                    |
-| AWS CLI not installed        | The AWS CLI client command shape is tested with an injected runner, but there is no test for the user-facing failure message when the `aws` executable is missing.                                                                                            |
-| Real Postgres integration    | Postgres tests use mocked behavior and empty-frame skips; they do not connect to a real Postgres server or validate SQL schema creation end to end.                                                                                                           |
-| Real publisher variability   | Live tests can check configured DOI examples, but offline tests do not exhaustively cover publisher-specific URL patterns beyond the implemented DOI families.                                                                                                |
-| PDF extraction quality       | PDF parsing tests verify pipeline composition and basic token counts; they do not benchmark extraction quality across noisy publisher PDFs.                                                                                                                   |
-| CLI entry point packaging    | CLI behavior is tested through Python call paths; installation-level console-script wiring is not separately exercised.                                                                                                                                       |
-| R test in pytest/CI          | `tests/test_analysis_layer.R` is documented separately and is not executed by the Python pytest suite.                                                                                                                                                        |
-| Performance/regression scale | Tests use small fixtures and fakes; there is no large-window acquisition or storage performance regression test.                                                                                                                                              |
+| Area                         | Missing or deferred coverage                                                                                                                                                                                                     |
+|------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Real TDM archive sync        | No automated test performs a real requester-pays S3 sync against `biorxiv-src-monthly` or `medrxiv-src-monthly`; this is intentionally avoided because it can download large archives and incur requester-pays transfer charges. |
+| `.env` parsing edge cases    | Current tests cover uppercase keys, lowercase aliases, simple quotes, session token, and region. They do not cover escaped quotes, multiline values, duplicate keys, or malformed credential values.                             |
+| AWS CLI not installed        | The AWS CLI client command shape is tested with an injected runner, but there is no test for the user-facing failure message when the `aws` executable is missing.                                                               |
+| Real Postgres integration    | Postgres tests use mocked behavior and empty-frame skips; they do not connect to a real Postgres server or validate SQL schema creation end to end.                                                                              |
+| Real publisher variability   | Live tests can check configured DOI examples, but offline tests do not exhaustively cover publisher-specific URL patterns beyond the implemented DOI families.                                                                   |
+| PDF extraction quality       | PDF parsing tests verify pipeline composition and basic token counts; they do not benchmark extraction quality across noisy publisher PDFs.                                                                                      |
+| CLI entry point packaging    | CLI behavior is tested through Python call paths; installation-level console-script wiring is not separately exercised.                                                                                                          |
+| R test in pytest/CI          | `tests/test_analysis_layer.R` is documented separately and is not executed by the Python pytest suite.                                                                                                                           |
+| Performance/regression scale | Tests use small fixtures and fakes; there is no large-window acquisition or storage performance regression test.                                                                                                                 |
 
 ## Live-Data Pytest Runs
 
@@ -235,6 +238,10 @@ Edit `configs/live_tests.local.yml` before running live tests:
 - Optionally document a local `tdm_repository` plan if bulk bioRxiv/medRxiv
   preprint full-text acquisition will use the official Text and Data Mining
   requester-pays S3 repositories.
+- Set `tdm_repository.enabled: true` and
+  `tdm_repository.live_aws_tests_enabled: true` only when live pytest runs
+  should invoke AWS CLI requester-pays probes. These probes list at most one
+  object per bucket and do not sync or download archives.
 - Adjust `timeout_seconds` and `retry` only when the external services need
   more conservative timing.
 
@@ -263,14 +270,18 @@ failures as integration-health signals before treating them as code regressions.
 ## Optional TDM Repository Use
 
 bioRxiv and medRxiv provide Text and Data Mining repositories for bulk access to
-preprint full-text packages. The example live config includes a disabled
-`tdm_repository` block so local configs can record this acquisition route.
+preprint full-text packages. `configs/local.yml`, `configs/prod.yml`, and the
+example live config include disabled `tdm_repository` blocks so run configs can
+record this acquisition route without enabling AWS access by default.
 
-Current pytest live tests do not consume `tdm_repository` and do not sync S3
-buckets directly. The TDD-covered `peer_elt.acquire.tdm` workflow parses the
-block, delegates archive sync to an injected requester-pays S3 client, downloads
-linked published-article metadata from the bioRxiv API, and retrieves published
-article full text in XML, PDF, then HTML order.
+Pytest live tests consume `tdm_repository` only when both `enabled` and
+`live_aws_tests_enabled` are true. The live AWS test uses AWS CLI
+`s3api list-objects-v2 --max-items 1` to probe requester-pays bucket access
+without syncing or downloading archives. The TDD-covered
+`peer_elt.acquire.tdm` workflow also parses the block, delegates archive sync to
+an injected requester-pays S3 client, downloads linked published-article
+metadata from the bioRxiv API, and retrieves published article full text in XML,
+PDF, then HTML order.
 
 Scope boundaries:
 
@@ -299,12 +310,13 @@ Files involved:
 - `tests/conftest.py`: reads `--live-config` or `PEER_REVIEW_LIVE_CONFIG`,
   validates the YAML mapping, and requires `enabled: true`.
 - `tests/test_live_integration.py`: consumes `preprint_sources`,
-  `published_full_text`, `matched_pairs`, `timeout_seconds`, and `retry`.
-  It does not currently consume `tdm_repository`.
+  `published_full_text`, `matched_pairs`, `timeout_seconds`, `retry`, and
+  opt-in `tdm_repository` AWS probe settings.
 - `tests/test_tdm_acquisition.py`: verifies TDM config parsing, AWS CLI
-  requester-pays archive-sync command construction, archive-sync delegation for
-  bioRxiv and medRxiv, published-link metadata downloads from the bioRxiv API,
-  and automated XML-first published article full-text retrieval.
+  requester-pays archive-sync command construction, lightweight AWS probe
+  command construction, archive-sync delegation for bioRxiv and medRxiv,
+  published-link metadata downloads from the bioRxiv API, and automated
+  XML-first published article full-text retrieval.
 
 ## R Tests
 

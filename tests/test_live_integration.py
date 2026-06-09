@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import shutil
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +15,7 @@ from peer_elt.acquire.corpus import (
 )
 from peer_elt.acquire.full_text import acquire_full_text
 from peer_elt.acquire.http import RequestsHttpGet
+from peer_elt.acquire.tdm import AwsCliTdmArchiveClient, tdm_config_from_mapping
 from peer_elt.config import RetryConfig
 from peer_elt.extract.biorxiv import fetch_preprints
 
@@ -31,6 +34,19 @@ def _http_get(payload: dict[str, Any]) -> RequestsHttpGet:
         session=requests.Session(),
         retry=_retry_config(payload),
     )
+
+
+def _enabled_tdm_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    tdm_payload = payload.get("tdm_repository") or {}
+    if not tdm_payload:
+        pytest.skip("no tdm_repository configured")
+    if not isinstance(tdm_payload, dict):
+        raise TypeError("live test config `tdm_repository` must be a mapping")
+    if tdm_payload.get("enabled") is not True:
+        pytest.skip("tdm_repository is not enabled")
+    if tdm_payload.get("live_aws_tests_enabled") is not True:
+        pytest.skip("tdm_repository.live_aws_tests_enabled is not true")
+    return tdm_payload
 
 
 def test_live_preprint_sources_return_expected_metadata(live_config: dict[str, Any]) -> None:
@@ -126,3 +142,39 @@ def test_live_matched_pairs_can_be_acquired(
             assert result.published.success is True, result.published.error_message
         else:
             assert result.preprint.success or result.published.success
+
+
+def test_live_tdm_requester_pays_s3_buckets_are_accessible(
+        live_config: dict[str, Any],
+) -> None:
+    """Validate live AWS CLI access to configured requester-pays TDM buckets."""
+    tdm_payload = _enabled_tdm_payload(live_config)
+    tdm_config = tdm_config_from_mapping(tdm_payload)
+    if not tdm_config.servers:
+        pytest.skip("tdm_repository has no servers configured")
+
+    aws_executable = str(tdm_payload.get("aws_executable", "aws"))
+    if shutil.which(aws_executable) is None:
+        pytest.skip(f"AWS CLI executable is not on PATH: {aws_executable}")
+
+    env_file = tdm_payload.get("env_file", ".env")
+    client = AwsCliTdmArchiveClient(
+        aws_executable=aws_executable,
+        env_file=Path(str(env_file)).expanduser(),
+    )
+    failures: list[str] = []
+
+    for server in tdm_config.servers:
+        try:
+            client.probe_prefix_access(
+                server.bucket,
+                region=server.region,
+                requester_pays=server.requester_pays,
+            )
+        except subprocess.CalledProcessError as exc:
+            failures.append(
+                f"{server.server} ({server.bucket}) failed with exit code "
+                f"{exc.returncode}"
+            )
+
+    assert not failures, "; ".join(failures)

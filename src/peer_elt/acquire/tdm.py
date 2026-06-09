@@ -225,6 +225,45 @@ class AwsCliTdmArchiveClient:
             kwargs["env"] = env
         self.runner(command, **kwargs)
 
+    def probe_prefix_access(
+            self,
+            bucket: str,
+            *,
+            region: str,
+            requester_pays: bool,
+    ) -> None:
+        """Validate AWS CLI access to a TDM S3 bucket without downloading data.
+
+        The probe lists at most one object, which is appropriate for opt-in
+        live tests that need to validate credentials, requester-pays handling,
+        region, and bucket readability without syncing large archives.
+        """
+        bucket_name, prefix = _split_s3_uri(bucket)
+        command = [
+            self.aws_executable,
+            "s3api",
+            "list-objects-v2",
+            "--bucket",
+            bucket_name,
+            "--max-items",
+            "1",
+            "--region",
+            region,
+        ]
+        if prefix:
+            command.extend(["--prefix", prefix])
+        if requester_pays:
+            command.extend(["--request-payer", "requester"])
+        env = (
+            aws_cli_environment_from_dotenv(self.env_file, base_env=self.base_env)
+            if self.env_file is not None
+            else None
+        )
+        kwargs: dict[str, object] = {"check": True}
+        if env is not None:
+            kwargs["env"] = env
+        self.runner(command, **kwargs)
+
 
 def aws_cli_environment_from_dotenv(
         dotenv_path: Path | str = Path(".env"),
@@ -269,6 +308,18 @@ def aws_cli_environment_from_dotenv(
     env = dict(os.environ if base_env is None else base_env)
     env.update(aws_values)
     return env
+
+
+def _split_s3_uri(value: str) -> tuple[str, str | None]:
+    if not value.startswith("s3://"):
+        raise ValueError(f"Expected an s3:// URI, got: {value}")
+
+    path = value.removeprefix("s3://").strip("/")
+    if not path:
+        raise ValueError("Expected an s3:// URI with a bucket name")
+
+    bucket, separator, prefix = path.partition("/")
+    return bucket, prefix if separator and prefix else None
 
 
 @dataclass(frozen=True)

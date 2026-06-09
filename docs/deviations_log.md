@@ -238,8 +238,8 @@ TDM preprint/published acquisition orchestration.
 **Description:**  
 The optional AWS CLI TDM client was updated to read repo-local `.env`
 credentials when present and pass recognized AWS credential variables to the
-S3 sync subprocess. A committed `.env.example` file documents local environment
-variables, while `.env` remains ignored by Git. Documentation was updated to
+S3 sync subprocess. A committed `configs/.env.example` file documents local
+environment variables, while `.env` remains ignored by Git. Documentation was updated to
 distinguish `.env` secrets/process-level switches from YAML run configuration,
 and `docs/testing.md` now includes a test-by-test inventory plus known deferred
 coverage areas.
@@ -265,7 +265,50 @@ The Python suite passed with 89 tests and 3 skipped live tests in
 require `--live-config` or `PEER_REVIEW_LIVE_CONFIG`.
 
 **Files updated:**  
-`.gitignore`, `.env.example`, `src/peer_elt/acquire/tdm.py`,
+`.gitignore`, `configs/.env.example`, `src/peer_elt/acquire/tdm.py`,
 `tests/test_tdm_acquisition.py`, `configs/live_tests.example.yml`, `README.md`,
+`docs/testing.md`, `docs/peer_review_planning_document.md`, and
+`docs/deviations_log.md`.
+
+---
+
+### Entry: Opt-in live AWS TDM bucket probes added
+
+**Date:** 2026-06-01  
+**Status:** Post-lock engineering maintenance and transparency documentation  
+**Data accessed:** No study outcome data accessed  
+**Analyses conducted:** No
+
+**Description:**  
+Opt-in live pytest coverage was added for AWS requester-pays TDM bucket access.
+The live test consumes `tdm_repository` only when both `enabled` and
+`live_aws_tests_enabled` are true, then uses AWS CLI
+`s3api list-objects-v2 --max-items 1` to probe each configured bucket without
+syncing or downloading archives. The local and production configs now record
+the official bioRxiv/medRxiv TDM bucket settings with live AWS tests disabled by
+default.
+
+**Relationship to preregistration:**  
+This is a software integration-health check for an optional access route. It
+does not modify the preregistered corpus definition, eligibility criteria,
+published DOI matching rule, V1-V10 scoring rules, or descriptive analysis
+plan.
+
+**Impact on registered design:**  
+None. The change validates AWS/TDM access configuration only. Full archive sync
+remains a manual/local acquisition action because it can download large
+requester-pays data.
+
+**Tests added:**  
+TDD tests were added in `tests/test_tdm_acquisition.py` for lightweight AWS CLI
+probe command construction, non-S3 URI rejection, and local/production config
+TDM bucket defaults. An opt-in live test was added in
+`tests/test_live_integration.py` for real requester-pays AWS bucket access
+probes.
+
+**Files updated:**  
+`src/peer_elt/acquire/tdm.py`, `tests/test_tdm_acquisition.py`,
+`tests/test_live_integration.py`, `configs/prod.yml`,
+`configs/local.yml`, `configs/live_tests.example.yml`, `README.md`,
 `docs/testing.md`, `docs/peer_review_planning_document.md`, and
 `docs/deviations_log.md`.

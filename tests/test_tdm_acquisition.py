@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Mapping
 
 import pytest
+import yaml
 
 from peer_elt.acquire.tdm import (
     AwsCliTdmArchiveClient,
@@ -55,6 +56,27 @@ def test_tdm_config_accepts_biorxiv_and_medrxiv_servers(tmp_path: Path) -> None:
     assert config.server("medrxiv").bucket == "s3://medrxiv-src-monthly"
     assert config.preferred_content_formats == ("xml", "pdf", "html")
     assert all(server.requester_pays for server in config.servers)
+
+
+@pytest.mark.parametrize("config_path", ["configs/local.yml", "configs/prod.yml"])
+def test_run_configs_record_disabled_tdm_requester_pays_buckets(
+        config_path: str,
+) -> None:
+    payload = yaml.safe_load(Path(config_path).read_text(encoding="utf-8"))
+    assert isinstance(payload, dict)
+
+    tdm_payload = payload["tdm_repository"]
+    config = tdm_config_from_mapping(tdm_payload)
+
+    assert config.enabled is False
+    assert tdm_payload["live_aws_tests_enabled"] is False
+    assert [server.bucket for server in config.servers] == [
+        "s3://biorxiv-src-monthly",
+        "s3://medrxiv-src-monthly",
+    ]
+    assert [server.region for server in config.servers] == ["us-east-1", "us-east-1"]
+    assert all(server.requester_pays for server in config.servers)
+    assert config.preferred_content_formats == ("xml", "pdf", "html")
 
 
 def test_tdm_config_from_mapping_rejects_unknown_server(tmp_path: Path) -> None:
@@ -151,6 +173,53 @@ def test_aws_cli_tdm_archive_client_uses_requester_payer_flag(tmp_path: Path) ->
             "requester",
         ]
     ]
+
+
+def test_aws_cli_tdm_archive_client_can_probe_requester_pays_bucket() -> None:
+    calls: list[dict[str, object]] = []
+
+    def runner(command: list[str], **kwargs: object) -> None:
+        calls.append({"command": command, **kwargs})
+
+    client = AwsCliTdmArchiveClient(runner=runner)
+
+    client.probe_prefix_access(
+        "s3://biorxiv-src-monthly/current",
+        region="us-east-1",
+        requester_pays=True,
+    )
+
+    assert calls == [
+        {
+            "command": [
+                "aws",
+                "s3api",
+                "list-objects-v2",
+                "--bucket",
+                "biorxiv-src-monthly",
+                "--max-items",
+                "1",
+                "--region",
+                "us-east-1",
+                "--prefix",
+                "current",
+                "--request-payer",
+                "requester",
+            ],
+            "check": True,
+        }
+    ]
+
+
+def test_aws_cli_tdm_archive_client_rejects_non_s3_probe_uri() -> None:
+    client = AwsCliTdmArchiveClient(runner=lambda command, **kwargs: None)
+
+    with pytest.raises(ValueError, match="Expected an s3:// URI"):
+        client.probe_prefix_access(
+            "https://example.org/not-s3",
+            region="us-east-1",
+            requester_pays=True,
+        )
 
 
 def test_aws_cli_environment_from_dotenv_recognizes_lowercase_aws_keys(
