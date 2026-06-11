@@ -71,8 +71,14 @@ Install the local package in editable mode so the `peer-elt` command and
 `peer_elt` imports resolve from `src/`:
 
 ```bash
-python -m pip install -e ".[dev]"
+python -m pip install -e .[dev]
 ```
+
+The package declares `requires-python = ">=3.13"` in `pyproject.toml`, so the
+recommended setup is a Python 3.13 virtual environment before installation.
+
+If you must install in an older interpreter temporarily, use
+`--ignore-requires-python` only as a workaround.
 
 Local secrets and machine-specific environment variables belong in `.env`.
 Start from the committed template and keep the real file private:
@@ -80,6 +86,21 @@ Start from the committed template and keep the real file private:
 ```bash
 cp configs/.env.example .env
 ```
+
+## Development Setup (Python 3.13)
+
+For a minimal, reproducible local setup:
+
+```bash
+python3.13 -m venv .venv
+. .venv/Scripts/activate
+python -m pip install --upgrade pip
+python -m pip install -e .[dev]
+```
+
+If `python3.13` is not available on your PATH, create the same environment from an
+existing 3.13 interpreter (`py -3.13` on Windows) and then run the `pip` command in
+that environment.
 
 Use `.env` for values such as `AWS_ACCESS_KEY_ID`,
 `AWS_SECRET_ACCESS_KEY`, optional `AWS_SESSION_TOKEN`, `AWS_DEFAULT_REGION`,
